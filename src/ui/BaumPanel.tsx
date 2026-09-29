@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { aendereBaum, ladeBaum, loescheBaum, type BaumAenderung } from '../db/baeume';
 import { ladeBestand } from '../db/import';
+import { ladeSorten } from '../db/sorten';
 import { aendereSaisonStatus, ladeEinstellungen, ladeSaisonStatus, type SaisonAenderung } from '../db/repo';
 import { useSprache } from '../i18n/kontext';
 import type { KartenSteuerung } from '../karte/kartenSteuerung';
@@ -11,6 +12,7 @@ import { formatiereGrad, formatiereMeter, formatiereZeitpunkt } from '../logic/f
 import { normiereNummer, pruefeNummer, type NummernFehler } from '../logic/nummern';
 import { sortiereSorten } from '../logic/sorten';
 import { ERNTE_STATUS, type Baum, type SaisonStatus, type Sorte } from '../model/typen';
+import { SortenWahl } from './SortenWahl';
 
 interface Props {
   baumId: string;
@@ -22,7 +24,6 @@ interface Props {
   beiFehler: () => void;
 }
 
-const OHNE_SORTE = '';
 /** Notiz wird kurz nach dem letzten Tastendruck gespeichert (und sofort beim Verlassen des Felds). */
 const NOTIZ_VERZOEGERUNG_MS = 600;
 
@@ -150,7 +151,6 @@ export function BaumPanel({ baumId, steuerung, beiSchliessen, beiGeaendert, beiG
 
   const aktuellerStatus = status?.status ?? STANDARD_STATUS;
   const fuellstand = status?.fuellstand ?? null;
-  const sorte = baum?.sorte_id ? sorten.find((s) => s.id === baum.sorte_id) : undefined;
 
   return (
     <section class="panel" ref={panel} aria-label={baum ? t('baum.panel_titel', { nummer: baum.nummer }) : undefined}>
@@ -206,27 +206,16 @@ export function BaumPanel({ baumId, steuerung, beiSchliessen, beiGeaendert, beiG
           </div>
           <p class="panel-hilfe">{t('baum.fuellstand_erklaerung', { max: fuellstandMax })}</p>
 
-          <label class="feld panel-feld">
-            <span>{t('baum.sorte')}</span>
-            <span class="sorte-wahl">
-              <span class="sorte-punkt" style={{ borderColor: sorte?.ringfarbe ?? '#ffffff' }} aria-hidden="true" />
-              <select
-                class="eingabe"
-                value={baum.sorte_id ?? OHNE_SORTE}
-                onChange={(e) => {
-                  const wert = e.currentTarget.value;
-                  void speichereBaum({ sorte_id: wert === OHNE_SORTE ? null : wert });
-                }}
-              >
-                <option value={OHNE_SORTE}>{t('sorten.ohne_sorte')}</option>
-                {sorten.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-            </span>
-          </label>
+          <SortenWahl
+            sorteId={baum.sorte_id}
+            sorten={sorten}
+            beiWahl={(sorteId) => speichereBaum({ sorte_id: sorteId })}
+            beiSortenGeaendert={async () => {
+              setSorten(sortiereSorten(await ladeSorten(), sprache));
+              beiGeaendert();
+            }}
+            beiFehler={beiFehler}
+          />
 
           <label class="feld panel-feld">
             <span>{t('baum.nummer')}</span>

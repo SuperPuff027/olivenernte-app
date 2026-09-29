@@ -652,3 +652,54 @@ body,
   color: #1b5e20;
   font-weight: 600;
 }
+
+/* Farbpalette: Felder sehen aus wie der Ring um den Baumpunkt */
+.farb-auswahl {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.farb-feld {
+  aspect-ratio: 1;
+  min-height: 48px;
+  border-radius: 50%;
+  border: 12px solid;
+  background: #ffffff;
+  box-shadow: 0 0 0 2px var(--farbe-text);
+  cursor: pointer;
+  padding: 0;
+}
+
+.farb-feld[aria-checked='true'] {
+  box-shadow: 0 0 0 3px #ffffff, 0 0 0 6px var(--farbe-text);
+}
+
+.sorte-punkt-knopf {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch-min);
+  height: var(--touch-min);
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.sorte-punkt-knopf:disabled {
+  cursor: default;
+}
+
+.sorte-anlegen {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 12px;
+  border: 2px solid #d0d0d0;
+  border-radius: var(--radius);
+  font-weight: 600;
+}

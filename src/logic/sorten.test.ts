@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
+import { STATUS_FARBEN } from './farben';
 import type { Baum, Sorte } from '../model/typen';
 import {
   istHexFarbe,
+  farbName,
+  FARB_NAMEN,
   naechsteRingfarbe,
   pruefeLoeschen,
   pruefeSortenname,
@@ -85,5 +88,22 @@ describe('Löschen', () => {
   it('fragt nach, wenn Bäume die Sorte haben', () => {
     expect(pruefeLoeschen(baeume, 'm')).toEqual({ art: 'rueckfrage', anzahlBaeume: 2 });
     expect(pruefeLoeschen(baeume, 'leer')).toEqual({ art: 'direkt' });
+  });
+});
+
+describe('Farbpalette', () => {
+  it('enthält Blau, Magenta, Lila und Braun und hat eindeutige Farben und Namen', () => {
+    expect(RINGFARBEN_VORSCHLAG.map((f) => FARB_NAMEN[f]).slice(0, 4)).toEqual(['blau', 'magenta', 'lila', 'braun']);
+    expect(new Set(RINGFARBEN_VORSCHLAG).size).toBe(RINGFARBEN_VORSCHLAG.length);
+    expect(new Set(Object.values(FARB_NAMEN)).size).toBe(RINGFARBEN_VORSCHLAG.length);
+  });
+
+  it('keine Statusfarben (Füllung) in der Palette', () => {
+    for (const f of Object.values(STATUS_FARBEN)) expect(RINGFARBEN_VORSCHLAG).not.toContain(f);
+  });
+
+  it('farbName findet Palettenfarben ohne Groß-/Kleinschreibung', () => {
+    expect(farbName('#7E57C2')).toBe('lila');
+    expect(farbName('#123456')).toBeNull();
   });
 });

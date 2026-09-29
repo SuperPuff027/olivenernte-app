@@ -3,19 +3,45 @@ import type { Sprache } from './sprache';
 import { vergleiche } from './text';
 
 /**
- * Vorschläge für die Ringfarbe neuer Sorten: kräftig, gut unterscheidbar, auch auf
- * Luftbildern sichtbar. Weiß ist für „ohne Sorte“ reserviert. Der Nutzer kann jede Farbe wählen.
+ * Farbpalette für die Ringfarbe: kräftig, gut unterscheidbar, auch auf Luftbildern sichtbar.
+ * Bewusst ohne Grün, Rot und Grau (Statusfarben der Punktfüllung) und ohne Weiß („ohne Sorte“).
+ * Die Reihenfolge ist auch die Vorschlagsreihenfolge für neue Sorten.
  */
 export const RINGFARBEN_VORSCHLAG = [
   '#1e88e5', // blau
+  '#ff00ff', // magenta
+  '#7e57c2', // lila
+  '#795548', // braun
   '#ffd600', // gelb
-  '#e040fb', // magenta
-  '#00e5ff', // türkis
   '#ff6d00', // orange
-  '#651fff', // violett
+  '#00e5ff', // türkis
+  '#ff80ab', // rosa
+  '#1a237e', // dunkelblau
   '#000000', // schwarz
-  '#8d6e63', // braun
 ] as const;
+
+export type Ringfarbe = (typeof RINGFARBEN_VORSCHLAG)[number];
+export type FarbName = 'blau' | 'magenta' | 'lila' | 'braun' | 'gelb' | 'orange' | 'tuerkis' | 'rosa' | 'dunkelblau' | 'schwarz';
+
+/** Name jeder Palettenfarbe (für Beschriftung und Screenreader). */
+export const FARB_NAMEN: Readonly<Record<Ringfarbe, FarbName>> = {
+  '#1e88e5': 'blau',
+  '#ff00ff': 'magenta',
+  '#7e57c2': 'lila',
+  '#795548': 'braun',
+  '#ffd600': 'gelb',
+  '#ff6d00': 'orange',
+  '#00e5ff': 'tuerkis',
+  '#ff80ab': 'rosa',
+  '#1a237e': 'dunkelblau',
+  '#000000': 'schwarz',
+};
+
+/** Name einer Farbe, falls sie aus der Palette stammt (ohne Groß-/Kleinschreibung). */
+export function farbName(farbe: string): FarbName | null {
+  const treffer = RINGFARBEN_VORSCHLAG.find((f) => f === farbe.toLowerCase());
+  return treffer ? FARB_NAMEN[treffer] : null;
+}
 
 export type NamensFehler = 'leer' | 'doppelt';
 
