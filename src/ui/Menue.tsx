@@ -5,16 +5,20 @@ interface Props {
   hatGrundstueck: boolean;
   beiSchliessen: () => void;
   beiGrenzeBearbeiten: () => void;
+  beiOfflineKarte: () => void;
   beiImportDatei: (datei: File) => void;
 }
 
-export function Menue({ hatGrundstueck, beiSchliessen, beiGrenzeBearbeiten, beiImportDatei }: Props) {
+export function Menue({ hatGrundstueck, beiSchliessen, beiGrenzeBearbeiten, beiOfflineKarte, beiImportDatei }: Props) {
   const { t } = useSprache();
   return (
     <Blatt titel={t('menue.oeffnen')} beiSchliessen={beiSchliessen}>
       <div class="menue-eintraege">
         <button type="button" class="knopf knopf-breit" onClick={beiGrenzeBearbeiten}>
           {t(hatGrundstueck ? 'grundstueck.bearbeiten' : 'grundstueck.zeichnen')}
+        </button>
+        <button type="button" class="knopf knopf-breit" onClick={beiOfflineKarte}>
+          {t('offline.titel')}
         </button>
         {/* Label statt Button: öffnet die Dateiauswahl direkt aus der Nutzeraktion (nötig für iOS).
             Ohne accept-Filter, weil iOS .geojson sonst oft ausgraut; der Inhalt wird geprüft. */}

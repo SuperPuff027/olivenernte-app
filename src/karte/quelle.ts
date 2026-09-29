@@ -10,12 +10,19 @@ export interface Kartenquelle {
   /** Höchste Zoomstufe mit echten Bildern; darüber wird vergrößert. */
   maxZoom: number;
   namensnennung: string;
+  /** Cache-Storage-Name für diese Quelle (Service Worker und Offline-Download). */
+  cacheName: string;
+  /** Alles bis vor {z}; daran erkennt der Service Worker die Kacheln. */
+  kachelUrlPraefix: string;
 }
+
+const ESRI_PRAEFIX = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/';
 
 export const ESRI_WORLD_IMAGERY: Kartenquelle = {
   id: 'esri-world-imagery',
-  kachelUrl:
-    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+  kachelUrl: `${ESRI_PRAEFIX}{z}/{y}/{x}`,
+  kachelUrlPraefix: ESRI_PRAEFIX,
+  cacheName: 'kacheln-esri-world-imagery',
   kachelGroesse: 256,
   minZoom: 0,
   // Über dem Hain liefert Esri ab Zoom 19 nur „Map data not yet available“ (geprüft 09/2026).

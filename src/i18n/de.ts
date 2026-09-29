@@ -53,6 +53,21 @@ export const de = {
   'grundstueck.fehler.zu_wenige_punkte': 'mindestens 3 Punkte nötig',
   'grundstueck.fehler.ueberschneidung': 'Grenze überschneidet sich',
   'grundstueck.fehler.speichern': 'Speichern fehlgeschlagen.',
+
+  'offline.titel': 'Karte offline speichern',
+  'offline.beschreibung': 'Speichert die Luftbilder für das Grundstück und etwa {puffer} m Umgebung, damit die Karte ohne Netz funktioniert.',
+  'offline.kein_grundstueck': 'Zuerst ein Grundstück zeichnen oder importieren.',
+  'offline.nicht_unterstuetzt': 'Dieser Browser kann keine Karten offline speichern.',
+  'offline.pruefe': 'Prüfe gespeicherte Kacheln …',
+  'offline.stand': 'Gespeichert: {vorhanden} von {gesamt} Kacheln',
+  'offline.groesse': 'Download: ca. {mb} MB',
+  'offline.vollstaendig': 'Die Karte ist vollständig offline verfügbar.',
+  'offline.starten': 'Herunterladen',
+  'offline.laedt': 'Lade {erledigt} von {gesamt} …',
+  'offline.fertig': 'Fertig: {neu} neu geladen, {vorhanden} waren schon da.',
+  'offline.fehler': '{fehler} Kacheln konnten nicht geladen werden. Mit Netz erneut versuchen.',
+  'offline.abgebrochen': 'Abgebrochen.',
+  'offline.erneut': 'Erneut versuchen',
 } as const;
 
 export type Schluessel = keyof typeof de;

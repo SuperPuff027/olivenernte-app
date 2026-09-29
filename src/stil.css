@@ -304,3 +304,14 @@ body,
 .app-bearbeitung .maplibregl-ctrl-bottom-left {
   bottom: calc(2 * var(--touch-min) + 8px + 2 * var(--abstand) + env(safe-area-inset-bottom));
 }
+
+.fortschritt {
+  width: 100%;
+  height: 20px;
+  accent-color: var(--farbe-akzent);
+}
+
+.text-fehler {
+  color: var(--farbe-warnung);
+  font-weight: 600;
+}

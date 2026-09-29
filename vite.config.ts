@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 import preact from '@preact/preset-vite';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 import { VitePWA } from 'vite-plugin-pwa';
+import { AKTIVE_KARTENQUELLE } from './src/karte/quelle';
 
 // Nur diese Node-Variable wird gebraucht; spart die Abhängigkeit @types/node.
 declare const process: { env: Record<string, string | undefined> };
@@ -42,6 +43,19 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,png,svg,woff2}'],
         navigateFallback: 'index.html',
         cleanupOutdatedCaches: true,
+        runtimeCaching: [
+          {
+            // Kartenkacheln: aus dem Cache, sonst Netz. Der Offline-Download schreibt in denselben Cache.
+            urlPattern: new RegExp('^' + AKTIVE_KARTENQUELLE.kachelUrlPraefix.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: AKTIVE_KARTENQUELLE.cacheName,
+              cacheableResponse: { statuses: [200] },
+              // Begrenzt nur die beim Herumschauen gecachten Kacheln; vorab geladene zählen nicht mit.
+              expiration: { maxEntries: 1000, purgeOnQuotaError: true },
+            },
+          },
+        ],
       },
     }),
   ],

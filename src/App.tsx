@@ -12,6 +12,7 @@ import type { Grundstueck } from './model/typen';
 import { GrenzBearbeitung } from './ui/GrenzBearbeitung';
 import { ImportVorschau } from './ui/ImportVorschau';
 import { Menue } from './ui/Menue';
+import { OfflineKarte } from './ui/OfflineKarte';
 
 const HINWEIS_DAUER_MS = 6000;
 
@@ -50,6 +51,7 @@ export function App() {
   const [importPlan, setImportPlan] = useState<ImportPlan | null>(null);
   const [grundstueck, setGrundstueck] = useState<Grundstueck | null>(null);
   const [grenzeBearbeiten, setGrenzeBearbeiten] = useState(false);
+  const [offlineOffen, setOfflineOffen] = useState(false);
   const [karteBereit, setKarteBereit] = useState(false);
 
   const ladeDaten = useCallback(async () => {
@@ -175,6 +177,10 @@ export function App() {
             setHinweis(null);
             setGrenzeBearbeiten(true);
           }}
+          beiOfflineKarte={() => {
+            setMenueOffen(false);
+            setOfflineOffen(true);
+          }}
           beiImportDatei={(d) =>
             importDateiGewaehlt(d).catch((e) => {
               console.error(e);
@@ -183,6 +189,8 @@ export function App() {
           }
         />
       )}
+
+      {offlineOffen && <OfflineKarte beiSchliessen={() => setOfflineOffen(false)} />}
 
       {importPlan && (
         <ImportVorschau
