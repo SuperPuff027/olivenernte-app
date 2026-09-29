@@ -5,13 +5,15 @@ const QUELLE = 'baeume';
 export const BAUM_EBENE = 'baeume';
 
 // Je Zoomstufe: Radius des Innenkreises und Ringbreite; dazwischen linear.
+// Bewusst klein (bei Zoom 18 rund 3 m Durchmesser), damit dicht stehende Bäume sich nicht
+// überdecken und das Luftbild sichtbar bleibt. Antippbar sind sie über eine größere Trefferfläche.
 const STUFEN = [
-  { zoom: 14, radius: 3, ring: 1.5 },
-  { zoom: 16, radius: 6, ring: 3 },
-  { zoom: 18, radius: 10, ring: 4 },
-  { zoom: 20, radius: 16, ring: 5 },
+  { zoom: 14, radius: 1.5, ring: 1 },
+  { zoom: 16, radius: 2.5, ring: 1.5 },
+  { zoom: 18, radius: 4, ring: 2 },
+  { zoom: 20, radius: 7, ring: 2.5 },
 ];
-const SCHATTEN_EXTRA = 1.5;
+const SCHATTEN_EXTRA = 1;
 
 // zoom ist nur als Eingabe eines interpolate auf oberster Ebene erlaubt, daher je Wert ein eigener Ausdruck.
 function nachZoom(wert: (stufe: (typeof STUFEN)[number]) => number) {
