@@ -2,6 +2,7 @@ import { GeolocateControl, Map as MapLibreMap, setWorkerUrl, type MapOptions } f
 import 'maplibre-gl/dist/maplibre-gl.css';
 import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 import { pruefeAnsicht, type Ansicht } from '../logic/ansicht';
+import type { Bereich } from '../logic/bereich';
 import { AKTIVE_KARTENQUELLE, type Kartenquelle } from './quelle';
 
 // MapLibre lädt seinen Worker als eigene Datei; Vite bündelt sie und liefert die URL.
@@ -14,11 +15,17 @@ const ANSICHT_SCHLUESSEL = 'olivenernte.ansicht';
 const START_ANSICHT: Ansicht = { lon: 0, lat: 20, zoom: 1 };
 /** Über maxZoom der Quelle hinaus wird vergrößert, damit einzelne Bäume antippbar sind. */
 const MAX_ZOOM = 21;
+/** Beim Zoomen auf einen Bereich nicht über die letzte Stufe mit echten Luftbildern hinaus. */
+const BEREICH_MAX_ZOOM = AKTIVE_KARTENQUELLE.maxZoom;
+const ANIMATION_AB_ZOOM = 12;
 
 export interface KartenSteuerung {
   karte: MapLibreMap;
+  /** false beim allerersten Start: dann soll die App auf das Grundstück zoomen. */
+  hatteGespeicherteAnsicht: boolean;
   /** Zeigt und verfolgt die eigene Position (inkl. Genauigkeitskreis). */
   zeigeStandort(): void;
+  zeigeBereich(bereich: Bereich, animiert?: boolean): void;
   entferne(): void;
 }
 
@@ -43,12 +50,12 @@ function stil(quelle: Kartenquelle): Stil {
   };
 }
 
-function ladeAnsicht(): Ansicht {
+function ladeAnsicht(): Ansicht | null {
   try {
     const roh = localStorage.getItem(ANSICHT_SCHLUESSEL);
-    return (roh && pruefeAnsicht(JSON.parse(roh))) || START_ANSICHT;
+    return roh ? pruefeAnsicht(JSON.parse(roh)) : null;
   } catch {
-    return START_ANSICHT;
+    return null;
   }
 }
 
@@ -66,7 +73,8 @@ export function erstelleKarte(
   container: HTMLElement,
   beiStandortFehler: (code: number) => void,
 ): KartenSteuerung {
-  const ansicht = ladeAnsicht();
+  const gespeichert = ladeAnsicht();
+  const ansicht = gespeichert ?? START_ANSICHT;
   const karte = new MapLibreMap({
     container,
     style: stil(AKTIVE_KARTENQUELLE),
@@ -94,9 +102,15 @@ export function erstelleKarte(
 
   return {
     karte,
+    hatteGespeicherteAnsicht: gespeichert !== null,
     zeigeStandort: () => {
       if (karte.loaded()) standort.trigger();
       else karte.once('load', () => standort.trigger());
+    },
+    zeigeBereich: (bereich, animiert = true) => {
+      // Aus weiter Entfernung (z. B. Weltansicht) springen statt sekundenlang zu fliegen.
+      const nah = karte.getZoom() >= ANIMATION_AB_ZOOM;
+      karte.fitBounds(bereich, { padding: 40, maxZoom: BEREICH_MAX_ZOOM, animate: animiert && nah });
     },
     entferne: () => karte.remove(),
   };

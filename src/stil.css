@@ -52,7 +52,7 @@ body,
   right: 0;
   bottom: 0;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: var(--abstand);
   padding: var(--abstand);
   padding-bottom: calc(var(--abstand) + env(safe-area-inset-bottom));
@@ -100,10 +100,119 @@ body,
   right: var(--abstand);
   padding: 14px 16px;
   border-radius: var(--radius);
-  background: var(--farbe-warnung);
   color: var(--farbe-text-invers);
   font-weight: 600;
   box-shadow: 0 2px 8px rgb(0 0 0 / 40%);
+  z-index: 20;
+}
+
+.hinweis-fehler {
+  background: var(--farbe-warnung);
+}
+
+.hinweis-info {
+  background: var(--farbe-akzent);
+}
+
+.knopf-primaer {
+  background: var(--farbe-akzent);
+  border-color: var(--farbe-akzent);
+  color: var(--farbe-text-invers);
+}
+
+.knopf-primaer:active {
+  background: #1f3315;
+}
+
+.knopf-breit {
+  width: 100%;
+  justify-content: center;
+}
+
+.versteckt {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Blatt: von unten über der Karte */
+.blatt-hintergrund {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: flex-end;
+  background: rgb(0 0 0 / 45%);
+}
+
+.blatt {
+  width: 100%;
+  max-height: 85%;
+  display: flex;
+  flex-direction: column;
+  background: var(--farbe-flaeche);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.blatt-kopf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--abstand);
+  padding: var(--abstand) var(--abstand) 0 20px;
+}
+
+.blatt-kopf h2 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.knopf-schliessen {
+  padding: 0;
+  box-shadow: none;
+}
+
+.blatt-inhalt {
+  overflow-y: auto;
+  padding: 8px 20px var(--abstand);
+}
+
+.blatt-inhalt h3 {
+  margin: 16px 0 4px;
+  font-size: 1.05rem;
+}
+
+.blatt-aktionen {
+  display: flex;
+  gap: var(--abstand);
+  padding: var(--abstand);
+  border-top: 1px solid #d0d0d0;
+}
+
+.blatt-aktionen .knopf {
+  flex: 1;
+  justify-content: center;
+  box-shadow: none;
+}
+
+.menue-eintraege {
+  display: flex;
+  flex-direction: column;
+  gap: var(--abstand);
+  padding: 8px 0;
+}
+
+.liste {
+  margin: 0;
+  padding-left: 1.2em;
+  line-height: 1.6;
+}
+
+.liste-klein {
+  font-size: 0.9rem;
 }
 
 /* Namensnennung über der Knopfleiste halten */

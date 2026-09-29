@@ -23,4 +23,19 @@ describe('erstelleUebersetzer', () => {
     expect(erstelleUebersetzer('de')('status.bereit')).toBe('Bereit');
     expect(erstelleUebersetzer('tr')('status.bereit')).toBe('Hazır');
   });
+
+  it('setzt Platzhalter ein und lässt unbekannte stehen', () => {
+    const t = erstelleUebersetzer('de');
+    expect(t('import.baeume', { n: 5 })).toBe('Neue Bäume: 5');
+    expect(t('import.baeume')).toBe('Neue Bäume: {n}');
+    expect(t('import.baeume', { x: 1 })).toBe('Neue Bäume: {n}');
+  });
+
+  it('verwendet in allen Sprachen dieselben Platzhalter', () => {
+    const platzhalter = (text: string) => [...text.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort();
+    for (const schluessel of Object.keys(de) as (keyof typeof de)[]) {
+      expect(platzhalter(en[schluessel]), `en: ${schluessel}`).toEqual(platzhalter(de[schluessel]));
+      expect(platzhalter(tr[schluessel]), `tr: ${schluessel}`).toEqual(platzhalter(de[schluessel]));
+    }
+  });
 });
