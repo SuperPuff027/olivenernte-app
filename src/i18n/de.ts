@@ -115,6 +115,13 @@ export const de = {
   'baum.geloescht': '{nummer} gelöscht.',
   'baum.fehler.nummer_leer': 'Bitte eine Nummer eingeben. Die alte Nummer bleibt.',
   'baum.fehler.nummer_doppelt': 'Die Nummer {nummer} ist schon vergeben. Nicht gespeichert.',
+
+  'statistik.knopf': 'Bäume: {n}',
+  'statistik.oeffnen': 'Übersicht öffnen: {n} Bäume',
+  'statistik.titel': 'Übersicht',
+  'statistik.gesamt': 'Bäume gesamt',
+  'statistik.pro_sorte': 'Nach Sorte',
+  'statistik.keine_baeume': 'Noch keine Bäume eingetragen.',
 } as const;
 
 export type Schluessel = keyof typeof de;

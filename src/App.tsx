@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { fuehreImportAus, ladeBestand } from './db/import';
 import { ladeSaisonStatusJahr } from './db/repo';
 import type { Platzhalter, Schluessel } from './i18n';
@@ -8,8 +8,10 @@ import type { KartenSteuerung } from './karte/kartenSteuerung';
 import { bereichVon } from './logic/bereich';
 import { neueId, saisonJahr } from './logic/datensatz';
 import { baumPunkte } from './logic/farben';
+import { formatiereZahl } from './logic/format';
 import { leseGeojson, planeImport, type ImportPlan } from './logic/importGeojson';
-import type { Grundstueck } from './model/typen';
+import { zaehleBaeume } from './logic/statistik';
+import type { Baum, Grundstueck, Sorte } from './model/typen';
 import { BaumEintragen } from './ui/BaumEintragen';
 import { BaumPanel } from './ui/BaumPanel';
 import { GrenzBearbeitung } from './ui/GrenzBearbeitung';
@@ -17,6 +19,7 @@ import { ImportVorschau } from './ui/ImportVorschau';
 import { Menue } from './ui/Menue';
 import { OfflineKarte } from './ui/OfflineKarte';
 import { SortenVerwaltung } from './ui/SortenVerwaltung';
+import { Uebersicht } from './ui/Uebersicht';
 
 const HINWEIS_DAUER_MS = 6000;
 
@@ -60,12 +63,18 @@ export function App() {
   const [offlineOffen, setOfflineOffen] = useState(false);
   const [sortenOffen, setSortenOffen] = useState(false);
   const [karteBereit, setKarteBereit] = useState(false);
+  const [baeume, setBaeume] = useState<readonly Baum[]>([]);
+  const [sorten, setSorten] = useState<readonly Sorte[]>([]);
+  const [uebersichtOffen, setUebersichtOffen] = useState(false);
+  const statistik = useMemo(() => zaehleBaeume(baeume, sorten, sprache), [baeume, sorten, sprache]);
 
   // Lädt alles, was die Karte zeigt, und reicht es an sie weiter.
   const ladeDaten = useCallback(async () => {
     const [bestand, status] = await Promise.all([ladeBestand(), ladeSaisonStatusJahr(saisonJahr(new Date()))]);
     const g = bestand.grundstuecke[0] ?? null;
     setGrundstueck(g);
+    setBaeume(bestand.baeume);
+    setSorten(bestand.sorten);
     steuerung.current?.setzeGrundstueck(g?.polygon ?? null);
     steuerung.current?.setzeBaeume(baumPunkte(bestand.baeume, bestand.sorten, status));
   }, []);
@@ -153,6 +162,17 @@ export function App() {
         >
           {t(hinweis.schluessel, hinweis.platzhalter)}
         </div>
+      )}
+
+      {!grenzeBearbeiten && !baumEintragen && (
+        <button
+          type="button"
+          class="knopf zaehler"
+          onClick={() => setUebersichtOffen(true)}
+          aria-label={t('statistik.oeffnen', { n: statistik.gesamt })}
+        >
+          {t('statistik.knopf', { n: formatiereZahl(statistik.gesamt, sprache) })}
+        </button>
       )}
 
       {!grenzeBearbeiten && !baumEintragen && !ausgewaehlt && (
@@ -267,7 +287,9 @@ export function App() {
         />
       )}
 
-      {offlineOffen && <OfflineKarte beiSchliessen={() => setOfflineOffen(false)} />}
+      {uebersichtOffen && <Uebersicht statistik={statistik} beiSchliessen={() => setUebersichtOffen(false)} />}
+
+      {offlineOffen &&<OfflineKarte beiSchliessen={() => setOfflineOffen(false)} />}
 
       {importPlan && (
         <ImportVorschau

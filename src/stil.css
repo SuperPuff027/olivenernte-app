@@ -565,3 +565,45 @@ body,
   color: var(--farbe-warnung);
   box-shadow: none;
 }
+
+/* Zähler oben links; Hinweise (z-index 20) liegen darüber */
+.zaehler {
+  position: absolute;
+  top: calc(var(--abstand) + env(safe-area-inset-top));
+  left: var(--abstand);
+  z-index: 2;
+}
+
+.statistik-gesamt {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 4px 0 8px;
+  font-size: 1.2rem;
+}
+
+.statistik-gesamt strong {
+  font-size: 1.6rem;
+}
+
+.statistik-liste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.statistik-liste li {
+  display: flex;
+  align-items: center;
+  gap: var(--abstand);
+  min-height: var(--touch-min);
+  border-bottom: 1px solid #d0d0d0;
+}
+
+.statistik-name {
+  flex: 1;
+}
+
+.statistik-liste strong {
+  font-size: 1.15rem;
+}

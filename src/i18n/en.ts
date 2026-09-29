@@ -117,4 +117,11 @@ export const en: Uebersetzung = {
   'baum.geloescht': '{nummer} deleted.',
   'baum.fehler.nummer_leer': 'Please enter a number. The old number is kept.',
   'baum.fehler.nummer_doppelt': 'Number {nummer} is already taken. Not saved.',
+
+  'statistik.knopf': 'Trees: {n}',
+  'statistik.oeffnen': 'Open overview: {n} trees',
+  'statistik.titel': 'Overview',
+  'statistik.gesamt': 'Trees in total',
+  'statistik.pro_sorte': 'By variety',
+  'statistik.keine_baeume': 'No trees added yet.',
 };
