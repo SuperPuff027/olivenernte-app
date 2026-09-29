@@ -124,4 +124,23 @@ export const tr: Uebersetzung = {
   'statistik.gesamt': 'Toplam ağaç',
   'statistik.pro_sorte': 'Çeşide göre',
   'statistik.keine_baeume': 'Henüz ağaç eklenmedi.',
+
+  'eintragen.gps': 'Burada GPS ile',
+  'eintragen.gps_text': 'Ağacın yanında durun. Konum birkaç kez ölçülür ve ortalaması alınır.',
+  'eintragen.tippen': 'Haritaya dokunarak',
+  'eintragen.tippen_text': 'Hava fotoğrafında ağaca dokunun.',
+
+  'gps.titel': 'Ağacı buraya ekle',
+  'gps.anleitung': 'Gövdenin hemen yanında durun ve telefonu sabit tutun.',
+  'gps.warte': 'GPS sinyali bekleniyor …',
+  'gps.genauigkeit': 'Doğruluk: ± {wert}',
+  'gps.ziel': 'Hedef: ± {wert}',
+  'gps.messungen': 'Ölçüm: {n} · atılan: {verworfen} · {dauer}',
+  'gps.ziel_erreicht': 'Hedefe ulaşıldı, ölçüm bitti.',
+  'gps.frueh_uebernehmen': 'Şimdi de kabul edebilirsiniz, ancak doğruluk daha düşük olur.',
+  'gps.noch_messungen': 'Doğruluk yeterli, doğrulamak için {n} ölçüm daha …',
+  'gps.uebernehmen': 'Kabul et',
+  'gps.kein_signal': 'Henüz GPS sinyali yok. Açık havada beklemeye devam edin.',
+  'gps.nicht_unterstuetzt': 'Bu cihaz konum belirleyemiyor.',
+  'gps.eingetragen': '{nummer} eklendi (± {genauigkeit}).',
 };

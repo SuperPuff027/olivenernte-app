@@ -124,4 +124,23 @@ export const en: Uebersetzung = {
   'statistik.gesamt': 'Trees in total',
   'statistik.pro_sorte': 'By variety',
   'statistik.keine_baeume': 'No trees added yet.',
+
+  'eintragen.gps': 'Here by GPS',
+  'eintragen.gps_text': 'Stand at the tree. The position is measured several times and averaged.',
+  'eintragen.tippen': 'By tapping the map',
+  'eintragen.tippen_text': 'Tap the tree on the aerial image.',
+
+  'gps.titel': 'Add tree here',
+  'gps.anleitung': 'Stand right at the trunk and hold the phone still.',
+  'gps.warte': 'Waiting for GPS signal …',
+  'gps.genauigkeit': 'Accuracy: ± {wert}',
+  'gps.ziel': 'Target: ± {wert}',
+  'gps.messungen': 'Fixes: {n} · discarded: {verworfen} · {dauer}',
+  'gps.ziel_erreicht': 'Target reached, measurement finished.',
+  'gps.frueh_uebernehmen': 'You can accept now, but with lower accuracy.',
+  'gps.noch_messungen': 'Accuracy is sufficient, {n} more fixes to confirm …',
+  'gps.uebernehmen': 'Accept',
+  'gps.kein_signal': 'No GPS signal yet. Keep waiting under open sky.',
+  'gps.nicht_unterstuetzt': 'This device cannot determine its location.',
+  'gps.eingetragen': '{nummer} added (± {genauigkeit}).',
 };

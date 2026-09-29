@@ -1,4 +1,4 @@
-import { GeolocateControl, Map as MapLibreMap, setWorkerUrl, type MapMouseEvent, type MapOptions } from 'maplibre-gl';
+import { GeolocateControl, Map as MapLibreMap, Marker, setWorkerUrl, type MapMouseEvent, type MapOptions } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 import { pruefeAnsicht, type Ansicht } from '../logic/ansicht';
@@ -44,6 +44,8 @@ export interface KartenSteuerung {
   markiereBaum(id: string | null): void;
   /** Verschiebt die Karte, falls der Punkt unter einem unten eingeblendeten Panel läge. */
   haltePunktSichtbar(punkt: Position, verdecktUntenPx: number): void;
+  /** Zeigt den aktuellen Messpunkt der GPS-Mittelung (null blendet ihn aus). */
+  zeigeMesspunkt(punkt: Position | null): void;
   entferne(): void;
 }
 
@@ -130,6 +132,8 @@ export function erstelleKarte(
     for (const fn of wartende.splice(0)) fn();
   });
 
+  let messpunkt: Marker | null = null;
+
   let baumTipp: ((baumId: string | null) => void) | null = null;
   karte.on('click', (e) => baumTipp?.(geladen ? baumAnPunkt(karte, e.point.x, e.point.y) : null));
 
@@ -166,6 +170,20 @@ export function erstelleKarte(
       const sichtbarBis = hoehe - verdecktUntenPx - RAND_PX;
       // Punkt in die Mitte des frei bleibenden oberen Bereichs schieben
       if (p.y > sichtbarBis || p.y < RAND_PX) karte.panBy([0, p.y - (hoehe - verdecktUntenPx) / 2]);
+    },
+    zeigeMesspunkt: (punkt) => {
+      if (!punkt) {
+        messpunkt?.remove();
+        messpunkt = null;
+        return;
+      }
+      if (!messpunkt) {
+        const element = document.createElement('div');
+        element.className = 'messpunkt';
+        messpunkt = new Marker({ element }).setLngLat([punkt[0], punkt[1]]).addTo(karte);
+      } else {
+        messpunkt.setLngLat([punkt[0], punkt[1]]);
+      }
     },
     entferne: () => karte.remove(),
   };

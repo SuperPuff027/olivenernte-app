@@ -122,6 +122,25 @@ export const de = {
   'statistik.gesamt': 'Bäume gesamt',
   'statistik.pro_sorte': 'Nach Sorte',
   'statistik.keine_baeume': 'Noch keine Bäume eingetragen.',
+
+  'eintragen.gps': 'Hier per GPS',
+  'eintragen.gps_text': 'Am Baum stehen. Die Position wird mehrfach gemessen und gemittelt.',
+  'eintragen.tippen': 'Per Tipp auf die Karte',
+  'eintragen.tippen_text': 'Den Baum auf dem Luftbild antippen.',
+
+  'gps.titel': 'Baum hier eintragen',
+  'gps.anleitung': 'Direkt an den Stamm stellen und das Handy ruhig halten.',
+  'gps.warte': 'Warte auf GPS-Signal …',
+  'gps.genauigkeit': 'Genauigkeit: ± {wert}',
+  'gps.ziel': 'Ziel: ± {wert}',
+  'gps.messungen': 'Messungen: {n} · verworfen: {verworfen} · {dauer}',
+  'gps.ziel_erreicht': 'Ziel erreicht, Messung beendet.',
+  'gps.frueh_uebernehmen': 'Übernehmen geht auch jetzt schon, dann mit geringerer Genauigkeit.',
+  'gps.noch_messungen': 'Genauigkeit reicht, noch {n} Messungen zur Absicherung …',
+  'gps.uebernehmen': 'Übernehmen',
+  'gps.kein_signal': 'Noch kein GPS-Signal. Unter freiem Himmel weiter warten.',
+  'gps.nicht_unterstuetzt': 'Dieses Gerät kann keinen Standort bestimmen.',
+  'gps.eingetragen': '{nummer} eingetragen (± {genauigkeit}).',
 } as const;
 
 export type Schluessel = keyof typeof de;

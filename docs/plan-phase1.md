@@ -54,7 +54,7 @@ Nach jedem Schritt: `npm run check`, Commit, Push; die GitHub Action baut und ve
 
   Jede Änderung wird sofort gespeichert (ohne Speichern-Knopf), setzt `aktualisiert_am`, die Karte zeigt sofort die neue Farbe. Status und Füllstand schreiben in den `SaisonStatus` des aktuellen Jahres (fehlt er, wird er angelegt). Anzeige „zuletzt geändert: …“ per `Intl`. Baum löschen (weich, mit Rückfrage).
 - [x] **14. Zähler.** „Bäume gesamt: n“ plus Zahl pro Sorte (inkl. „ohne Sorte“), Zählung in `src/logic/statistik.ts` mit Tests.
-- [ ] **15. GPS-Mittelung.** `src/logic/gpsMittel.ts`: gewichtetes Mittel (1/acc²), konservative Genauigkeit, Mindestzahl Fixes, Ausreißer verwerfen, Stopp-Kriterium (mit Tests). UI „Baum hier eintragen“ mit `watchPosition`, Live-Genauigkeit, Anzahl Fixes, „Übernehmen“ und „Abbrechen“.
+- [x] **15. GPS-Mittelung.** `src/logic/gpsMittel.ts`: gewichtetes Mittel (1/acc²), konservative Genauigkeit, Mindestzahl Fixes, Ausreißer verwerfen, Stopp-Kriterium (mit Tests). UI „Baum hier eintragen“ mit `watchPosition`, Live-Genauigkeit, Anzahl Fixes, „Übernehmen“ und „Abbrechen“.
   - **Danach:** „Eckpunkt an meinem Standort setzen“ in der Grenzbearbeitung, mit derselben GPS-Mittelung.
 - [ ] **16. Position per Drag korrigieren.** Modus „Position verschieben“ im Panel mit Speichern und Abbrechen.
 - [ ] **17. Einstellungen.** Sprache, `fuellstand_max`, `ziel_gps_genauigkeit_m`, Anzeige ob der Speicher dauerhaft ist (mit iOS-Hinweis „Zum Home-Bildschirm“).

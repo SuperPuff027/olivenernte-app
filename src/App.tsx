@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { legeBaumAn } from './db/baeume';
 import { fuehreImportAus, ladeBestand } from './db/import';
 import { ladeSaisonStatusJahr } from './db/repo';
 import type { Platzhalter, Schluessel } from './i18n';
@@ -8,12 +9,14 @@ import type { KartenSteuerung } from './karte/kartenSteuerung';
 import { bereichVon } from './logic/bereich';
 import { neueId, saisonJahr } from './logic/datensatz';
 import { baumPunkte } from './logic/farben';
-import { formatiereZahl } from './logic/format';
+import { formatiereMeter, formatiereZahl } from './logic/format';
 import { leseGeojson, planeImport, type ImportPlan } from './logic/importGeojson';
 import { zaehleBaeume } from './logic/statistik';
-import type { Baum, Grundstueck, Sorte } from './model/typen';
+import type { Baum, Grundstueck, Position, Sorte } from './model/typen';
 import { BaumEintragen } from './ui/BaumEintragen';
 import { BaumPanel } from './ui/BaumPanel';
+import { EintragWahl } from './ui/EintragWahl';
+import { GpsMessung } from './ui/GpsMessung';
 import { GrenzBearbeitung } from './ui/GrenzBearbeitung';
 import { ImportVorschau } from './ui/ImportVorschau';
 import { Menue } from './ui/Menue';
@@ -60,6 +63,8 @@ export function App() {
   const [grenzeBearbeiten, setGrenzeBearbeiten] = useState(false);
   const [baumEintragen, setBaumEintragen] = useState(false);
   const [ausgewaehlt, setAusgewaehlt] = useState<string | null>(null);
+  const [eintragWahl, setEintragWahl] = useState(false);
+  const [gpsMessung, setGpsMessung] = useState(false);
   const [offlineOffen, setOfflineOffen] = useState(false);
   const [sortenOffen, setSortenOffen] = useState(false);
   const [karteBereit, setKarteBereit] = useState(false);
@@ -99,7 +104,7 @@ export function App() {
 
   // Tipp auf einen Baum öffnet das Panel, Tipp daneben schließt es; nicht in Bearbeitungsmodi.
   const modusAktiv = useRef(false);
-  modusAktiv.current = grenzeBearbeiten || baumEintragen;
+  modusAktiv.current = grenzeBearbeiten || baumEintragen || gpsMessung;
   useEffect(() => {
     if (!karteBereit) return;
     steuerung.current?.beiBaumTipp((id) => {
@@ -148,6 +153,28 @@ export function App() {
   }
 
   const neuLaden = useCallback(() => void ladeDaten().catch(console.error), [ladeDaten]);
+
+  async function gpsUebernehmen(punkt: Position, genauigkeit_m: number) {
+    setGpsMessung(false);
+    try {
+      const { baum, ausserhalb } = await legeBaumAn(punkt, genauigkeit_m);
+      setHinweis(
+        ausserhalb
+          ? { schluessel: 'baum.ausserhalb', platzhalter: { nummer: baum.nummer }, art: 'fehler' }
+          : {
+              schluessel: 'gps.eingetragen',
+              platzhalter: { nummer: baum.nummer, genauigkeit: formatiereMeter(genauigkeit_m, sprache) },
+              art: 'info',
+            },
+      );
+      await ladeDaten();
+      // Direkt das Panel öffnen, damit Sorte und Status gleich am Baum gesetzt werden können.
+      setAusgewaehlt(baum.id);
+    } catch (e) {
+      console.error(e);
+      fehler('baum.fehler.speichern');
+    }
+  }
   const modus = grenzeBearbeiten ? 'app app-bearbeitung' : baumEintragen ? 'app app-bearbeitung-einzeilig' : 'app';
 
   return (
@@ -164,7 +191,7 @@ export function App() {
         </div>
       )}
 
-      {!grenzeBearbeiten && !baumEintragen && (
+      {!grenzeBearbeiten && !baumEintragen && !gpsMessung && (
         <button
           type="button"
           class="knopf zaehler"
@@ -175,7 +202,7 @@ export function App() {
         </button>
       )}
 
-      {!grenzeBearbeiten && !baumEintragen && !ausgewaehlt && (
+      {!grenzeBearbeiten && !baumEintragen && !gpsMessung && !ausgewaehlt && (
         <nav class="leiste">
           <button type="button" class="knopf" onClick={() => setMenueOffen(true)} aria-label={t('menue.oeffnen')}>
             <svg viewBox="0 0 24 24" aria-hidden="true" class="knopf-symbol">
@@ -188,7 +215,7 @@ export function App() {
             class="knopf"
             onClick={() => {
               setHinweis(null);
-              setBaumEintragen(true);
+              setEintragWahl(true);
             }}
             aria-label={t('baum.eintragen')}
           >
@@ -241,6 +268,28 @@ export function App() {
             neuLaden();
           }}
           beiFehler={() => fehler('baum.fehler.speichern')}
+        />
+      )}
+
+      {eintragWahl && (
+        <EintragWahl
+          beiGps={() => {
+            setEintragWahl(false);
+            setGpsMessung(true);
+          }}
+          beiTippen={() => {
+            setEintragWahl(false);
+            setBaumEintragen(true);
+          }}
+          beiSchliessen={() => setEintragWahl(false)}
+        />
+      )}
+
+      {gpsMessung && steuerung.current && (
+        <GpsMessung
+          steuerung={steuerung.current}
+          beiUebernehmen={(punkt, genauigkeit) => void gpsUebernehmen(punkt, genauigkeit)}
+          beiAbbrechen={() => setGpsMessung(false)}
         />
       )}
 
