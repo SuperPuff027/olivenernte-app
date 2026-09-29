@@ -1,3 +1,6 @@
+import { useSprache } from './i18n/kontext';
+
 export function App() {
-  return <main>Olivenernte</main>;
+  const { t } = useSprache();
+  return <main>{t('app.titel')}</main>;
 }
