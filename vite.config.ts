@@ -4,9 +4,14 @@ import preact from '@preact/preset-vite';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 import { VitePWA } from 'vite-plugin-pwa';
 
+// Nur diese Node-Variable wird gebraucht; spart die Abhängigkeit @types/node.
+declare const process: { env: Record<string, string | undefined> };
+
 const THEMA_FARBE = '#2e4a1f';
 
 export default defineConfig({
+  // GitHub Pages liefert unter /<repo-name>/ aus; der Workflow setzt BASE_PATH.
+  base: process.env.BASE_PATH ?? '/',
   plugins: [
     preact(),
     basicSsl(),
