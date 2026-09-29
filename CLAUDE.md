@@ -1,13 +1,14 @@
-# Olivenernte-App
+# Olivenernte-App („HRVST“)
 
 Offline-fähige Karten-App (PWA) für einen Olivenhain in der Türkei. Jeder Baum ist ein Punkt mit GPS-Position, Sorte, Füllstand und Erntestatus. Genutzt auf iPhone und Android, im Feld oft ohne Empfang.
 
-**Aktuelle Phase: 1** (Details aller Phasen: `docs/phasen.md`; nur den Abschnitt der aktuellen Phase lesen)
+**Aktuelle Phase: 1** (Details aller Phasen: `docs/phasen.md`; nur den Abschnitt der aktuellen Phase lesen). Plan und Fortschritt von Phase 1: `docs/plan-phase1.md` (erledigte Schritte dort abhaken).
 
 ## Arbeitsweise
 - Nur die aktuelle Phase umsetzen. Spätere Phasen nur im Datenmodell vorbereiten, keinen Code dafür schreiben.
 - Zu Beginn jeder Phase einen Plan vorlegen; Code erst nach Freigabe.
-- Kleine Schritte. Nach jedem Schritt `npm run check` ausführen, dann committen.
+- Kleine Schritte. Nach jedem Schritt `npm run check` ausführen, dann committen, pushen und warten, bis die GitHub Action (Check, Build, Deploy auf GitHub Pages) grün ist.
+- Antworten an den Nutzer auf Deutsch.
 - Reine Logik (Farbzuordnung, Status, Filter, GPS-Mittelung, später Saisonwechsel und Interpolation) liegt in `src/logic/` ohne UI-Abhängigkeiten und hat Vitest-Tests.
 - Keine Koordinaten oder Baumdaten erfinden. Echte Daten liegen in `testdaten/`. Fehlen sie, nachfragen.
 - `testdaten/` ist privat und nicht im (öffentlichen) Repo. Echte Koordinaten nie in Code, Tests oder Commits übernehmen; Tests, die `testdaten/` brauchen, überspringen sich, wenn der Ordner fehlt (z. B. in CI).
@@ -60,3 +61,23 @@ Alle IDs sind UUIDs. Alle Datensätze haben `aktualisiert_am` (ISO-Zeit) und `ge
 ## Karte
 - Start: Esri World Imagery als Kachel-Layer. Offline-Cache nur für die Bounding-Box des Grundstücks und wenige Zoomstufen; keine Massen-Downloads.
 - Kartenquelle austauschbar halten (später eigenes Drohnen-Orthofoto als GeoTIFF/Kacheln).
+
+## Entscheidungen aus Phase 1
+- **Name:** App heißt „HRVST“ (Manifest `name`/`short_name`, Seitentitel, Schlüssel `app.titel`). Das Repo und die Dexie-Datenbank heißen weiter `olivenernte`.
+- **Hosting:** GitHub Pages, öffentliches Repo `SuperPuff027/olivenernte-app`, Branch `main`. Der Base-Pfad kommt aus `BASE_PATH` (in der Action gesetzt). Commits nur mit der GitHub-noreply-Adresse.
+- **UI:** Preact für Overlays und Formulare; die Karte bleibt imperativ (MapLibre, `src/karte/`). Große Knöpfe (`--touch-min: 56px`).
+- **Abhängigkeiten:** zusätzlich freigegeben `fake-indexeddb` (DB-Tests). Turf nur als Einzelmodule (`@turf/bbox`, `@turf/kinks`, `@turf/boolean-point-in-polygon`).
+- **Datenmodell-Abweichungen:** `Baum.sorte_id`, `fuellstand`, `ertrag_kg`, `erntedatum` dürfen `null` sein; `Baum.hoehe_m` (optional, aus GeoJSON-Höhe); Einstellungen haben `sprache` (`null` = Gerätesprache). `SaisonStatus` hat den Schlüssel `[baum_id+jahr]`; Saison = Kalenderjahr.
+- **Ein Grundstück.** Bäume gehören zu ihm, auch wenn sie außerhalb der Grenze liegen (dann nur ein Hinweis).
+- **Baumnummern:** Format `B-n`. Neue Bäume bekommen die höchste B-Nummer unter den aktiven Bäumen + 1 (Lücken bleiben frei, Varianten wie „B_7“ zählen mit, fremde Formate werden ignoriert). Nummern sind eindeutig; der Import überspringt vorhandene.
+- **Darstellung:** Baum ohne Saisonstatus = `nicht_bereit` (rot); ohne Sorte weißer Ring. Keine Text-Labels auf der Karte (bräuchten Glyph-Dateien aus dem Netz); die Nummer steht im Panel.
+- **Bäume platzieren:** per GPS-Mittelung, per Tipp auf die Karte und per Drag-Korrektur (nur im expliziten Modus „Position verschieben“; danach `gps_genauigkeit_m = null`).
+- **Offline-Karte:** Esri World Imagery, echte Luftbilder über dem Hain nur bis Zoom 18 (darüber vergrößert). Download für die Grundstücks-BBox + 100 m, Zoom 12–18, per Knopf; Workbox-CacheFirst mit eigenem Cache-Namen und Obergrenze.
+- **Geplant nach Schritt 15:** „Eckpunkt an meinem Standort setzen“ in der Grenzbearbeitung, mit derselben GPS-Mittelung.
+
+## Technische Hinweise
+- MapLibre 6: nur benannte Importe (`Map as MapLibreMap`, `Marker`, …); der Worker wird über `maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url` und `setWorkerUrl` eingebunden. `['zoom']` nur als Eingabe eines `interpolate` auf oberster Ebene.
+- Nicht auf `loaded()`/`isStyleLoaded()` verlassen, sondern `KartenSteuerung.beiGeladen()` nutzen.
+- Beim Start die gespeicherte Sprache mit Zeitlimit laden, damit ein hängendes IndexedDB die App nicht blockiert.
+- Keine `\uXXXX`-Escapes in Quelltext schreiben (werden beim Schreiben zu echten Zeichen, ESLint `no-irregular-whitespace`); stattdessen z. B. `/\s/g`.
+- Unter Windows kollidieren Dateinamen, die sich nur in der Groß-/Kleinschreibung unterscheiden (`Karte.tsx` vs. `karte.ts`).
