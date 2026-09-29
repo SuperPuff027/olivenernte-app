@@ -11,6 +11,7 @@ import { baumPunkte } from './logic/farben';
 import { leseGeojson, planeImport, type ImportPlan } from './logic/importGeojson';
 import type { Grundstueck } from './model/typen';
 import { BaumEintragen } from './ui/BaumEintragen';
+import { BaumPanel } from './ui/BaumPanel';
 import { GrenzBearbeitung } from './ui/GrenzBearbeitung';
 import { ImportVorschau } from './ui/ImportVorschau';
 import { Menue } from './ui/Menue';
@@ -55,6 +56,7 @@ export function App() {
   const [grundstueck, setGrundstueck] = useState<Grundstueck | null>(null);
   const [grenzeBearbeiten, setGrenzeBearbeiten] = useState(false);
   const [baumEintragen, setBaumEintragen] = useState(false);
+  const [ausgewaehlt, setAusgewaehlt] = useState<string | null>(null);
   const [offlineOffen, setOfflineOffen] = useState(false);
   const [sortenOffen, setSortenOffen] = useState(false);
   const [karteBereit, setKarteBereit] = useState(false);
@@ -85,6 +87,19 @@ export function App() {
   useEffect(() => {
     if (karteBereit) void ladeDaten().catch(console.error);
   }, [karteBereit, ladeDaten]);
+
+  // Tipp auf einen Baum öffnet das Panel, Tipp daneben schließt es; nicht in Bearbeitungsmodi.
+  const modusAktiv = useRef(false);
+  modusAktiv.current = grenzeBearbeiten || baumEintragen;
+  useEffect(() => {
+    if (!karteBereit) return;
+    steuerung.current?.beiBaumTipp((id) => {
+      if (!modusAktiv.current) setAusgewaehlt(id);
+    });
+  }, [karteBereit]);
+  useEffect(() => {
+    steuerung.current?.markiereBaum(ausgewaehlt);
+  }, [ausgewaehlt, karteBereit]);
 
   const beiStandortFehler = useCallback(
     (code: number) => setHinweis({ schluessel: standortFehlerText(code), art: 'fehler' }),
@@ -140,7 +155,7 @@ export function App() {
         </div>
       )}
 
-      {!grenzeBearbeiten && !baumEintragen && (
+      {!grenzeBearbeiten && !baumEintragen && !ausgewaehlt && (
         <nav class="leiste">
           <button type="button" class="knopf" onClick={() => setMenueOffen(true)} aria-label={t('menue.oeffnen')}>
             <svg viewBox="0 0 24 24" aria-hidden="true" class="knopf-symbol">
@@ -190,6 +205,22 @@ export function App() {
           }}
           beiAbbruch={() => setGrenzeBearbeiten(false)}
           beiFehler={() => fehler('grundstueck.fehler.speichern')}
+        />
+      )}
+
+      {ausgewaehlt && steuerung.current && (
+        <BaumPanel
+          key={ausgewaehlt}
+          baumId={ausgewaehlt}
+          steuerung={steuerung.current}
+          beiSchliessen={() => setAusgewaehlt(null)}
+          beiGeaendert={neuLaden}
+          beiGeloescht={(nummer) => {
+            setAusgewaehlt(null);
+            setHinweis({ schluessel: 'baum.geloescht', platzhalter: { nummer }, art: 'info' });
+            neuLaden();
+          }}
+          beiFehler={() => fehler('baum.fehler.speichern')}
         />
       )}
 

@@ -1,4 +1,4 @@
-import type { GeoJSONSource, Map as MapLibreMap } from 'maplibre-gl';
+import type { GeoJSONSource, Map as MapLibreMap, PointLike } from 'maplibre-gl';
 import type { BaumPunkte } from '../logic/farben';
 
 const QUELLE = 'baeume';
@@ -14,6 +14,11 @@ const STUFEN = [
   { zoom: 20, radius: 7, ring: 2.5 },
 ];
 const SCHATTEN_EXTRA = 1;
+/** Abstand der Auswahlmarkierung vom Punkt */
+const AUSWAHL_ABSTAND = 5;
+/** Halbe Kantenlänge der Trefferfläche beim Antippen (ca. 44 px, auch mit Handschuhen). */
+const TREFFER_PX = 22;
+const AUSWAHL_EBENEN = ['baeume-auswahl-schatten', 'baeume-auswahl'];
 
 // zoom ist nur als Eingabe eines interpolate auf oberster Ebene erlaubt, daher je Wert ein eigener Ausdruck.
 function nachZoom(wert: (stufe: (typeof STUFEN)[number]) => number) {
@@ -47,6 +52,46 @@ export function legeBaumEbeneAn(karte: MapLibreMap) {
       'circle-stroke-width': nachZoom((st) => st.ring),
     },
   });
+  // Auswahl: weißer Ring mit dunklem Rand um den gewählten Baum. Filter über die Eigenschaft id,
+  // weil MapLibre Text-IDs von Features nicht behält.
+  const auswahlRadius = nachZoom((st) => st.radius + st.ring + AUSWAHL_ABSTAND);
+  karte.addLayer({
+    id: 'baeume-auswahl-schatten',
+    type: 'circle',
+    source: QUELLE,
+    filter: ['==', ['get', 'id'], ''],
+    paint: { 'circle-opacity': 0, 'circle-radius': auswahlRadius, 'circle-stroke-color': '#000000', 'circle-stroke-width': 6 },
+  });
+  karte.addLayer({
+    id: 'baeume-auswahl',
+    type: 'circle',
+    source: QUELLE,
+    filter: ['==', ['get', 'id'], ''],
+    paint: { 'circle-opacity': 0, 'circle-radius': auswahlRadius, 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 3 },
+  });
+}
+
+export function markiereBaumAuswahl(karte: MapLibreMap, id: string | null) {
+  for (const ebene of AUSWAHL_EBENEN) karte.setFilter(ebene, ['==', ['get', 'id'], id ?? '']);
+}
+
+/** Der Baum, der einem Tipp am nächsten liegt (innerhalb der Trefferfläche), sonst null. */
+export function baumAnPunkt(karte: MapLibreMap, x: number, y: number): string | null {
+  const flaeche: [PointLike, PointLike] = [
+    [x - TREFFER_PX, y - TREFFER_PX],
+    [x + TREFFER_PX, y + TREFFER_PX],
+  ];
+  let bester: { id: string; abstand: number } | null = null;
+  for (const f of karte.queryRenderedFeatures(flaeche, { layers: [BAUM_EBENE] })) {
+    const id: unknown = f.properties.id;
+    if (typeof id !== 'string' || f.geometry.type !== 'Point') continue;
+    const [lon, lat] = f.geometry.coordinates;
+    if (lon === undefined || lat === undefined) continue;
+    const p = karte.project([lon, lat]);
+    const abstand = Math.hypot(p.x - x, p.y - y);
+    if (!bester || abstand < bester.abstand) bester = { id, abstand };
+  }
+  return bester?.id ?? null;
 }
 
 export function setzeBaumDaten(karte: MapLibreMap, punkte: BaumPunkte) {

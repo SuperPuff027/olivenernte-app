@@ -428,3 +428,140 @@ body,
   flex: none;
   box-shadow: none;
 }
+
+/* Baum-Panel: nicht modal, die Karte darüber bleibt bedienbar */
+.panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  max-height: 62%;
+  display: flex;
+  flex-direction: column;
+  background: var(--farbe-flaeche);
+  border-radius: var(--radius) var(--radius) 0 0;
+  box-shadow: 0 -2px 12px rgb(0 0 0 / 45%);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.panel .blatt-inhalt h3:first-child {
+  margin-top: 4px;
+}
+
+.auswahl-reihe {
+  display: flex;
+  gap: 8px;
+}
+
+.auswahl-reihe .knopf {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0 6px;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.15;
+  box-shadow: none;
+}
+
+/* Status in den Farben der Baumpunkte; gewählt = gefüllt */
+.status-knopf::before {
+  content: '';
+  flex: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--farbe-text);
+}
+
+.status-bereit::before,
+.status-bereit[aria-pressed='true'] {
+  background: #00c853;
+}
+
+.status-nicht_bereit::before,
+.status-nicht_bereit[aria-pressed='true'] {
+  background: #d50000;
+}
+
+.status-geerntet::before,
+.status-geerntet[aria-pressed='true'] {
+  background: #9e9e9e;
+}
+
+.status-knopf[aria-pressed='true'] {
+  border-width: 4px;
+  color: #000000;
+}
+
+.status-nicht_bereit[aria-pressed='true'] {
+  color: #ffffff;
+}
+
+.status-knopf[aria-pressed='true']::before {
+  display: none;
+}
+
+.wahl-knopf {
+  font-size: 1.2rem;
+}
+
+.wahl-knopf[aria-pressed='true'] {
+  background: var(--farbe-akzent);
+  border-color: var(--farbe-akzent);
+  color: var(--farbe-text-invers);
+}
+
+.panel-hilfe {
+  margin: 6px 0 0;
+  font-size: 0.9rem;
+  color: #444444;
+}
+
+.panel-feld {
+  margin-top: 16px;
+}
+
+.sorte-wahl {
+  display: flex;
+  align-items: center;
+  gap: var(--abstand);
+}
+
+.sorte-punkt {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 7px solid;
+  box-shadow: 0 0 0 2px var(--farbe-text);
+}
+
+.eingabe-mehrzeilig {
+  padding: 10px 12px;
+  resize: vertical;
+  font-weight: 400;
+}
+
+.panel-info {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  margin: 16px 0 0;
+  font-size: 0.95rem;
+}
+
+.panel-info dt {
+  font-weight: 600;
+}
+
+.panel-info dd {
+  margin: 0;
+}
+
+.knopf-gefahr {
+  margin-top: var(--abstand);
+  border-color: var(--farbe-warnung);
+  color: var(--farbe-warnung);
+  box-shadow: none;
+}

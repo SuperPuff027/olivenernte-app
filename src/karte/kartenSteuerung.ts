@@ -5,7 +5,7 @@ import { pruefeAnsicht, type Ansicht } from '../logic/ansicht';
 import type { Bereich } from '../logic/bereich';
 import type { BaumPunkte } from '../logic/farben';
 import type { GeoJsonPolygon, Position } from '../model/typen';
-import { legeBaumEbeneAn, setzeBaumDaten } from './baumEbene';
+import { baumAnPunkt, legeBaumEbeneAn, markiereBaumAuswahl, setzeBaumDaten } from './baumEbene';
 import { legeGrundstueckEbeneAn, setzeGrundstueckDaten, zeigeGrundstueckEbene } from './grundstueckEbene';
 import { AKTIVE_KARTENQUELLE, type Kartenquelle } from './quelle';
 
@@ -22,6 +22,8 @@ const MAX_ZOOM = 21;
 /** Beim Zoomen auf einen Bereich nicht über die letzte Stufe mit echten Luftbildern hinaus. */
 const BEREICH_MAX_ZOOM = AKTIVE_KARTENQUELLE.maxZoom;
 const ANIMATION_AB_ZOOM = 12;
+/** Mindestabstand eines hervorgehobenen Punkts vom Rand des sichtbaren Bereichs */
+const RAND_PX = 40;
 
 export interface KartenSteuerung {
   karte: MapLibreMap;
@@ -37,6 +39,11 @@ export interface KartenSteuerung {
   setzeBaeume(punkte: BaumPunkte): void;
   /** Meldet jeden Tipp auf die Karte; Doppeltipp-Zoom ist solange aus. Rückgabe beendet den Modus. */
   starteTippModus(beiTipp: (punkt: Position) => void): () => void;
+  /** Meldet jeden Tipp auf die Karte mit dem getroffenen Baum (oder null). */
+  beiBaumTipp(fn: (baumId: string | null) => void): void;
+  markiereBaum(id: string | null): void;
+  /** Verschiebt die Karte, falls der Punkt unter einem unten eingeblendeten Panel läge. */
+  haltePunktSichtbar(punkt: Position, verdecktUntenPx: number): void;
   entferne(): void;
 }
 
@@ -123,6 +130,9 @@ export function erstelleKarte(
     for (const fn of wartende.splice(0)) fn();
   });
 
+  let baumTipp: ((baumId: string | null) => void) | null = null;
+  karte.on('click', (e) => baumTipp?.(geladen ? baumAnPunkt(karte, e.point.x, e.point.y) : null));
+
   return {
     karte,
     hatteGespeicherteAnsicht: gespeichert !== null,
@@ -147,6 +157,15 @@ export function erstelleKarte(
         karte.getCanvas().style.cursor = '';
         karte.doubleClickZoom.enable();
       };
+    },
+    beiBaumTipp: (fn) => (baumTipp = fn),
+    markiereBaum: (id) => beiGeladen(() => markiereBaumAuswahl(karte, id)),
+    haltePunktSichtbar: (punkt, verdecktUntenPx) => {
+      const p = karte.project([punkt[0], punkt[1]]);
+      const hoehe = karte.getContainer().clientHeight;
+      const sichtbarBis = hoehe - verdecktUntenPx - RAND_PX;
+      // Punkt in die Mitte des frei bleibenden oberen Bereichs schieben
+      if (p.y > sichtbarBis || p.y < RAND_PX) karte.panBy([0, p.y - (hoehe - verdecktUntenPx) / 2]);
     },
     entferne: () => karte.remove(),
   };
