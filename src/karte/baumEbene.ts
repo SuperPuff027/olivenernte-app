@@ -97,3 +97,8 @@ export function baumAnPunkt(karte: MapLibreMap, x: number, y: number): string | 
 export function setzeBaumDaten(karte: MapLibreMap, punkte: BaumPunkte) {
   karte.getSource<GeoJSONSource>(QUELLE)?.setData(punkte);
 }
+
+/** Blendet einen Baum aus (z. B. während er als ziehbarer Marker verschoben wird); null zeigt alle. */
+export function versteckeBaum(karte: MapLibreMap, id: string | null) {
+  for (const ebene of ['baeume-schatten', BAUM_EBENE]) karte.setFilter(ebene, id ? ['!=', ['get', 'id'], id] : null);
+}

@@ -132,6 +132,12 @@ export const en: Uebersetzung = {
   'baum.geloescht': '{nummer} deleted.',
   'baum.fehler.nummer_leer': 'Please enter a number. The old number is kept.',
   'baum.fehler.nummer_doppelt': 'Number {nummer} is already taken. Not saved.',
+  'baum.verschieben': 'Move position',
+  'baum.verschieben_titel': 'Move {nummer}',
+  'baum.verschieben_anleitung': 'Drag the point to the right spot. You can still pan and zoom the map.',
+  'baum.verschieben_hinweis': 'The GPS accuracy will then be stored as “unknown”.',
+  'baum.position_gespeichert': 'Position saved.',
+  'baum.position_ausserhalb': 'Position saved. The tree is outside the property.',
 
   'statistik.knopf': 'Trees: {n}',
   'statistik.oeffnen': 'Open overview: {n} trees',

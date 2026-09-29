@@ -130,6 +130,12 @@ export const de = {
   'baum.geloescht': '{nummer} gelöscht.',
   'baum.fehler.nummer_leer': 'Bitte eine Nummer eingeben. Die alte Nummer bleibt.',
   'baum.fehler.nummer_doppelt': 'Die Nummer {nummer} ist schon vergeben. Nicht gespeichert.',
+  'baum.verschieben': 'Position verschieben',
+  'baum.verschieben_titel': '{nummer} verschieben',
+  'baum.verschieben_anleitung': 'Den Punkt an die richtige Stelle ziehen. Die Karte lässt sich dabei weiter verschieben und zoomen.',
+  'baum.verschieben_hinweis': 'Die GPS-Genauigkeit wird danach als „unbekannt“ gespeichert.',
+  'baum.position_gespeichert': 'Position gespeichert.',
+  'baum.position_ausserhalb': 'Position gespeichert. Der Baum liegt außerhalb des Grundstücks.',
 
   'statistik.knopf': 'Bäume: {n}',
   'statistik.oeffnen': 'Übersicht öffnen: {n} Bäume',

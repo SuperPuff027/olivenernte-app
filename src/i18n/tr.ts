@@ -132,6 +132,12 @@ export const tr: Uebersetzung = {
   'baum.geloescht': '{nummer} silindi.',
   'baum.fehler.nummer_leer': 'Lütfen bir numara girin. Eski numara korunur.',
   'baum.fehler.nummer_doppelt': '{nummer} numarası zaten kullanılıyor. Kaydedilmedi.',
+  'baum.verschieben': 'Konumu taşı',
+  'baum.verschieben_titel': '{nummer} taşı',
+  'baum.verschieben_anleitung': 'Noktayı doğru yere sürükleyin. Harita kaydırılabilir ve yakınlaştırılabilir.',
+  'baum.verschieben_hinweis': 'GPS doğruluğu daha sonra „bilinmiyor“ olarak kaydedilir.',
+  'baum.position_gespeichert': 'Konum kaydedildi.',
+  'baum.position_ausserhalb': 'Konum kaydedildi. Ağaç arazinin dışında.',
 
   'statistik.knopf': 'Ağaç: {n}',
   'statistik.oeffnen': 'Özeti aç: {n} ağaç',

@@ -3,6 +3,7 @@ import { aendereBaum, ladeBaum, loescheBaum, type BaumAenderung } from '../db/ba
 import { ladeBestand } from '../db/import';
 import { ladeSorten } from '../db/sorten';
 import { aendereSaisonStatus, ladeEinstellungen, ladeSaisonStatus, type SaisonAenderung } from '../db/repo';
+import type { Schluessel } from '../i18n';
 import { useSprache } from '../i18n/kontext';
 import type { KartenSteuerung } from '../karte/kartenSteuerung';
 import { fuellstandOptionen, letzteAenderung } from '../logic/baum';
@@ -12,6 +13,7 @@ import { formatiereGrad, formatiereMeter, formatiereZeitpunkt } from '../logic/f
 import { normiereNummer, pruefeNummer, type NummernFehler } from '../logic/nummern';
 import { sortiereSorten } from '../logic/sorten';
 import { ERNTE_STATUS, type Baum, type SaisonStatus, type Sorte } from '../model/typen';
+import { BaumVerschieben } from './BaumVerschieben';
 import { SortenWahl } from './SortenWahl';
 
 interface Props {
@@ -22,6 +24,8 @@ interface Props {
   beiGeaendert: () => void;
   beiGeloescht: (nummer: string) => void;
   beiFehler: () => void;
+  /** Verschiebe-Modus an/aus: solange öffnet ein Tipp auf die Karte keinen anderen Baum. */
+  beiVerschiebeModus: (aktiv: boolean) => void;
 }
 
 /** Notiz wird kurz nach dem letzten Tastendruck gespeichert (und sofort beim Verlassen des Felds). */
@@ -31,7 +35,15 @@ const NOTIZ_VERZOEGERUNG_MS = 600;
  * Panel eines Baums: zeigt alle Werte und speichert jede Änderung sofort.
  * Nicht modal: die Karte darüber bleibt bedienbar (anderer Baum antippen wechselt).
  */
-export function BaumPanel({ baumId, steuerung, beiSchliessen, beiGeaendert, beiGeloescht, beiFehler }: Props) {
+export function BaumPanel({
+  baumId,
+  steuerung,
+  beiSchliessen,
+  beiGeaendert,
+  beiGeloescht,
+  beiFehler,
+  beiVerschiebeModus,
+}: Props) {
   const { t, sprache } = useSprache();
   const jahr = saisonJahr(new Date());
   const [baum, setBaum] = useState<Baum | null>(null);
@@ -45,6 +57,13 @@ export function BaumPanel({ baumId, steuerung, beiSchliessen, beiGeaendert, beiG
   const panel = useRef<HTMLElement>(null);
   const notizZeitgeber = useRef<ReturnType<typeof setTimeout> | null>(null);
   const offeneNotiz = useRef<string | null>(null);
+  const [verschieben, setVerschieben] = useState(false);
+  const [positionMeldung, setPositionMeldung] = useState<{ schluessel: Schluessel; warnung: boolean } | null>(null);
+
+  useEffect(() => {
+    beiVerschiebeModus(verschieben);
+  }, [verschieben]);
+  useEffect(() => () => beiVerschiebeModus(false), []);
 
   useEffect(() => {
     let aktiv = true;
@@ -151,6 +170,28 @@ export function BaumPanel({ baumId, steuerung, beiSchliessen, beiGeaendert, beiG
 
   const aktuellerStatus = status?.status ?? STANDARD_STATUS;
   const fuellstand = status?.fuellstand ?? null;
+
+  if (baum && verschieben) {
+    return (
+      <BaumVerschieben
+        baum={baum}
+        steuerung={steuerung}
+        beiGespeichert={({ baum: neu, ausserhalb }) => {
+          setBaum(neu);
+          setBaeume((alt) => alt.map((b) => (b.id === neu.id ? neu : b)));
+          setVerschieben(false);
+          setPositionMeldung(
+            ausserhalb
+              ? { schluessel: 'baum.position_ausserhalb', warnung: true }
+              : { schluessel: 'baum.position_gespeichert', warnung: false },
+          );
+          beiGeaendert();
+        }}
+        beiAbbrechen={() => setVerschieben(false)}
+        beiFehler={beiFehler}
+      />
+    );
+  }
 
   return (
     <section class="panel" ref={panel} aria-label={baum ? t('baum.panel_titel', { nummer: baum.nummer }) : undefined}>
@@ -270,6 +311,22 @@ export function BaumPanel({ baumId, steuerung, beiSchliessen, beiGeaendert, beiG
               </>
             )}
           </dl>
+          <button
+            type="button"
+            class="knopf knopf-breit panel-knopf"
+            onClick={() => {
+              notizSpeichern();
+              setPositionMeldung(null);
+              setVerschieben(true);
+            }}
+          >
+            {t('baum.verschieben')}
+          </button>
+          {positionMeldung && (
+            <p class={positionMeldung.warnung ? 'text-fehler' : 'panel-hilfe'} role="status">
+              {t(positionMeldung.schluessel)}
+            </p>
+          )}
           <p class="panel-hilfe">
             {t('baum.zuletzt_geaendert', { zeit: formatiereZeitpunkt(letzteAenderung(baum, status), sprache) })}
           </p>

@@ -703,3 +703,16 @@ body,
   border-radius: var(--radius);
   font-weight: 600;
 }
+
+/* Baum beim Verschieben: weißer Kreis mit schwarzem Rand und Mittelpunkt */
+.baum-ziehen::after {
+  inset: 10px;
+  background: radial-gradient(circle, #000000 0 3px, #ffffff 4px);
+  border: 4px solid #000000;
+  box-shadow: 0 0 0 2px #ffffff;
+}
+
+.panel-knopf {
+  margin-top: var(--abstand);
+  box-shadow: none;
+}

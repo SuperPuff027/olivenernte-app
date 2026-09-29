@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Baum, Grundstueck } from '../model/typen';
-import { fuellstandOptionen, letzteAenderung, neuerBaum } from './baum';
+import { fuellstandOptionen, letzteAenderung, neuerBaum, verschobenerBaum } from './baum';
 import { neuerSaisonStatus } from './datensatz';
 import { alsPolygon } from './polygon';
 
@@ -103,5 +103,20 @@ describe('letzteAenderung', () => {
     const s = { ...neuerSaisonStatus('B-1', 2026, new Date('2026-09-05T00:00:00.000Z')), geloescht: true };
     expect(letzteAenderung(b, null)).toBe(b.aktualisiert_am);
     expect(letzteAenderung(b, s)).toBe(b.aktualisiert_am);
+  });
+});
+
+describe('verschobenerBaum', () => {
+  const b = { ...vorhanden('B-3'), gps_genauigkeit_m: 2.5, hoehe_m: 55, notiz: 'x', sorte_id: 's' };
+
+  it('setzt die Position, verwirft die GPS-Genauigkeit und behält den Rest', () => {
+    const { baum, ausserhalb } = verschobenerBaum(b, [10.006, 20.004], grundstueck, JETZT);
+    expect(ausserhalb).toBe(false);
+    expect(baum).toEqual({ ...b, lon: 10.006, lat: 20.004, gps_genauigkeit_m: null, aktualisiert_am: JETZT.toISOString() });
+  });
+
+  it('meldet eine Position außerhalb des Grundstücks', () => {
+    expect(verschobenerBaum(b, [10.02, 20.004], grundstueck, JETZT).ausserhalb).toBe(true);
+    expect(verschobenerBaum(b, [10.02, 20.004], null, JETZT).ausserhalb).toBe(false);
   });
 });

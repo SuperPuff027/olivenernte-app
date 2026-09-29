@@ -1,7 +1,7 @@
 import 'fake-indexeddb/auto';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { alsPolygon } from '../logic/polygon';
-import { aendereBaum, ladeBaum, legeBaumAn, loescheBaum } from './baeume';
+import { aendereBaum, ladeBaum, legeBaumAn, loescheBaum, verschiebeBaum } from './baeume';
 import { db } from './datenbank';
 import { speichereGrundstueck } from './grundstueck';
 import { ladeAktive } from './repo';
@@ -69,5 +69,21 @@ describe('aendereBaum', () => {
     await loescheBaum(baum.id);
     expect(await aendereBaum(baum.id, { notiz: 'x' }, 'de')).toEqual({ ok: false, fehler: 'nicht_gefunden' });
     expect(await ladeBaum(baum.id)).toBeNull();
+  });
+});
+
+describe('verschiebeBaum', () => {
+  it('speichert die neue Position ohne GPS-Genauigkeit und meldet außerhalb', async () => {
+    await speichereGrundstueck(QUADRAT, null, 'Test');
+    const { baum } = await legeBaumAn([10.005, 20.005], 3);
+    expect(await verschiebeBaum(baum.id, [10.006, 20.006])).toMatchObject({ ausserhalb: false });
+    expect(await ladeBaum(baum.id)).toMatchObject({ lon: 10.006, lat: 20.006, gps_genauigkeit_m: null, nummer: 'B-1' });
+    expect(await verschiebeBaum(baum.id, [10.02, 20.006])).toMatchObject({ ausserhalb: true });
+  });
+
+  it('gelöschte Bäume werden nicht verschoben', async () => {
+    const { baum } = await legeBaumAn([10.005, 20.005]);
+    await loescheBaum(baum.id);
+    expect(await verschiebeBaum(baum.id, [10.006, 20.006])).toBeNull();
   });
 });

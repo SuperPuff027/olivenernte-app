@@ -65,6 +65,7 @@ export function App() {
   const [ausgewaehlt, setAusgewaehlt] = useState<string | null>(null);
   const [eintragWahl, setEintragWahl] = useState(false);
   const [gpsMessung, setGpsMessung] = useState(false);
+  const [baumVerschieben, setBaumVerschieben] = useState(false);
   const [offlineOffen, setOfflineOffen] = useState(false);
   const [sortenOffen, setSortenOffen] = useState(false);
   const [karteBereit, setKarteBereit] = useState(false);
@@ -104,7 +105,7 @@ export function App() {
 
   // Tipp auf einen Baum öffnet das Panel, Tipp daneben schließt es; nicht in Bearbeitungsmodi.
   const modusAktiv = useRef(false);
-  modusAktiv.current = grenzeBearbeiten || baumEintragen || gpsMessung;
+  modusAktiv.current = grenzeBearbeiten || baumEintragen || gpsMessung || baumVerschieben;
   useEffect(() => {
     if (!karteBereit) return;
     steuerung.current?.beiBaumTipp((id) => {
@@ -268,6 +269,7 @@ export function App() {
             neuLaden();
           }}
           beiFehler={() => fehler('baum.fehler.speichern')}
+          beiVerschiebeModus={setBaumVerschieben}
         />
       )}
 

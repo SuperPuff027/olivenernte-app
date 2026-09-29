@@ -1,4 +1,4 @@
-import { neuerBaum, type NeuerBaum } from '../logic/baum';
+import { neuerBaum, verschobenerBaum, type NeuerBaum } from '../logic/baum';
 import { geaendert, neueId } from '../logic/datensatz';
 import { normiereNummer, pruefeNummer, type NummernFehler } from '../logic/nummern';
 import type { Sprache } from '../logic/sprache';
@@ -60,4 +60,15 @@ export async function aendereBaum(id: string, aenderung: BaumAenderung, sprache:
 export async function ladeBaum(id: string): Promise<Baum | null> {
   const baum = await db.baeume.get(id);
   return baum && !baum.geloescht ? baum : null;
+}
+
+/** Neue Position von Hand (Drag); null, wenn der Baum nicht (mehr) existiert. */
+export async function verschiebeBaum(id: string, punkt: Position): Promise<NeuerBaum | null> {
+  return db.transaction('rw', db.baeume, db.grundstuecke, async () => {
+    const vorhanden = await db.baeume.get(id);
+    if (!vorhanden || vorhanden.geloescht) return null;
+    const neu = verschobenerBaum(vorhanden, punkt, await ladeGrundstueck(), new Date());
+    await db.baeume.put(neu.baum);
+    return neu;
+  });
 }

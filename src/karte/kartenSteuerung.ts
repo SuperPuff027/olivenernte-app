@@ -5,7 +5,7 @@ import { pruefeAnsicht, type Ansicht } from '../logic/ansicht';
 import type { Bereich } from '../logic/bereich';
 import type { BaumPunkte } from '../logic/farben';
 import type { GeoJsonPolygon, Position } from '../model/typen';
-import { baumAnPunkt, legeBaumEbeneAn, markiereBaumAuswahl, setzeBaumDaten } from './baumEbene';
+import { baumAnPunkt, legeBaumEbeneAn, markiereBaumAuswahl, setzeBaumDaten, versteckeBaum } from './baumEbene';
 import { legeGrundstueckEbeneAn, setzeGrundstueckDaten, zeigeGrundstueckEbene } from './grundstueckEbene';
 import { AKTIVE_KARTENQUELLE, type Kartenquelle } from './quelle';
 
@@ -46,6 +46,8 @@ export interface KartenSteuerung {
   haltePunktSichtbar(punkt: Position, verdecktUntenPx: number): void;
   /** Zeigt den aktuellen Messpunkt der GPS-Mittelung (null blendet ihn aus). */
   zeigeMesspunkt(punkt: Position | null): void;
+  /** Macht einen Baum ziehbar; meldet jede neue Position. Rückgabe beendet das Verschieben. */
+  verschiebeBaum(id: string, start: Position, beiBewegt: (punkt: Position) => void): () => void;
   entferne(): void;
 }
 
@@ -184,6 +186,22 @@ export function erstelleKarte(
       } else {
         messpunkt.setLngLat([punkt[0], punkt[1]]);
       }
+    },
+    verschiebeBaum: (id, start, beiBewegt) => {
+      versteckeBaum(karte, id);
+      markiereBaumAuswahl(karte, null);
+      const element = document.createElement('div');
+      element.className = 'eckpunkt baum-ziehen';
+      const marker = new Marker({ element, draggable: true }).setLngLat([start[0], start[1]]).addTo(karte);
+      marker.on('dragend', () => {
+        const { lng, lat } = marker.getLngLat();
+        beiBewegt([lng, lat]);
+      });
+      return () => {
+        marker.remove();
+        versteckeBaum(karte, null);
+        markiereBaumAuswahl(karte, id);
+      };
     },
     entferne: () => karte.remove(),
   };
