@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Baum, Grundstueck, Sorte } from '../model/typen';
-import { leseGeojson, NEUE_SORTE_FARBE, planeImport, type Bestand, type GelesenerImport } from './importGeojson';
+import { leseGeojson, planeImport, type Bestand, type GelesenerImport } from './importGeojson';
+import { RINGFARBEN_VORSCHLAG } from './sorten';
 
 // Echte Daten sind privat und fehlen z. B. in CI; dann wird der Test übersprungen.
 const echteDaten = import.meta.glob<string>('../../testdaten/hain.geojson', {
@@ -173,7 +174,7 @@ describe('planeImport', () => {
     );
     expect(plan.neueSorten).toHaveLength(1);
     const ayvalik = plan.neueSorten[0]!;
-    expect(ayvalik).toMatchObject({ name: 'Ayvalık', ringfarbe: NEUE_SORTE_FARBE, geloescht: false });
+    expect(ayvalik).toMatchObject({ name: 'Ayvalık', ringfarbe: RINGFARBEN_VORSCHLAG[0], geloescht: false });
     expect(plan.baeume.map((b) => b.sorte_id)).toEqual(['m', ayvalik.id, ayvalik.id]);
   });
 });

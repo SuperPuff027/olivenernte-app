@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 import preact from '@preact/preset-vite';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 import { VitePWA } from 'vite-plugin-pwa';
-import { AKTIVE_KARTENQUELLE } from './src/karte/quelle';
+import { AKTIVE_KARTENQUELLE } from './src/karte/quelle.ts';
 
 // Nur diese Node-Variable wird gebraucht; spart die Abhängigkeit @types/node.
 declare const process: { env: Record<string, string | undefined> };

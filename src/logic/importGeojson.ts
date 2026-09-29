@@ -1,4 +1,5 @@
 import type { Baum, GeoJsonPolygon, Grundstueck, Position, Sorte } from '../model/typen';
+import { naechsteRingfarbe } from './sorten';
 import type { Sprache } from './sprache';
 import { vergleiche } from './text';
 
@@ -46,8 +47,6 @@ export type LeseFehler = 'kein_geojson' | 'leer';
 export type LeseErgebnis = { ok: true; daten: GelesenerImport } | { ok: false; fehler: LeseFehler };
 
 export const STANDARD_GRUNDSTUECK_NAME = 'Grundstück';
-/** Ringfarbe für Sorten, die der Import neu anlegt; in der Sortenverwaltung änderbar. */
-export const NEUE_SORTE_FARBE = '#ffd600';
 
 type Objekt = Record<string, unknown>;
 
@@ -181,7 +180,8 @@ export interface ImportPlan {
  * Gleicht das Gelesene mit dem Bestand (nur aktive Datensätze) ab.
  * - Grundstück: ersetzt die Grenze des vorhandenen Grundstücks (gleiche ID), sonst neu.
  * - Bäume: Nummern, die es schon gibt, werden übersprungen.
- * - Sorten: Zuordnung über den Namen (ohne Groß-/Kleinschreibung); fehlende werden angelegt.
+ * - Sorten: Zuordnung über den Namen (ohne Groß-/Kleinschreibung); fehlende werden mit der
+ *   nächsten freien Vorschlagsfarbe angelegt.
  */
 export function planeImport(
   gelesen: GelesenerImport,
@@ -213,7 +213,7 @@ export function planeImport(
   const sorteFuer = (name: string): string => {
     const treffer = sorten.find((s) => vergleiche(s.name, name, sprache) === 0);
     if (treffer) return treffer.id;
-    const neu: Sorte = { id: neueId(), name, ringfarbe: NEUE_SORTE_FARBE, aktualisiert_am: zeit, geloescht: false };
+    const neu: Sorte = { id: neueId(), name, ringfarbe: naechsteRingfarbe(sorten), aktualisiert_am: zeit, geloescht: false };
     sorten.push(neu);
     neueSorten.push(neu);
     return neu.id;
