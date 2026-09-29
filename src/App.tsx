@@ -16,6 +16,7 @@ import type { Baum, Grundstueck, Position, SaisonStatus, Sorte } from './model/t
 import { BaumEintragen } from './ui/BaumEintragen';
 import { BaumPanel } from './ui/BaumPanel';
 import { Einstellungen } from './ui/Einstellungen';
+import { ExportBlatt } from './ui/ExportBlatt';
 import { EintragWahl } from './ui/EintragWahl';
 import { GpsMessung } from './ui/GpsMessung';
 import { GrenzBearbeitung } from './ui/GrenzBearbeitung';
@@ -70,6 +71,7 @@ export function App() {
   const [offlineOffen, setOfflineOffen] = useState(false);
   const [sortenOffen, setSortenOffen] = useState(false);
   const [einstellungenOffen, setEinstellungenOffen] = useState(false);
+  const [exportOffen, setExportOffen] = useState(false);
   const [karteBereit, setKarteBereit] = useState(false);
   const [baeume, setBaeume] = useState<readonly Baum[]>([]);
   const [sorten, setSorten] = useState<readonly Sorte[]>([]);
@@ -361,6 +363,10 @@ export function App() {
             setMenueOffen(false);
             setEinstellungenOffen(true);
           }}
+          beiExport={() => {
+            setMenueOffen(false);
+            setExportOffen(true);
+          }}
           beiImportDatei={(d) =>
             importDateiGewaehlt(d).catch((e) => {
               console.error(e);
@@ -388,6 +394,10 @@ export function App() {
           }}
           beiSchliessen={() => setUebersichtOffen(false)}
         />
+      )}
+
+      {exportOffen && (
+        <ExportBlatt beiSchliessen={() => setExportOffen(false)} beiFehler={() => fehler('export.fehler')} />
       )}
 
       {einstellungenOffen && (

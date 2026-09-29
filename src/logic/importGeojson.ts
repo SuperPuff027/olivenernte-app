@@ -1,17 +1,44 @@
-import type { Baum, GeoJsonPolygon, Grundstueck, Position, Sorte } from '../model/typen';
-import { naechsteRingfarbe } from './sorten';
+import {
+  ERNTE_STATUS,
+  type Baum,
+  type ErnteStatus,
+  type GeoJsonPolygon,
+  type Grundstueck,
+  type Position,
+  type SaisonStatus,
+  type Sorte,
+} from '../model/typen';
+import { istHexFarbe, naechsteRingfarbe } from './sorten';
 import type { Sprache } from './sprache';
 import { vergleiche } from './text';
 
 // Liest GeoJSON (z. B. testdaten/hain.geojson oder den eigenen Export) und plant den Import.
 // Erkennt Features an properties.typ ("grundstueck" / "baum"), sonst an der Geometrie.
+// Der eigene Export enthält zusätzlich IDs, Zeitstempel, Sorten mit Farben (Mitglied „hrvst“
+// der FeatureCollection) und den Saisonstatus je Baum; damit ist eine vollständige
+// Wiederherstellung möglich. Fremde Dateien ohne diese Angaben funktionieren weiterhin.
+
+/** Name des zusätzlichen Mitglieds der FeatureCollection mit App-Daten */
+export const APP_MITGLIED = 'hrvst';
 
 export interface ImportGrundstueck {
+  id: string | null;
   name: string;
   polygon: GeoJsonPolygon;
+  aktualisiert_am: string | null;
+}
+
+export interface ImportSaison {
+  jahr: number;
+  status: ErnteStatus;
+  fuellstand: number | null;
+  ertrag_kg: number | null;
+  erntedatum: string | null;
+  aktualisiert_am: string | null;
 }
 
 export interface ImportBaum {
+  id: string | null;
   nummer: string;
   lat: number;
   lon: number;
@@ -19,6 +46,15 @@ export interface ImportBaum {
   gps_genauigkeit_m: number | null;
   sorte: string | null;
   notiz: string;
+  aktualisiert_am: string | null;
+  saison: ImportSaison[];
+}
+
+export interface ImportSorte {
+  id: string | null;
+  name: string;
+  ringfarbe: string | null;
+  aktualisiert_am: string | null;
 }
 
 export type UebersprungGrund =
@@ -39,6 +75,8 @@ export interface Uebersprungen {
 export interface GelesenerImport {
   grundstueck: ImportGrundstueck | null;
   baeume: (ImportBaum & { nr: number })[];
+  /** Sortenliste aus dem eigenen Export (Farben, auch Sorten ohne Bäume) */
+  sorten: ImportSorte[];
   uebersprungen: Uebersprungen[];
 }
 
@@ -47,6 +85,8 @@ export type LeseFehler = 'kein_geojson' | 'leer';
 export type LeseErgebnis = { ok: true; daten: GelesenerImport } | { ok: false; fehler: LeseFehler };
 
 export const STANDARD_GRUNDSTUECK_NAME = 'Grundstück';
+
+const MAX_ID_LAENGE = 100;
 
 type Objekt = Record<string, unknown>;
 
@@ -63,6 +103,63 @@ function alsText(wert: unknown): string | null {
 
 function alsZahl(wert: unknown): number | null {
   return typeof wert === 'number' && Number.isFinite(wert) ? wert : null;
+}
+
+function alsId(wert: unknown): string | null {
+  const text = typeof wert === 'string' ? wert.trim() : '';
+  return text !== '' && text.length <= MAX_ID_LAENGE ? text : null;
+}
+
+/** Gültiger Zeitpunkt, normalisiert auf ISO; sonst null. */
+function alsZeitpunkt(wert: unknown): string | null {
+  if (typeof wert !== 'string') return null;
+  const ms = Date.parse(wert);
+  return Number.isFinite(ms) ? new Date(ms).toISOString() : null;
+}
+
+function alsDatum(wert: unknown): string | null {
+  return typeof wert === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(wert) && Number.isFinite(Date.parse(wert)) ? wert : null;
+}
+
+function alsSaison(wert: unknown): ImportSaison | null {
+  if (!istObjekt(wert)) return null;
+  const jahr = alsZahl(wert.jahr);
+  const status = ERNTE_STATUS.find((s) => s === wert.status);
+  if (jahr === null || !Number.isInteger(jahr) || !status) return null;
+  const fuellstand = alsZahl(wert.fuellstand);
+  const ertrag = alsZahl(wert.ertrag_kg);
+  return {
+    jahr,
+    status,
+    fuellstand: fuellstand !== null && Number.isInteger(fuellstand) && fuellstand >= 1 ? fuellstand : null,
+    ertrag_kg: ertrag !== null && ertrag >= 0 ? ertrag : null,
+    erntedatum: alsDatum(wert.erntedatum),
+    aktualisiert_am: alsZeitpunkt(wert.aktualisiert_am),
+  };
+}
+
+function alsSaisonListe(wert: unknown): ImportSaison[] {
+  if (!Array.isArray(wert)) return [];
+  const nachJahr = new Map<number, ImportSaison>();
+  for (const roh of wert) {
+    const s = alsSaison(roh);
+    if (s && !nachJahr.has(s.jahr)) nachJahr.set(s.jahr, s);
+  }
+  return [...nachJahr.values()];
+}
+
+function alsSortenListe(json: Objekt): ImportSorte[] {
+  const app = json[APP_MITGLIED];
+  if (!istObjekt(app) || !Array.isArray(app.sorten)) return [];
+  const sorten: ImportSorte[] = [];
+  for (const roh of app.sorten) {
+    if (!istObjekt(roh)) continue;
+    const name = alsText(roh.name);
+    if (!name) continue;
+    const farbe = typeof roh.ringfarbe === 'string' && istHexFarbe(roh.ringfarbe) ? roh.ringfarbe.toLowerCase() : null;
+    sorten.push({ id: alsId(roh.id), name, ringfarbe: farbe, aktualisiert_am: alsZeitpunkt(roh.aktualisiert_am) });
+  }
+  return sorten;
 }
 
 function alsPosition(wert: unknown): Position | null {
@@ -102,9 +199,9 @@ function featureListe(json: unknown): unknown[] | null {
 
 export function leseGeojson(json: unknown): LeseErgebnis {
   const features = featureListe(json);
-  if (!features) return { ok: false, fehler: 'kein_geojson' };
+  if (!features || !istObjekt(json)) return { ok: false, fehler: 'kein_geojson' };
 
-  const daten: GelesenerImport = { grundstueck: null, baeume: [], uebersprungen: [] };
+  const daten: GelesenerImport = { grundstueck: null, baeume: [], sorten: alsSortenListe(json), uebersprungen: [] };
   const gesehen = new Set<string>();
 
   features.forEach((feature, index) => {
@@ -121,7 +218,12 @@ export function leseGeojson(json: unknown): LeseErgebnis {
       } else if (daten.grundstueck) {
         daten.uebersprungen.push({ nr, nummer: null, grund: 'weiteres_grundstueck' });
       } else {
-        daten.grundstueck = { name: alsText(eigenschaften.name) ?? STANDARD_GRUNDSTUECK_NAME, polygon };
+        daten.grundstueck = {
+          id: alsId(eigenschaften.id),
+          name: alsText(eigenschaften.name) ?? STANDARD_GRUNDSTUECK_NAME,
+          polygon,
+          aktualisiert_am: alsZeitpunkt(eigenschaften.aktualisiert_am),
+        };
       }
       return;
     }
@@ -149,6 +251,7 @@ export function leseGeojson(json: unknown): LeseErgebnis {
     const genauigkeit = alsZahl(eigenschaften.gps_genauigkeit_m);
     daten.baeume.push({
       nr,
+      id: alsId(eigenschaften.id),
       nummer,
       lon: position[0],
       lat: position[1],
@@ -156,6 +259,8 @@ export function leseGeojson(json: unknown): LeseErgebnis {
       gps_genauigkeit_m: genauigkeit !== null && genauigkeit >= 0 ? genauigkeit : null,
       sorte: alsText(eigenschaften.sorte),
       notiz: typeof eigenschaften.notiz === 'string' ? eigenschaften.notiz : '',
+      aktualisiert_am: alsZeitpunkt(eigenschaften.aktualisiert_am),
+      saison: alsSaisonListe(eigenschaften.saison),
     });
   });
 
@@ -173,15 +278,17 @@ export interface ImportPlan {
   grundstueck: { datensatz: Grundstueck; ersetzt: boolean } | null;
   baeume: Baum[];
   neueSorten: Sorte[];
+  saisonStatus: SaisonStatus[];
   uebersprungen: Uebersprungen[];
 }
 
 /**
  * Gleicht das Gelesene mit dem Bestand (nur aktive Datensätze) ab.
  * - Grundstück: ersetzt die Grenze des vorhandenen Grundstücks (gleiche ID), sonst neu.
- * - Bäume: Nummern, die es schon gibt, werden übersprungen.
- * - Sorten: Zuordnung über den Namen (ohne Groß-/Kleinschreibung); fehlende werden mit der
- *   nächsten freien Vorschlagsfarbe angelegt.
+ * - Bäume: Nummern, die es schon gibt, werden übersprungen (samt ihrem Saisonstatus).
+ * - Sorten: Zuordnung über den Namen (ohne Groß-/Kleinschreibung); fehlende werden angelegt,
+ *   mit der Farbe aus der Datei oder der nächsten freien Vorschlagsfarbe.
+ * - IDs und Zeitstempel aus der Datei bleiben erhalten, sofern die ID nicht schon aktiv vergeben ist.
  */
 export function planeImport(
   gelesen: GelesenerImport,
@@ -192,16 +299,22 @@ export function planeImport(
 ): ImportPlan {
   const zeit = jetzt.toISOString();
   const vorhandenesGrundstueck = bestand.grundstuecke[0] ?? null;
+  const vergebeneIds = new Set([...bestand.grundstuecke, ...bestand.baeume, ...bestand.sorten].map((d) => d.id));
+  const idFuer = (ausDatei: string | null) => {
+    const id = ausDatei !== null && !vergebeneIds.has(ausDatei) ? ausDatei : neueId();
+    vergebeneIds.add(id);
+    return id;
+  };
 
   let grundstueck: ImportPlan['grundstueck'] = null;
   if (gelesen.grundstueck) {
     grundstueck = {
       ersetzt: vorhandenesGrundstueck !== null,
       datensatz: {
-        id: vorhandenesGrundstueck?.id ?? neueId(),
+        id: vorhandenesGrundstueck?.id ?? idFuer(gelesen.grundstueck.id),
         name: gelesen.grundstueck.name,
         polygon: gelesen.grundstueck.polygon,
-        aktualisiert_am: zeit,
+        aktualisiert_am: gelesen.grundstueck.aktualisiert_am ?? zeit,
         geloescht: false,
       },
     };
@@ -213,7 +326,14 @@ export function planeImport(
   const sorteFuer = (name: string): string => {
     const treffer = sorten.find((s) => vergleiche(s.name, name, sprache) === 0);
     if (treffer) return treffer.id;
-    const neu: Sorte = { id: neueId(), name, ringfarbe: naechsteRingfarbe(sorten), aktualisiert_am: zeit, geloescht: false };
+    const ausDatei = gelesen.sorten.find((s) => vergleiche(s.name, name, sprache) === 0);
+    const neu: Sorte = {
+      id: idFuer(ausDatei?.id ?? null),
+      name: ausDatei?.name ?? name,
+      ringfarbe: ausDatei?.ringfarbe ?? naechsteRingfarbe(sorten),
+      aktualisiert_am: ausDatei?.aktualisiert_am ?? zeit,
+      geloescht: false,
+    };
     sorten.push(neu);
     neueSorten.push(neu);
     return neu.id;
@@ -222,13 +342,15 @@ export function planeImport(
   const vorhandeneNummern = new Set(bestand.baeume.map((b) => b.nummer));
   const uebersprungen = [...gelesen.uebersprungen];
   const baeume: Baum[] = [];
+  const saisonStatus: SaisonStatus[] = [];
   for (const b of gelesen.baeume) {
     if (vorhandeneNummern.has(b.nummer)) {
       uebersprungen.push({ nr: b.nr, nummer: b.nummer, grund: 'nummer_vorhanden' });
       continue;
     }
+    const id = idFuer(b.id);
     baeume.push({
-      id: neueId(),
+      id,
       nummer: b.nummer,
       grundstueck_id: grundstueckId,
       sorte_id: b.sorte ? sorteFuer(b.sorte) : null,
@@ -237,11 +359,25 @@ export function planeImport(
       gps_genauigkeit_m: b.gps_genauigkeit_m,
       hoehe_m: b.hoehe_m,
       notiz: b.notiz,
-      aktualisiert_am: zeit,
+      aktualisiert_am: b.aktualisiert_am ?? zeit,
       geloescht: false,
     });
+    for (const s of b.saison) {
+      saisonStatus.push({
+        baum_id: id,
+        jahr: s.jahr,
+        status: s.status,
+        fuellstand: s.fuellstand,
+        ertrag_kg: s.ertrag_kg,
+        erntedatum: s.erntedatum,
+        aktualisiert_am: s.aktualisiert_am ?? zeit,
+        geloescht: false,
+      });
+    }
   }
+  // Sorten aus der Sortenliste, die (noch) kein Baum hat, trotzdem übernehmen.
+  for (const s of gelesen.sorten) sorteFuer(s.name);
   uebersprungen.sort((a, b) => a.nr - b.nr);
 
-  return { grundstueck, baeume, neueSorten, uebersprungen };
+  return { grundstueck, baeume, neueSorten, saisonStatus, uebersprungen };
 }

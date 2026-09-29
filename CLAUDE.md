@@ -73,6 +73,7 @@ Alle IDs sind UUIDs. Alle Datensätze haben `aktualisiert_am` (ISO-Zeit) und `ge
 - **Darstellung:** Baum ohne Saisonstatus = `nicht_bereit` (rot); ohne Sorte weißer Ring. Sortenfilter (in der Übersicht): nicht passende Bäume 60 % durchsichtig, passende 10 % größer. Keine Text-Labels auf der Karte (bräuchten Glyph-Dateien aus dem Netz); die Nummer steht im Panel.
 - **Bäume platzieren:** per GPS-Mittelung, per Tipp auf die Karte und per Drag-Korrektur (nur im expliziten Modus „Position verschieben“; danach `gps_genauigkeit_m = null`).
 - **Offline-Karte:** Esri World Imagery, echte Luftbilder über dem Hain nur bis Zoom 18 (darüber vergrößert). Download für die Grundstücks-BBox + 100 m, Zoom 12–18, per Knopf; Workbox-CacheFirst mit eigenem Cache-Namen und Obergrenze.
+- **Export/Import:** Der eigene GeoJSON-Export enthält IDs, Zeitstempel, den Saisonstatus aller Jahre (`properties.saison`) und die Sortenliste mit Farben im Mitglied `hrvst` der FeatureCollection (mit `format`-Version). Import stellt daraus alles wieder her; fremde GeoJSON-Dateien ohne diese Angaben bleiben importierbar. Ein Rundreise-Test sichert das ab.
 - **Grenze per GPS:** „Eckpunkt an meinem Standort setzen“ nutzt dieselbe GPS-Mittelung wie „Baum hier eintragen“.
 - **Ringfarben:** feste, benannte Palette in `src/logic/sorten.ts` ohne Grün/Rot/Grau (Statusfarben) und ohne Weiß (ohne Sorte).
 

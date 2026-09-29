@@ -13,9 +13,10 @@ export async function ladeBestand(): Promise<Bestand> {
 
 /** Schreibt einen Import-Plan in einer Transaktion: alles oder nichts. */
 export async function fuehreImportAus(plan: ImportPlan): Promise<void> {
-  await db.transaction('rw', [db.grundstuecke, db.sorten, db.baeume], async () => {
+  await db.transaction('rw', [db.grundstuecke, db.sorten, db.baeume, db.saison_status], async () => {
     if (plan.grundstueck) await db.grundstuecke.put(plan.grundstueck.datensatz);
     await db.sorten.bulkPut(plan.neueSorten);
     await db.baeume.bulkPut(plan.baeume);
+    await db.saison_status.bulkPut(plan.saisonStatus);
   });
 }

@@ -9,7 +9,7 @@ interface Props {
 }
 
 export function hatNeues(plan: ImportPlan): boolean {
-  return plan.grundstueck !== null || plan.baeume.length > 0;
+  return plan.grundstueck !== null || plan.baeume.length > 0 || plan.neueSorten.length > 0;
 }
 
 export function ImportVorschau({ plan, beiBestaetigen, beiAbbrechen }: Props) {
@@ -43,6 +43,7 @@ export function ImportVorschau({ plan, beiBestaetigen, beiAbbrechen }: Props) {
         )}
         {plan.baeume.length > 0 && <li>{t('import.baeume', { n: plan.baeume.length })}</li>}
         {plan.neueSorten.length > 0 && <li>{t('import.sorten', { n: plan.neueSorten.length })}</li>}
+        {plan.saisonStatus.length > 0 && <li>{t('import.saison', { n: plan.saisonStatus.length })}</li>}
         {!neues && <li>{t('import.nichts_neu')}</li>}
       </ul>
 
