@@ -168,6 +168,32 @@ export const de = {
   'gps.kein_signal': 'Noch kein GPS-Signal. Unter freiem Himmel weiter warten.',
   'gps.nicht_unterstuetzt': 'Dieses Gerät kann keinen Standort bestimmen.',
   'gps.eingetragen': '{nummer} eingetragen (± {genauigkeit}).',
+
+  'einstellungen.titel': 'Einstellungen',
+  'einstellungen.sprache': 'Sprache',
+  'einstellungen.sprache_geraet': 'Wie Gerät ({sprache})',
+  'einstellungen.fuellstand_max': 'Füllstand: höchste Stufe',
+  'einstellungen.fuellstand_max_hilfe': 'Anzahl der Füllstand-Knöpfe im Baum-Panel. Schon vergebene höhere Werte bleiben erhalten.',
+  'einstellungen.ziel_genauigkeit': 'GPS-Zielgenauigkeit',
+  'einstellungen.ziel_genauigkeit_hilfe': 'Bis zu dieser Genauigkeit misst „Baum hier eintragen“. Kleiner ist genauer, dauert aber länger.',
+  'einstellungen.weniger': 'weniger',
+  'einstellungen.mehr': 'mehr',
+  'einstellungen.speicher': 'Datenspeicher',
+  'einstellungen.fehler': 'Einstellungen konnten nicht gespeichert werden.',
+
+  'sprache.de': 'Deutsch',
+  'sprache.en': 'English',
+  'sprache.tr': 'Türkçe',
+
+  'speicher.dauerhaft': 'Dauerhaft: Der Browser löscht die Daten nicht von selbst.',
+  'speicher.nicht_dauerhaft': 'Nicht dauerhaft: Der Browser darf die Daten bei Speicherknappheit löschen.',
+  'speicher.nicht_unterstuetzt': 'Dieser Browser kann den Speicher nicht als dauerhaft markieren.',
+  'speicher.installiert': 'Als App installiert.',
+  'speicher.nicht_installiert': 'Im Browser geöffnet, nicht als App installiert.',
+  'speicher.belegt': 'Belegt: {mb} MB',
+  'speicher.hinweis_ios': 'Auf dem iPhone: In Safari auf „Teilen“ und dann „Zum Home-Bildschirm“ tippen und die App nur noch von dort öffnen. Nur dann bleiben die Daten sicher erhalten.',
+  'speicher.hinweis_installieren': 'Die App installieren (im Browser-Menü „App installieren“ oder „Zum Startbildschirm hinzufügen“) und danach erneut anfragen.',
+  'speicher.erneut': 'Dauerhaften Speicher erneut anfragen',
 } as const;
 
 export type Schluessel = keyof typeof de;

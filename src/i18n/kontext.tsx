@@ -1,18 +1,20 @@
 import { createContext, type ComponentChildren } from 'preact';
-import { useContext, useEffect, useMemo } from 'preact/hooks';
+import { useContext, useEffect, useMemo, useState } from 'preact/hooks';
 import type { Sprache } from '../logic/sprache';
 import { erstelleUebersetzer, type Uebersetzer } from './index';
 
 interface SprachKontext {
   sprache: Sprache;
   t: Uebersetzer;
+  /** Schaltet die Oberfläche sofort um (Speichern übernehmen die Einstellungen). */
+  setzeSprache: (sprache: Sprache) => void;
 }
 
 const Kontext = createContext<SprachKontext | null>(null);
 
 export function SprachAnbieter(props: { sprache: Sprache; children: ComponentChildren }) {
-  const { sprache } = props;
-  const wert = useMemo(() => ({ sprache, t: erstelleUebersetzer(sprache) }), [sprache]);
+  const [sprache, setzeSprache] = useState(props.sprache);
+  const wert = useMemo(() => ({ sprache, t: erstelleUebersetzer(sprache), setzeSprache }), [sprache]);
 
   useEffect(() => {
     document.documentElement.lang = sprache;

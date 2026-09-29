@@ -15,6 +15,7 @@ import { zaehleBaeume } from './logic/statistik';
 import type { Baum, Grundstueck, Position, SaisonStatus, Sorte } from './model/typen';
 import { BaumEintragen } from './ui/BaumEintragen';
 import { BaumPanel } from './ui/BaumPanel';
+import { Einstellungen } from './ui/Einstellungen';
 import { EintragWahl } from './ui/EintragWahl';
 import { GpsMessung } from './ui/GpsMessung';
 import { GrenzBearbeitung } from './ui/GrenzBearbeitung';
@@ -68,6 +69,7 @@ export function App() {
   const [baumVerschieben, setBaumVerschieben] = useState(false);
   const [offlineOffen, setOfflineOffen] = useState(false);
   const [sortenOffen, setSortenOffen] = useState(false);
+  const [einstellungenOffen, setEinstellungenOffen] = useState(false);
   const [karteBereit, setKarteBereit] = useState(false);
   const [baeume, setBaeume] = useState<readonly Baum[]>([]);
   const [sorten, setSorten] = useState<readonly Sorte[]>([]);
@@ -355,6 +357,10 @@ export function App() {
             setMenueOffen(false);
             setOfflineOffen(true);
           }}
+          beiEinstellungen={() => {
+            setMenueOffen(false);
+            setEinstellungenOffen(true);
+          }}
           beiImportDatei={(d) =>
             importDateiGewaehlt(d).catch((e) => {
               console.error(e);
@@ -384,7 +390,14 @@ export function App() {
         />
       )}
 
-      {offlineOffen &&<OfflineKarte beiSchliessen={() => setOfflineOffen(false)} />}
+      {einstellungenOffen && (
+        <Einstellungen
+          beiSchliessen={() => setEinstellungenOffen(false)}
+          beiFehler={() => fehler('einstellungen.fehler')}
+        />
+      )}
+
+      {offlineOffen && <OfflineKarte beiSchliessen={() => setOfflineOffen(false)} />}
 
       {importPlan && (
         <ImportVorschau

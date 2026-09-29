@@ -1,4 +1,6 @@
-export type SpeicherZustand = 'dauerhaft' | 'nicht_dauerhaft' | 'nicht_unterstuetzt';
+import type { SpeicherZustand } from '../logic/einstellungen';
+
+export type { SpeicherZustand };
 
 type Speicher = Pick<StorageManager, 'persist' | 'persisted'>;
 
@@ -15,5 +17,25 @@ export async function fordereDauerhaftenSpeicher(
     return (await speicher.persist()) ? 'dauerhaft' : 'nicht_dauerhaft';
   } catch {
     return 'nicht_dauerhaft';
+  }
+}
+
+/** Nur abfragen, ohne erneut zu bitten (für die Anzeige in den Einstellungen). */
+export async function pruefeSpeicher(speicher: Pick<StorageManager, 'persisted'> | undefined): Promise<SpeicherZustand> {
+  if (!speicher?.persisted) return 'nicht_unterstuetzt';
+  try {
+    return (await speicher.persisted()) ? 'dauerhaft' : 'nicht_dauerhaft';
+  } catch {
+    return 'nicht_dauerhaft';
+  }
+}
+
+/** Belegter Speicher der App in Byte, falls der Browser es verrät. */
+export async function belegterSpeicher(speicher: Pick<StorageManager, 'estimate'> | undefined): Promise<number | null> {
+  if (!speicher?.estimate) return null;
+  try {
+    return (await speicher.estimate()).usage ?? null;
+  } catch {
+    return null;
   }
 }
