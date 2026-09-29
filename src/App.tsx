@@ -10,6 +10,7 @@ import { neueId, saisonJahr } from './logic/datensatz';
 import { baumPunkte } from './logic/farben';
 import { leseGeojson, planeImport, type ImportPlan } from './logic/importGeojson';
 import type { Grundstueck } from './model/typen';
+import { BaumEintragen } from './ui/BaumEintragen';
 import { GrenzBearbeitung } from './ui/GrenzBearbeitung';
 import { ImportVorschau } from './ui/ImportVorschau';
 import { Menue } from './ui/Menue';
@@ -53,6 +54,7 @@ export function App() {
   const [importPlan, setImportPlan] = useState<ImportPlan | null>(null);
   const [grundstueck, setGrundstueck] = useState<Grundstueck | null>(null);
   const [grenzeBearbeiten, setGrenzeBearbeiten] = useState(false);
+  const [baumEintragen, setBaumEintragen] = useState(false);
   const [offlineOffen, setOfflineOffen] = useState(false);
   const [sortenOffen, setSortenOffen] = useState(false);
   const [karteBereit, setKarteBereit] = useState(false);
@@ -121,8 +123,11 @@ export function App() {
     if (steuerung.current) await zeigeAlles(steuerung.current, true);
   }
 
+  const neuLaden = useCallback(() => void ladeDaten().catch(console.error), [ladeDaten]);
+  const modus = grenzeBearbeiten ? 'app app-bearbeitung' : baumEintragen ? 'app app-bearbeitung-einzeilig' : 'app';
+
   return (
-    <main class={grenzeBearbeiten ? 'app app-bearbeitung' : 'app'}>
+    <main class={modus}>
       <Karte beiBereit={beiBereit} beiStandortFehler={beiStandortFehler} />
 
       {hinweis && (
@@ -135,13 +140,27 @@ export function App() {
         </div>
       )}
 
-      {!grenzeBearbeiten && (
+      {!grenzeBearbeiten && !baumEintragen && (
         <nav class="leiste">
           <button type="button" class="knopf" onClick={() => setMenueOffen(true)} aria-label={t('menue.oeffnen')}>
             <svg viewBox="0 0 24 24" aria-hidden="true" class="knopf-symbol">
               <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
             </svg>
             <span>{t('menue.oeffnen')}</span>
+          </button>
+          <button
+            type="button"
+            class="knopf"
+            onClick={() => {
+              setHinweis(null);
+              setBaumEintragen(true);
+            }}
+            aria-label={t('baum.eintragen')}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true" class="knopf-symbol">
+              <path d="M12 4v16M4 12h16" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+            </svg>
+            <span class="knopf-text-optional">{t('baum.eintragen')}</span>
           </button>
           <button
             type="button"
@@ -174,6 +193,15 @@ export function App() {
         />
       )}
 
+      {baumEintragen && steuerung.current && (
+        <BaumEintragen
+          steuerung={steuerung.current}
+          beiGeaendert={neuLaden}
+          beiFertig={() => setBaumEintragen(false)}
+          beiFehler={() => fehler('baum.fehler.speichern')}
+        />
+      )}
+
       {menueOffen && (
         <Menue
           hatGrundstueck={grundstueck !== null}
@@ -203,7 +231,7 @@ export function App() {
       {sortenOffen && (
         <SortenVerwaltung
           beiSchliessen={() => setSortenOffen(false)}
-          beiGeaendert={() => void ladeDaten().catch(console.error)}
+          beiGeaendert={neuLaden}
           beiFehler={() => fehler('sorten.fehler.speichern')}
         />
       )}

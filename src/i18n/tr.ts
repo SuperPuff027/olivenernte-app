@@ -9,6 +9,8 @@ export const tr: Uebersetzung = {
   'allgemein.loeschen': 'Sil',
   'allgemein.ok': 'Tamam',
   'allgemein.schliessen': 'Kapat',
+  'allgemein.fertig': 'Bitti',
+  'allgemein.rueckgaengig': 'Geri al',
 
   'status.nicht_bereit': 'Hazır değil',
   'status.bereit': 'Hazır',
@@ -48,7 +50,6 @@ export const tr: Uebersetzung = {
   'grundstueck.standard_name': 'Arazi',
   'grundstueck.anleitung': 'Haritaya dokun: nokta ekle. Noktayı sürükle: taşı. Noktaya dokun: seç.',
   'grundstueck.punkte': 'Noktalar: {n}',
-  'grundstueck.rueckgaengig': 'Geri al',
   'grundstueck.punkt_loeschen': 'Noktayı sil',
   'grundstueck.verwerfen_frage': 'Sınırdaki değişiklikler silinsin mi?',
   'grundstueck.gespeichert': 'Arazi kaydedildi.',
@@ -89,4 +90,12 @@ export const tr: Uebersetzung = {
   'sorten.fehler.leer': 'Lütfen bir ad girin.',
   'sorten.fehler.doppelt': 'Bu çeşit zaten var.',
   'sorten.fehler.speichern': 'Kaydetme başarısız.',
+
+  'baum.eintragen': 'Ağaç ekle',
+  'baum.tippen_anleitung': 'Haritada ağacın bulunduğu yere dokunun. Her dokunuş yeni bir ağaç ekler.',
+  'baum.eingetragen_anzahl': 'Eklenen: {n}',
+  'baum.eingetragen': '{nummer} eklendi.',
+  'baum.ausserhalb': '{nummer} arazinin dışında.',
+  'baum.entfernt': '{nummer} tekrar kaldırıldı.',
+  'baum.fehler.speichern': 'Ağaç kaydedilemedi.',
 };

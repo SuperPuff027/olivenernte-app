@@ -1,10 +1,10 @@
-import { GeolocateControl, Map as MapLibreMap, setWorkerUrl, type MapOptions } from 'maplibre-gl';
+import { GeolocateControl, Map as MapLibreMap, setWorkerUrl, type MapMouseEvent, type MapOptions } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 import { pruefeAnsicht, type Ansicht } from '../logic/ansicht';
 import type { Bereich } from '../logic/bereich';
 import type { BaumPunkte } from '../logic/farben';
-import type { GeoJsonPolygon } from '../model/typen';
+import type { GeoJsonPolygon, Position } from '../model/typen';
 import { legeBaumEbeneAn, setzeBaumDaten } from './baumEbene';
 import { legeGrundstueckEbeneAn, setzeGrundstueckDaten, zeigeGrundstueckEbene } from './grundstueckEbene';
 import { AKTIVE_KARTENQUELLE, type Kartenquelle } from './quelle';
@@ -35,6 +35,8 @@ export interface KartenSteuerung {
   setzeGrundstueck(polygon: GeoJsonPolygon | null): void;
   zeigeGrundstueck(sichtbar: boolean): void;
   setzeBaeume(punkte: BaumPunkte): void;
+  /** Meldet jeden Tipp auf die Karte; Doppeltipp-Zoom ist solange aus. Rückgabe beendet den Modus. */
+  starteTippModus(beiTipp: (punkt: Position) => void): () => void;
   entferne(): void;
 }
 
@@ -134,6 +136,18 @@ export function erstelleKarte(
     setzeGrundstueck: (polygon) => beiGeladen(() => setzeGrundstueckDaten(karte, polygon)),
     zeigeGrundstueck: (sichtbar) => beiGeladen(() => zeigeGrundstueckEbene(karte, sichtbar)),
     setzeBaeume: (punkte) => beiGeladen(() => setzeBaumDaten(karte, punkte)),
+    starteTippModus: (beiTipp) => {
+      // Sonst würde ein Doppeltipp zwei Tipps melden und zusätzlich zoomen.
+      karte.doubleClickZoom.disable();
+      karte.getCanvas().style.cursor = 'crosshair';
+      const beiKlick = (e: MapMouseEvent) => beiTipp([e.lngLat.lng, e.lngLat.lat]);
+      karte.on('click', beiKlick);
+      return () => {
+        karte.off('click', beiKlick);
+        karte.getCanvas().style.cursor = '';
+        karte.doubleClickZoom.enable();
+      };
+    },
     entferne: () => karte.remove(),
   };
 }

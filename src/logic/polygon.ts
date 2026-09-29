@@ -1,3 +1,4 @@
+import { booleanPointInPolygon } from '@turf/boolean-point-in-polygon';
 import { kinks } from '@turf/kinks';
 import type { GeoJsonPolygon, Position } from '../model/typen';
 
@@ -69,4 +70,9 @@ export function pruefeRing(ring: readonly Position[]): PolygonFehler | null {
   if (ring.length < MIN_PUNKTE) return 'zu_wenige_punkte';
   if (kinks(alsPolygon(ring)).features.length > 0) return 'ueberschneidung';
   return null;
+}
+
+/** Liegt der Punkt im Polygon? Punkte genau auf der Grenze zählen als innen. */
+export function liegtImPolygon(punkt: Position, polygon: GeoJsonPolygon): boolean {
+  return booleanPointInPolygon([punkt[0], punkt[1]], polygon);
 }

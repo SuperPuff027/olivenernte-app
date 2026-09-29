@@ -305,6 +305,18 @@ body,
   bottom: calc(2 * var(--touch-min) + 8px + 2 * var(--abstand) + env(safe-area-inset-bottom));
 }
 
+.app-bearbeitung-einzeilig .maplibregl-ctrl-bottom-right,
+.app-bearbeitung-einzeilig .maplibregl-ctrl-bottom-left {
+  bottom: calc(var(--touch-min) + 2 * var(--abstand) + env(safe-area-inset-bottom));
+}
+
+/* Drei Knöpfe in der Leiste: auf schmalen Handys nur das Symbol des mittleren */
+@media (max-width: 400px) {
+  .knopf-text-optional {
+    display: none;
+  }
+}
+
 .fortschritt {
   width: 100%;
   height: 20px;

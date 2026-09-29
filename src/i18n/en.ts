@@ -9,6 +9,8 @@ export const en: Uebersetzung = {
   'allgemein.loeschen': 'Delete',
   'allgemein.ok': 'OK',
   'allgemein.schliessen': 'Close',
+  'allgemein.fertig': 'Done',
+  'allgemein.rueckgaengig': 'Undo',
 
   'status.nicht_bereit': 'Not ready',
   'status.bereit': 'Ready',
@@ -48,7 +50,6 @@ export const en: Uebersetzung = {
   'grundstueck.standard_name': 'Plot',
   'grundstueck.anleitung': 'Tap map: add point. Drag point: move. Tap point: select.',
   'grundstueck.punkte': 'Points: {n}',
-  'grundstueck.rueckgaengig': 'Undo',
   'grundstueck.punkt_loeschen': 'Delete point',
   'grundstueck.verwerfen_frage': 'Discard changes to the boundary?',
   'grundstueck.gespeichert': 'Plot saved.',
@@ -89,4 +90,12 @@ export const en: Uebersetzung = {
   'sorten.fehler.leer': 'Please enter a name.',
   'sorten.fehler.doppelt': 'This variety already exists.',
   'sorten.fehler.speichern': 'Saving failed.',
+
+  'baum.eintragen': 'Add tree',
+  'baum.tippen_anleitung': 'Tap the map where the tree stands. Every tap adds a new tree.',
+  'baum.eingetragen_anzahl': 'Added: {n}',
+  'baum.eingetragen': '{nummer} added.',
+  'baum.ausserhalb': '{nummer} is outside the property.',
+  'baum.entfernt': '{nummer} removed again.',
+  'baum.fehler.speichern': 'The tree could not be saved.',
 };

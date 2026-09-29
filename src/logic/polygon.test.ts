@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import type { Position } from '../model/typen';
-import { alsPolygon, entfernePunkt, fuegePunktEin, offenerRing, pruefeRing, verschiebePunkt } from './polygon';
+import {
+  alsPolygon,
+  entfernePunkt,
+  fuegePunktEin,
+  liegtImPolygon,
+  offenerRing,
+  pruefeRing,
+  verschiebePunkt,
+} from './polygon';
 
 // Beliebige Testkoordinaten: Quadrat 0,01° × 0,01°
 const A: Position = [10, 20];
@@ -64,5 +72,22 @@ describe('pruefeRing', () => {
   it('erkennt Selbstüberschneidung', () => {
     expect(pruefeRing([A, C, B, D])).toBe('ueberschneidung'); // „Schleife“
     expect(pruefeRing([A, B, C, D])).toBeNull();
+  });
+});
+
+describe('liegtImPolygon', () => {
+  const quadrat = alsPolygon([A, B, C, D]);
+
+  it('innen, außen und auf der Grenze', () => {
+    expect(liegtImPolygon([10.005, 20.005], quadrat)).toBe(true);
+    expect(liegtImPolygon([10.02, 20.005], quadrat)).toBe(false);
+    expect(liegtImPolygon([10, 20.005], quadrat)).toBe(true);
+  });
+
+  it('berücksichtigt eingebuchtete Formen', () => {
+    // L-Form: die Ecke oben rechts fehlt
+    const l = alsPolygon([A, B, [10.01, 20.005], [10.005, 20.005], [10.005, 20.01], D]);
+    expect(liegtImPolygon([10.002, 20.008], l)).toBe(true);
+    expect(liegtImPolygon([10.008, 20.008], l)).toBe(false);
   });
 });

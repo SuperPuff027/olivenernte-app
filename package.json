@@ -14,6 +14,7 @@
   "type": "module",
   "dependencies": {
     "@turf/bbox": "^7.4.0",
+    "@turf/boolean-point-in-polygon": "^7.4.0",
     "@turf/kinks": "^7.4.0",
     "dexie": "^4.4.6",
     "maplibre-gl": "^6.11.2",

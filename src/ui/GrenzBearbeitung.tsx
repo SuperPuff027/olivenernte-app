@@ -93,7 +93,7 @@ export function GrenzBearbeitung({ steuerung, grundstueck, beiGespeichert, beiAb
       <div class="bearbeitung-leiste">
         <div class="bearbeitung-zeile">
           <button type="button" class="knopf" onClick={rueckgaengig} disabled={!geaendert}>
-            {t('grundstueck.rueckgaengig')}
+            {t('allgemein.rueckgaengig')}
           </button>
           <button
             type="button"

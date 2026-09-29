@@ -7,6 +7,8 @@ export const de = {
   'allgemein.loeschen': 'Löschen',
   'allgemein.ok': 'OK',
   'allgemein.schliessen': 'Schließen',
+  'allgemein.fertig': 'Fertig',
+  'allgemein.rueckgaengig': 'Rückgängig',
 
   'status.nicht_bereit': 'Nicht bereit',
   'status.bereit': 'Bereit',
@@ -46,7 +48,6 @@ export const de = {
   'grundstueck.standard_name': 'Grundstück',
   'grundstueck.anleitung': 'Karte antippen: Punkt setzen. Punkt ziehen: verschieben. Punkt antippen: auswählen.',
   'grundstueck.punkte': 'Punkte: {n}',
-  'grundstueck.rueckgaengig': 'Rückgängig',
   'grundstueck.punkt_loeschen': 'Punkt löschen',
   'grundstueck.verwerfen_frage': 'Änderungen an der Grenze verwerfen?',
   'grundstueck.gespeichert': 'Grundstück gespeichert.',
@@ -87,6 +88,14 @@ export const de = {
   'sorten.fehler.leer': 'Bitte einen Namen eingeben.',
   'sorten.fehler.doppelt': 'Diese Sorte gibt es schon.',
   'sorten.fehler.speichern': 'Speichern fehlgeschlagen.',
+
+  'baum.eintragen': 'Baum eintragen',
+  'baum.tippen_anleitung': 'Karte dort antippen, wo der Baum steht. Jeder Tipp trägt einen neuen Baum ein.',
+  'baum.eingetragen_anzahl': 'Eingetragen: {n}',
+  'baum.eingetragen': '{nummer} eingetragen.',
+  'baum.ausserhalb': '{nummer} liegt außerhalb des Grundstücks.',
+  'baum.entfernt': '{nummer} wieder entfernt.',
+  'baum.fehler.speichern': 'Baum konnte nicht gespeichert werden.',
 } as const;
 
 export type Schluessel = keyof typeof de;
