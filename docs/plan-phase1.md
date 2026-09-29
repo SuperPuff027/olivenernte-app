@@ -62,7 +62,7 @@ Nach jedem Schritt: `npm run check`, Commit, Push; die GitHub Action baut und ve
 - [x] **16. Position per Drag korrigieren.** Modus „Position verschieben“ im Panel mit Speichern und Abbrechen.
 - [x] **17. Einstellungen.** Sprache, `fuellstand_max`, `ziel_gps_genauigkeit_m`, Anzeige ob der Speicher dauerhaft ist (mit iOS-Hinweis „Zum Home-Bildschirm“).
 - [x] **18. GeoJSON-Export.** `src/logic/exportGeojson.ts` inkl. Sorten und Saisonstatus; Test: Export und anschließender Import ergeben dieselben Daten. Teilen per Share-Sheet, sonst Download.
-- [ ] **19. Feldtest-Vorbereitung.** Checkliste in `docs/feldtest-phase1.md`: installieren, Karte offline speichern, Flugmodus, Bäume eintragen, App beenden und neu öffnen, Export. Erst Android, vor Abschluss auch iPhone.
+- [x] **19. Feldtest-Vorbereitung.** Checkliste in `docs/feldtest-phase1.md`: installieren, Karte offline speichern, Flugmodus, Bäume eintragen, App beenden und neu öffnen, Export. Erst Android, vor Abschluss auch iPhone.
 
 ## Verifikation
 - Nach jedem Schritt `npm run check` (Typecheck, Lint, Vitest).
