@@ -2,7 +2,7 @@
 
 Offline-fähige Karten-App (PWA) für einen Olivenhain in der Türkei. Jeder Baum ist ein Punkt mit GPS-Position, Sorte, Füllstand und Erntestatus. Genutzt auf iPhone und Android, im Feld oft ohne Empfang.
 
-**Aktuelle Phase: 1** (Details aller Phasen: `docs/phasen.md`; nur den Abschnitt der aktuellen Phase lesen). Plan und Fortschritt von Phase 1: `docs/plan-phase1.md` (erledigte Schritte dort abhaken).
+**Aktuelle Phase: 1** – alle Schritte umgesetzt, Feldtest auf Android und iPhone steht aus (`docs/feldtest-phase1.md`). (Details aller Phasen: `docs/phasen.md`; nur den Abschnitt der aktuellen Phase lesen). Plan und Fortschritt von Phase 1: `docs/plan-phase1.md` (erledigte Schritte dort abhaken).
 
 ## Arbeitsweise
 - Nur die aktuelle Phase umsetzen. Spätere Phasen nur im Datenmodell vorbereiten, keinen Code dafür schreiben.
@@ -74,10 +74,15 @@ Alle IDs sind UUIDs. Alle Datensätze haben `aktualisiert_am` (ISO-Zeit) und `ge
 - **Bäume platzieren:** per GPS-Mittelung, per Tipp auf die Karte und per Drag-Korrektur (nur im expliziten Modus „Position verschieben“; danach `gps_genauigkeit_m = null`).
 - **Offline-Karte:** Esri World Imagery, echte Luftbilder über dem Hain nur bis Zoom 18 (darüber vergrößert). Download für die Grundstücks-BBox + 100 m, Zoom 12–18, per Knopf; Workbox-CacheFirst mit eigenem Cache-Namen und Obergrenze.
 - **Export/Import:** Der eigene GeoJSON-Export enthält IDs, Zeitstempel, den Saisonstatus aller Jahre (`properties.saison`) und die Sortenliste mit Farben im Mitglied `hrvst` der FeatureCollection (mit `format`-Version). Import stellt daraus alles wieder her; fremde GeoJSON-Dateien ohne diese Angaben bleiben importierbar. Ein Rundreise-Test sichert das ab.
+- **GPS-Mittelung** (`src/logic/gpsMittel.ts`): Gewicht 1/Genauigkeit², Fixes über 30 m verworfen, Ausreißer > 3 × eigene Genauigkeit verworfen (nie die Mehrheit), mindestens 5 Fixes, Genauigkeit konservativ (höchstens ein unabhängiger Fix pro 5 s, nie besser als die Streuung). Die GPS-Höhe wird nicht gespeichert (Android liefert Ellipsoid-, iOS Meereshöhe).
+- **Baum-Panel:** nicht modal (Karte bleibt bedienbar, anderer Baum antippen wechselt), jede Änderung wird sofort gespeichert. Baumpunkte sind klein (Zoom 18 ≈ 3 m), antippbar über eine Trefferfläche von ca. 44 px.
+- **Einstellungen:** Füllstand-Maximum 2–10, GPS-Zielgenauigkeit 1–20 m (Schritt 0,5 m); Grenzen in `src/logic/einstellungen.ts`. Sprachwechsel wirkt sofort (`setzeSprache` im Sprachkontext).
+- **Export-Bedienung:** erst Datei vorbereiten, dann „Teilen oder speichern“ im zweiten Tipp (iOS öffnet das Teilen-Menü nur direkt nach einer Nutzeraktion); „Herunterladen“ als Alternative.
 - **Grenze per GPS:** „Eckpunkt an meinem Standort setzen“ nutzt dieselbe GPS-Mittelung wie „Baum hier eintragen“.
 - **Ringfarben:** feste, benannte Palette in `src/logic/sorten.ts` ohne Grün/Rot/Grau (Statusfarben) und ohne Weiß (ohne Sorte).
 
 ## Technische Hinweise
+- Browsertests laufen mit Headless Chrome über CDP-Skripte im Scratchpad (nicht im Repo), mit ausgedachten Koordinaten; GPS wird über `Emulation.setGeolocationOverride` simuliert.
 - MapLibre 6: nur benannte Importe (`Map as MapLibreMap`, `Marker`, …); der Worker wird über `maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url` und `setWorkerUrl` eingebunden. `['zoom']` nur als Eingabe eines `interpolate` auf oberster Ebene.
 - Nicht auf `loaded()`/`isStyleLoaded()` verlassen, sondern `KartenSteuerung.beiGeladen()` nutzen.
 - Beim Start die gespeicherte Sprache mit Zeitlimit laden, damit ein hängendes IndexedDB die App nicht blockiert.

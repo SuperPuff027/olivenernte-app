@@ -1,5 +1,7 @@
 # Plan Phase 1: Kern-Karte (MVP)
 
+**Stand 2026-09-29:** Alle 19 Schritte umgesetzt, geprüft (`npm run check`, Browsertests) und auf GitHub Pages veröffentlicht. **Offen:** Feldtest im Hain auf Android und iPhone nach `docs/feldtest-phase1.md`; erst danach ist Phase 1 abgeschlossen.
+
 ## Kontext
 Phase 1 liefert eine installierbare Offline-PWA: Satellitenkarte, Grundstücksgrenze, Bäume eintragen (GPS gemittelt oder per Tipp), Eigenschaften setzen, Farben sehen, Daten überleben einen Neustart, dazu GeoJSON-Export und -Import.
 
@@ -15,6 +17,10 @@ Phase 1 liefert eine installierbare Offline-PWA: Satellitenkarte, Grundstücksgr
 - Bäume lassen sich auch per Hand auf der Karte platzieren (Schritte 12 und 16), nicht nur per GPS.
 - `fake-indexeddb` für DB-Tests freigegeben.
 - App-Name „HRVST“ (Manifest, Kurzname unter dem Icon, Seitentitel, alle drei Sprachen).
+- „Eckpunkt an meinem Standort setzen“ per GPS-Mittelung (nach Schritt 15 eingebaut).
+- Neue Sorte direkt im Baum-Panel anlegen, Ringfarbe aus einer benannten Palette (Blau, Magenta, Lila, Braun, …).
+- Baumpunkte klein halten, damit dicht stehende Bäume sich nicht überdecken.
+- Sortenfilter schon in Phase 1 (eigentlich Thema von Phase 2): nicht passende Bäume 60 % durchsichtig, passende 10 % größer.
 
 ## Technische Festlegungen
 - **UI mit Preact** statt Vanilla-TS: Panel, Sortenverwaltung, Einstellungen und GPS-Dialog sind formularlastig mit viel Zustand. Die Karte bleibt imperativ (MapLibre), Preact steuert nur die Overlays.
@@ -26,7 +32,7 @@ Phase 1 liefert eine installierbare Offline-PWA: Satellitenkarte, Grundstücksgr
 - Die `Sensor`-Tabelle existiert nur im Dexie-Schema.
 - **Offline-Karte:** Workbox-Runtime-Cache (CacheFirst, eigener Cache-Name, Obergrenze für Einträge) für Esri-Kacheln. „Karte offline speichern“ lädt die Kacheln der Grundstücks-BBox + 100 m Puffer für Zoom 12 bis 18 (höchste Stufe mit echten Luftbildern über dem Hain), mit Anzahl und Fortschritt.
 - **Kartenquelle** an einer Stelle (`src/karte/quelle.ts`), damit später ein Orthofoto sie ersetzen kann.
-- **Export:** `navigator.share` mit Datei, wo verfügbar; sonst Download per Blob-Link.
+- **Export:** in zwei Schritten (Datei vorbereiten, dann „Teilen oder speichern“), weil iOS das Teilen-Menü nur direkt nach einem Tipp öffnet; daneben immer „Herunterladen“ per Blob-Link.
 - **Übersetzungen:** `de.ts` definiert den Schlüssel-Typ, `en.ts` und `tr.ts` sind `Uebersetzung` mit Kopfkommentar „UNGEPRÜFT – von Claude Code erstellt“.
 
 ## Schritte
@@ -58,9 +64,11 @@ Nach jedem Schritt: `npm run check`, Commit, Push; die GitHub Action baut und ve
 - [x] **14. Zähler.** „Bäume gesamt: n“ plus Zahl pro Sorte (inkl. „ohne Sorte“), Zählung in `src/logic/statistik.ts` mit Tests.
   - **Nachtrag:** Sortenfilter in der Übersicht: Sorte antippen hebt sie hervor (10 % größer), alle anderen Bäume werden 60 % durchsichtig; Anzeige und ✕ neben dem Zähler.
 - [x] **15. GPS-Mittelung.** `src/logic/gpsMittel.ts`: gewichtetes Mittel (1/acc²), konservative Genauigkeit, Mindestzahl Fixes, Ausreißer verwerfen, Stopp-Kriterium (mit Tests). UI „Baum hier eintragen“ mit `watchPosition`, Live-Genauigkeit, Anzahl Fixes, „Übernehmen“ und „Abbrechen“.
+  - Umsetzung: Der „+“-Knopf fragt „Hier per GPS“ oder „Per Tipp auf die Karte“. Nach dem Übernehmen öffnet sich das Panel des neuen Baums. Die GPS-Höhe wird nicht gespeichert (Android: Ellipsoid, iOS: Meeresspiegel).
   - [x] **Danach:** „Eckpunkt an meinem Standort setzen“ in der Grenzbearbeitung, mit derselben GPS-Mittelung (ohne Auswahl neuer Punkt an der nächsten Kante, mit Auswahl wird der gewählte Punkt ersetzt).
 - [x] **16. Position per Drag korrigieren.** Modus „Position verschieben“ im Panel mit Speichern und Abbrechen.
 - [x] **17. Einstellungen.** Sprache, `fuellstand_max`, `ziel_gps_genauigkeit_m`, Anzeige ob der Speicher dauerhaft ist (mit iOS-Hinweis „Zum Home-Bildschirm“).
+  - Umsetzung: Sprache wirkt sofort ohne Neuladen; Füllstand 2–10, Zielgenauigkeit 1–20 m in 0,5-m-Schritten (−/+-Knöpfe); Speicher: dauerhaft ja/nein, installiert ja/nein, Belegung, „erneut anfragen“.
 - [x] **18. GeoJSON-Export.** `src/logic/exportGeojson.ts` inkl. Sorten und Saisonstatus; Test: Export und anschließender Import ergeben dieselben Daten. Teilen per Share-Sheet, sonst Download.
 - [x] **19. Feldtest-Vorbereitung.** Checkliste in `docs/feldtest-phase1.md`: installieren, Karte offline speichern, Flugmodus, Bäume eintragen, App beenden und neu öffnen, Export. Erst Android, vor Abschluss auch iPhone.
 
