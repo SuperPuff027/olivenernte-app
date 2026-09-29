@@ -16,7 +16,8 @@ export function SprachAnbieter(props: { sprache: Sprache; children: ComponentChi
 
   useEffect(() => {
     document.documentElement.lang = sprache;
-  }, [sprache]);
+    document.title = wert.t('app.titel');
+  }, [sprache, wert]);
 
   return <Kontext.Provider value={wert}>{props.children}</Kontext.Provider>;
 }

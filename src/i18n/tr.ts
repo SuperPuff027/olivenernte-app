@@ -2,7 +2,7 @@
 import type { Uebersetzung } from './de';
 
 export const tr: Uebersetzung = {
-  'app.titel': 'Zeytin Hasadı',
+  'app.titel': 'HRVST',
 
   'allgemein.speichern': 'Kaydet',
   'allgemein.abbrechen': 'İptal',

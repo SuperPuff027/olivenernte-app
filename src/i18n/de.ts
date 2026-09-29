@@ -1,6 +1,6 @@
 // Quellsprache. Die Schlüssel dieser Datei definieren den Schlüssel-Typ für alle Sprachen.
 export const de = {
-  'app.titel': 'Olivenernte',
+  'app.titel': 'HRVST',
 
   'allgemein.speichern': 'Speichern',
   'allgemein.abbrechen': 'Abbrechen',

@@ -22,8 +22,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
       manifest: {
-        name: 'Olivenernte',
-        short_name: 'Olivenernte',
+        name: 'HRVST',
+        short_name: 'HRVST',
         description: 'Offline-Karte für die Olivenernte',
         lang: 'de',
         start_url: './',
