@@ -42,4 +42,17 @@ export const tr: Uebersetzung = {
   'import.fehler.leer': 'Dosyada ne arazi ne de ağaç var.',
   'import.fehler.lesen': 'Dosya okunamadı.',
   'import.fehler.speichern': 'İçe aktarma başarısız. Hiçbir şey kaydedilmedi.',
+
+  'grundstueck.zeichnen': 'Arazi çiz',
+  'grundstueck.bearbeiten': 'Araziyi düzenle',
+  'grundstueck.standard_name': 'Arazi',
+  'grundstueck.anleitung': 'Haritaya dokun: nokta ekle. Noktayı sürükle: taşı. Noktaya dokun: seç.',
+  'grundstueck.punkte': 'Noktalar: {n}',
+  'grundstueck.rueckgaengig': 'Geri al',
+  'grundstueck.punkt_loeschen': 'Noktayı sil',
+  'grundstueck.verwerfen_frage': 'Sınırdaki değişiklikler silinsin mi?',
+  'grundstueck.gespeichert': 'Arazi kaydedildi.',
+  'grundstueck.fehler.zu_wenige_punkte': 'en az 3 nokta gerekli',
+  'grundstueck.fehler.ueberschneidung': 'sınır kendisiyle kesişiyor',
+  'grundstueck.fehler.speichern': 'Kaydetme başarısız.',
 };

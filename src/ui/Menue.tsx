@@ -2,15 +2,20 @@ import { useSprache } from '../i18n/kontext';
 import { Blatt } from './Blatt';
 
 interface Props {
+  hatGrundstueck: boolean;
   beiSchliessen: () => void;
+  beiGrenzeBearbeiten: () => void;
   beiImportDatei: (datei: File) => void;
 }
 
-export function Menue({ beiSchliessen, beiImportDatei }: Props) {
+export function Menue({ hatGrundstueck, beiSchliessen, beiGrenzeBearbeiten, beiImportDatei }: Props) {
   const { t } = useSprache();
   return (
     <Blatt titel={t('menue.oeffnen')} beiSchliessen={beiSchliessen}>
       <div class="menue-eintraege">
+        <button type="button" class="knopf knopf-breit" onClick={beiGrenzeBearbeiten}>
+          {t(hatGrundstueck ? 'grundstueck.bearbeiten' : 'grundstueck.zeichnen')}
+        </button>
         {/* Label statt Button: öffnet die Dateiauswahl direkt aus der Nutzeraktion (nötig für iOS).
             Ohne accept-Filter, weil iOS .geojson sonst oft ausgraut; der Inhalt wird geprüft. */}
         <label class="knopf knopf-breit">

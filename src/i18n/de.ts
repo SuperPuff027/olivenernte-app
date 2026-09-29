@@ -40,6 +40,19 @@ export const de = {
   'import.fehler.leer': 'Die Datei enthält weder ein Grundstück noch Bäume.',
   'import.fehler.lesen': 'Die Datei konnte nicht gelesen werden.',
   'import.fehler.speichern': 'Import fehlgeschlagen. Es wurde nichts gespeichert.',
+
+  'grundstueck.zeichnen': 'Grundstück zeichnen',
+  'grundstueck.bearbeiten': 'Grundstück bearbeiten',
+  'grundstueck.standard_name': 'Grundstück',
+  'grundstueck.anleitung': 'Karte antippen: Punkt setzen. Punkt ziehen: verschieben. Punkt antippen: auswählen.',
+  'grundstueck.punkte': 'Punkte: {n}',
+  'grundstueck.rueckgaengig': 'Rückgängig',
+  'grundstueck.punkt_loeschen': 'Punkt löschen',
+  'grundstueck.verwerfen_frage': 'Änderungen an der Grenze verwerfen?',
+  'grundstueck.gespeichert': 'Grundstück gespeichert.',
+  'grundstueck.fehler.zu_wenige_punkte': 'mindestens 3 Punkte nötig',
+  'grundstueck.fehler.ueberschneidung': 'Grenze überschneidet sich',
+  'grundstueck.fehler.speichern': 'Speichern fehlgeschlagen.',
 } as const;
 
 export type Schluessel = keyof typeof de;

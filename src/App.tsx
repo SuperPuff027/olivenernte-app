@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
+import { ladeGrundstueck } from './db/grundstueck';
 import { fuehreImportAus, ladeBestand } from './db/import';
 import type { Platzhalter, Schluessel } from './i18n';
 import { useSprache } from './i18n/kontext';
@@ -7,6 +8,8 @@ import type { KartenSteuerung } from './karte/kartenSteuerung';
 import { bereichVon } from './logic/bereich';
 import { neueId } from './logic/datensatz';
 import { leseGeojson, planeImport, type ImportPlan } from './logic/importGeojson';
+import type { Grundstueck } from './model/typen';
+import { GrenzBearbeitung } from './ui/GrenzBearbeitung';
 import { ImportVorschau } from './ui/ImportVorschau';
 import { Menue } from './ui/Menue';
 
@@ -45,6 +48,15 @@ export function App() {
   const [hinweis, setHinweis] = useState<Hinweis | null>(null);
   const [menueOffen, setMenueOffen] = useState(false);
   const [importPlan, setImportPlan] = useState<ImportPlan | null>(null);
+  const [grundstueck, setGrundstueck] = useState<Grundstueck | null>(null);
+  const [grenzeBearbeiten, setGrenzeBearbeiten] = useState(false);
+  const [karteBereit, setKarteBereit] = useState(false);
+
+  const ladeDaten = useCallback(async () => {
+    const g = await ladeGrundstueck();
+    setGrundstueck(g);
+    steuerung.current?.setzeGrundstueck(g?.polygon ?? null);
+  }, []);
 
   useEffect(() => {
     if (!hinweis) return;
@@ -56,9 +68,14 @@ export function App() {
 
   const beiBereit = useCallback((s: KartenSteuerung) => {
     steuerung.current = s;
+    setKarteBereit(true);
     // Beim allerersten Start (noch kein Kartenausschnitt gespeichert) auf das Grundstück zoomen.
     if (!s.hatteGespeicherteAnsicht) void zeigeAlles(s, false).catch(console.error);
   }, []);
+  useEffect(() => {
+    if (karteBereit) void ladeDaten().catch(console.error);
+  }, [karteBereit, ladeDaten]);
+
   const beiStandortFehler = useCallback(
     (code: number) => setHinweis({ schluessel: standortFehlerText(code), art: 'fehler' }),
     [],
@@ -92,11 +109,12 @@ export function App() {
       return fehler('import.fehler.speichern');
     }
     setHinweis({ schluessel: 'import.fertig', art: 'info' });
+    await ladeDaten();
     if (steuerung.current) await zeigeAlles(steuerung.current, true);
   }
 
   return (
-    <main class="app">
+    <main class={grenzeBearbeiten ? 'app app-bearbeitung' : 'app'}>
       <Karte beiBereit={beiBereit} beiStandortFehler={beiStandortFehler} />
 
       {hinweis && (
@@ -109,35 +127,61 @@ export function App() {
         </div>
       )}
 
-      <nav class="leiste">
-        <button type="button" class="knopf" onClick={() => setMenueOffen(true)} aria-label={t('menue.oeffnen')}>
-          <svg viewBox="0 0 24 24" aria-hidden="true" class="knopf-symbol">
-            <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
-          </svg>
-          <span>{t('menue.oeffnen')}</span>
-        </button>
-        <button
-          type="button"
-          class="knopf"
-          onClick={() => steuerung.current?.zeigeStandort()}
-          aria-label={t('standort.zeigen')}
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true" class="knopf-symbol">
-            <circle cx="12" cy="12" r="4" fill="currentColor" />
-            <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2" />
-            <path d="M12 1v4M12 19v4M1 12h4M19 12h4" stroke="currentColor" stroke-width="2" />
-          </svg>
-          <span>{t('standort.zeigen')}</span>
-        </button>
-      </nav>
+      {!grenzeBearbeiten && (
+        <nav class="leiste">
+          <button type="button" class="knopf" onClick={() => setMenueOffen(true)} aria-label={t('menue.oeffnen')}>
+            <svg viewBox="0 0 24 24" aria-hidden="true" class="knopf-symbol">
+              <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+            </svg>
+            <span>{t('menue.oeffnen')}</span>
+          </button>
+          <button
+            type="button"
+            class="knopf"
+            onClick={() => steuerung.current?.zeigeStandort()}
+            aria-label={t('standort.zeigen')}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true" class="knopf-symbol">
+              <circle cx="12" cy="12" r="4" fill="currentColor" />
+              <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2" />
+              <path d="M12 1v4M12 19v4M1 12h4M19 12h4" stroke="currentColor" stroke-width="2" />
+            </svg>
+            <span>{t('standort.zeigen')}</span>
+          </button>
+        </nav>
+      )}
+
+      {grenzeBearbeiten && steuerung.current && (
+        <GrenzBearbeitung
+          steuerung={steuerung.current}
+          grundstueck={grundstueck}
+          beiGespeichert={(g) => {
+            setGrenzeBearbeiten(false);
+            setGrundstueck(g);
+            steuerung.current?.setzeGrundstueck(g.polygon);
+            setHinweis({ schluessel: 'grundstueck.gespeichert', art: 'info' });
+          }}
+          beiAbbruch={() => setGrenzeBearbeiten(false)}
+          beiFehler={() => fehler('grundstueck.fehler.speichern')}
+        />
+      )}
 
       {menueOffen && (
-        <Menue beiSchliessen={() => setMenueOffen(false)} beiImportDatei={(d) =>
+        <Menue
+          hatGrundstueck={grundstueck !== null}
+          beiSchliessen={() => setMenueOffen(false)}
+          beiGrenzeBearbeiten={() => {
+            setMenueOffen(false);
+            setHinweis(null);
+            setGrenzeBearbeiten(true);
+          }}
+          beiImportDatei={(d) =>
             importDateiGewaehlt(d).catch((e) => {
               console.error(e);
               fehler('import.fehler.lesen');
             })
-          } />
+          }
+        />
       )}
 
       {importPlan && (

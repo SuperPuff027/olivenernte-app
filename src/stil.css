@@ -220,3 +220,87 @@ body,
 .maplibregl-ctrl-bottom-left {
   bottom: calc(var(--touch-min) + 2 * var(--abstand) + env(safe-area-inset-bottom));
 }
+
+.knopf:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* Grenzbearbeitung */
+.bearbeitung-kopf {
+  position: absolute;
+  top: calc(var(--abstand) + env(safe-area-inset-top));
+  left: var(--abstand);
+  right: var(--abstand);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  background: var(--farbe-flaeche);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 40%);
+  font-size: 0.95rem;
+}
+
+.bearbeitung-kopf strong {
+  font-size: 1.1rem;
+}
+
+.bearbeitung-fehler {
+  color: var(--farbe-warnung);
+  font-weight: 600;
+}
+
+.bearbeitung-leiste {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: var(--abstand);
+  padding-bottom: calc(var(--abstand) + env(safe-area-inset-bottom));
+}
+
+.bearbeitung-zeile {
+  display: flex;
+  gap: var(--abstand);
+}
+
+.bearbeitung-zeile .knopf {
+  flex: 1;
+  justify-content: center;
+}
+
+/* Eckpunkt: sichtbarer Kreis 24 px, Trefferfläche 48 px */
+.eckpunkt {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  cursor: grab;
+  touch-action: none;
+}
+
+.eckpunkt::after {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  background: #ffd600;
+  border: 3px solid #000000;
+  box-shadow: 0 0 0 2px #ffffff;
+}
+
+.eckpunkt-gewaehlt::after {
+  inset: 8px;
+  background: var(--farbe-warnung);
+  border-color: #ffffff;
+  box-shadow: 0 0 0 2px #000000;
+}
+
+/* Im Bearbeitungsmodus hat die Leiste zwei Reihen */
+.app-bearbeitung .maplibregl-ctrl-bottom-right,
+.app-bearbeitung .maplibregl-ctrl-bottom-left {
+  bottom: calc(2 * var(--touch-min) + 8px + 2 * var(--abstand) + env(safe-area-inset-bottom));
+}

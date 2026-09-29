@@ -3,6 +3,8 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 import { pruefeAnsicht, type Ansicht } from '../logic/ansicht';
 import type { Bereich } from '../logic/bereich';
+import type { GeoJsonPolygon } from '../model/typen';
+import { legeGrundstueckEbeneAn, setzeGrundstueckDaten, zeigeGrundstueckEbene } from './grundstueckEbene';
 import { AKTIVE_KARTENQUELLE, type Kartenquelle } from './quelle';
 
 // MapLibre lädt seinen Worker als eigene Datei; Vite bündelt sie und liefert die URL.
@@ -26,6 +28,10 @@ export interface KartenSteuerung {
   /** Zeigt und verfolgt die eigene Position (inkl. Genauigkeitskreis). */
   zeigeStandort(): void;
   zeigeBereich(bereich: Bereich, animiert?: boolean): void;
+  /** Führt fn aus, sobald die Karte (einmalig) geladen ist; danach sofort. */
+  beiGeladen(fn: () => void): void;
+  setzeGrundstueck(polygon: GeoJsonPolygon | null): void;
+  zeigeGrundstueck(sichtbar: boolean): void;
   entferne(): void;
 }
 
@@ -100,18 +106,29 @@ export function erstelleKarte(
   karte.addControl(standort);
   standort.on('error', (e) => beiStandortFehler(e.code));
 
+  // Eigenes Signal statt loaded()/isStyleLoaded(): die sind auch nach dem Start zeitweise false
+  // (Kacheln oder GeoJSON laden), und ein once('load') danach feuert nie mehr.
+  let geladen = false;
+  const wartende: (() => void)[] = [];
+  const beiGeladen = (fn: () => void) => (geladen ? fn() : wartende.push(fn));
+  karte.once('load', () => {
+    legeGrundstueckEbeneAn(karte);
+    geladen = true;
+    for (const fn of wartende.splice(0)) fn();
+  });
+
   return {
     karte,
     hatteGespeicherteAnsicht: gespeichert !== null,
-    zeigeStandort: () => {
-      if (karte.loaded()) standort.trigger();
-      else karte.once('load', () => standort.trigger());
-    },
+    zeigeStandort: () => beiGeladen(() => standort.trigger()),
     zeigeBereich: (bereich, animiert = true) => {
       // Aus weiter Entfernung (z. B. Weltansicht) springen statt sekundenlang zu fliegen.
       const nah = karte.getZoom() >= ANIMATION_AB_ZOOM;
       karte.fitBounds(bereich, { padding: 40, maxZoom: BEREICH_MAX_ZOOM, animate: animiert && nah });
     },
+    beiGeladen,
+    setzeGrundstueck: (polygon) => beiGeladen(() => setzeGrundstueckDaten(karte, polygon)),
+    zeigeGrundstueck: (sichtbar) => beiGeladen(() => zeigeGrundstueckEbene(karte, sichtbar)),
     entferne: () => karte.remove(),
   };
 }

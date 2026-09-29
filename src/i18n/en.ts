@@ -42,4 +42,17 @@ export const en: Uebersetzung = {
   'import.fehler.leer': 'The file contains neither a plot nor trees.',
   'import.fehler.lesen': 'The file could not be read.',
   'import.fehler.speichern': 'Import failed. Nothing was saved.',
+
+  'grundstueck.zeichnen': 'Draw plot',
+  'grundstueck.bearbeiten': 'Edit plot',
+  'grundstueck.standard_name': 'Plot',
+  'grundstueck.anleitung': 'Tap map: add point. Drag point: move. Tap point: select.',
+  'grundstueck.punkte': 'Points: {n}',
+  'grundstueck.rueckgaengig': 'Undo',
+  'grundstueck.punkt_loeschen': 'Delete point',
+  'grundstueck.verwerfen_frage': 'Discard changes to the boundary?',
+  'grundstueck.gespeichert': 'Plot saved.',
+  'grundstueck.fehler.zu_wenige_punkte': 'at least 3 points needed',
+  'grundstueck.fehler.ueberschneidung': 'boundary crosses itself',
+  'grundstueck.fehler.speichern': 'Saving failed.',
 };
