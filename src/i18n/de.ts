@@ -11,6 +11,11 @@ export const de = {
   'status.nicht_bereit': 'Nicht bereit',
   'status.bereit': 'Bereit',
   'status.geerntet': 'Geerntet',
+
+  'standort.zeigen': 'Mein Standort',
+  'standort.fehler.verweigert': 'Standortzugriff verweigert. Bitte in den Einstellungen des Telefons erlauben.',
+  'standort.fehler.nicht_verfuegbar': 'Standort nicht verfügbar. Ist GPS eingeschaltet?',
+  'standort.fehler.zeitueberschreitung': 'Kein GPS-Signal. Bitte unter freiem Himmel erneut versuchen.',
 } as const;
 
 export type Schluessel = keyof typeof de;

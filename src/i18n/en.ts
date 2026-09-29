@@ -13,4 +13,9 @@ export const en: Uebersetzung = {
   'status.nicht_bereit': 'Not ready',
   'status.bereit': 'Ready',
   'status.geerntet': 'Harvested',
+
+  'standort.zeigen': 'My location',
+  'standort.fehler.verweigert': 'Location access denied. Please allow it in the phone settings.',
+  'standort.fehler.nicht_verfuegbar': 'Location unavailable. Is GPS turned on?',
+  'standort.fehler.zeitueberschreitung': 'No GPS signal. Please try again under open sky.',
 };

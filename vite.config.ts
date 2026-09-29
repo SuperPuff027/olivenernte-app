@@ -40,6 +40,12 @@ export default defineConfig({
       },
     }),
   ],
+  // Der MapLibre-Worker ist ein ES-Modul.
+  worker: { format: 'es' },
+  build: {
+    // MapLibre allein ist ~1 MB; wird ohnehin vollständig für den Offline-Start vorab gespeichert.
+    chunkSizeWarningLimit: 1500,
+  },
   test: {
     include: ['src/**/*.test.ts'],
     environment: 'node',

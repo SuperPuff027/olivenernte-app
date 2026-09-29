@@ -13,4 +13,9 @@ export const tr: Uebersetzung = {
   'status.nicht_bereit': 'Hazır değil',
   'status.bereit': 'Hazır',
   'status.geerntet': 'Hasat edildi',
+
+  'standort.zeigen': 'Konumum',
+  'standort.fehler.verweigert': 'Konum erişimi reddedildi. Lütfen telefon ayarlarından izin verin.',
+  'standort.fehler.nicht_verfuegbar': 'Konum alınamıyor. GPS açık mı?',
+  'standort.fehler.zeitueberschreitung': 'GPS sinyali yok. Lütfen açık alanda tekrar deneyin.',
 };

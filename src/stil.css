@@ -1,0 +1,113 @@
+/* Feldeinsatz: große Touch-Ziele, hoher Kontrast, lesbar in der Sonne. */
+:root {
+  --farbe-grund: #2e4a1f;
+  --farbe-flaeche: #ffffff;
+  --farbe-text: #111111;
+  --farbe-text-invers: #ffffff;
+  --farbe-akzent: #2e4a1f;
+  --farbe-warnung: #b00020;
+  --touch-min: 56px;
+  --abstand: 12px;
+  --radius: 12px;
+  --schrift: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--schrift);
+  font-size: 18px;
+  color: var(--farbe-text);
+  -webkit-text-size-adjust: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--farbe-grund);
+  /* Kein Pull-to-Refresh / Überscrollen beim Verschieben der Karte */
+  overscroll-behavior: none;
+}
+
+.app {
+  position: fixed;
+  inset: 0;
+}
+
+.karte {
+  position: absolute;
+  inset: 0;
+}
+
+/* Dort liegt nur der kleine MapLibre-Standortknopf; ausgelöst wird er über den eigenen Knopf. */
+.maplibregl-ctrl-top-right {
+  display: none;
+}
+
+.leiste {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--abstand);
+  padding: var(--abstand);
+  padding-bottom: calc(var(--abstand) + env(safe-area-inset-bottom));
+  pointer-events: none;
+}
+
+.knopf {
+  pointer-events: auto;
+  min-height: var(--touch-min);
+  min-width: var(--touch-min);
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: 2px solid var(--farbe-text);
+  border-radius: var(--radius);
+  background: var(--farbe-flaeche);
+  color: var(--farbe-text);
+  font: inherit;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 40%);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.knopf:active {
+  background: #e6e6e6;
+}
+
+.knopf:focus-visible {
+  outline: 3px solid #ffbf00;
+  outline-offset: 2px;
+}
+
+.knopf-symbol {
+  width: 28px;
+  height: 28px;
+  flex: none;
+}
+
+.hinweis {
+  position: absolute;
+  top: calc(var(--abstand) + env(safe-area-inset-top));
+  left: var(--abstand);
+  right: var(--abstand);
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: var(--farbe-warnung);
+  color: var(--farbe-text-invers);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 40%);
+}
+
+/* Namensnennung über der Knopfleiste halten */
+.maplibregl-ctrl-bottom-right,
+.maplibregl-ctrl-bottom-left {
+  bottom: calc(var(--touch-min) + 2 * var(--abstand) + env(safe-area-inset-bottom));
+}
