@@ -3,3 +3,6 @@ dist/
 dev-dist/
 *.local
 .vite/
+
+# Echte Grundstücks- und Baumkoordinaten: privat, nur lokal
+testdaten/

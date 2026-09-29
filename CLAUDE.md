@@ -10,6 +10,7 @@ Offline-fähige Karten-App (PWA) für einen Olivenhain in der Türkei. Jeder Bau
 - Kleine Schritte. Nach jedem Schritt `npm run check` ausführen, dann committen.
 - Reine Logik (Farbzuordnung, Status, Filter, GPS-Mittelung, später Saisonwechsel und Interpolation) liegt in `src/logic/` ohne UI-Abhängigkeiten und hat Vitest-Tests.
 - Keine Koordinaten oder Baumdaten erfinden. Echte Daten liegen in `testdaten/`. Fehlen sie, nachfragen.
+- `testdaten/` ist privat und nicht im (öffentlichen) Repo. Echte Koordinaten nie in Code, Tests oder Commits übernehmen; Tests, die `testdaten/` brauchen, überspringen sich, wenn der Ordner fehlt (z. B. in CI).
 - Keine neuen Abhängigkeiten außerhalb des Stacks ohne Rückfrage.
 
 ## Stack (festgelegt)
