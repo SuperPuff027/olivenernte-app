@@ -21,9 +21,18 @@ const TREFFER_PX = 22;
 const AUSWAHL_EBENEN = ['baeume-auswahl-schatten', 'baeume-auswahl'];
 
 // zoom ist nur als Eingabe eines interpolate auf oberster Ebene erlaubt, daher je Wert ein eigener Ausdruck.
+// Die Stützwerte werden mit der Eigenschaft „groesse“ jedes Baums (Sortenfilter) multipliziert.
 function nachZoom(wert: (stufe: (typeof STUFEN)[number]) => number) {
-  return ['interpolate', ['linear'], ['zoom'], ...STUFEN.flatMap((st) => [st.zoom, wert(st)])] as unknown as number;
+  return [
+    'interpolate',
+    ['linear'],
+    ['zoom'],
+    ...STUFEN.flatMap((st) => [st.zoom, ['*', wert(st), ['get', 'groesse']]]),
+  ] as unknown as number;
 }
+const DECKKRAFT = ['get', 'deckkraft'] as unknown as number;
+/** Gefilterte (größere) Bäume über den durchsichtigen zeichnen */
+const REIHENFOLGE = ['get', 'groesse'] as unknown as number;
 
 const LEER: BaumPunkte = { type: 'FeatureCollection', features: [] };
 
@@ -35,9 +44,10 @@ export function legeBaumEbeneAn(karte: MapLibreMap) {
     id: 'baeume-schatten',
     type: 'circle',
     source: QUELLE,
+    layout: { 'circle-sort-key': REIHENFOLGE },
     paint: {
       'circle-color': '#000000',
-      'circle-opacity': 0.7,
+      'circle-opacity': ['*', 0.7, ['get', 'deckkraft']] as unknown as number,
       'circle-radius': nachZoom((st) => st.radius + st.ring + SCHATTEN_EXTRA),
     },
   });
@@ -45,8 +55,11 @@ export function legeBaumEbeneAn(karte: MapLibreMap) {
     id: BAUM_EBENE,
     type: 'circle',
     source: QUELLE,
+    layout: { 'circle-sort-key': REIHENFOLGE },
     paint: {
       'circle-color': ['get', 'innen'],
+      'circle-opacity': DECKKRAFT,
+      'circle-stroke-opacity': DECKKRAFT,
       'circle-radius': nachZoom((st) => st.radius),
       'circle-stroke-color': ['get', 'ring'],
       'circle-stroke-width': nachZoom((st) => st.ring),

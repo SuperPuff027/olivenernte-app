@@ -149,6 +149,8 @@ export const tr: Uebersetzung = {
   'statistik.gesamt': 'Toplam ağaç',
   'statistik.pro_sorte': 'Çeşide göre',
   'statistik.keine_baeume': 'Henüz ağaç eklenmedi.',
+  'filter.anleitung': 'Haritada öne çıkarmak için bir çeşide dokunun. Diğer ağaçlar saydamlaşır.',
+  'filter.aufheben': 'Filtreyi kaldır',
 
   'eintragen.gps': 'Burada GPS ile',
   'eintragen.gps_text': 'Ağacın yanında durun. Konum birkaç kez ölçülür ve ortalaması alınır.',

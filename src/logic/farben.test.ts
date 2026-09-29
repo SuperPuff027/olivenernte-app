@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import type { Baum, SaisonStatus, Sorte } from '../model/typen';
-import { baumPunkte, innenfarbe, RING_OHNE_SORTE, ringfarbe, STATUS_FARBEN } from './farben';
+import {
+  baumPunkte,
+  FILTER_DECKKRAFT,
+  FILTER_VERGROESSERUNG,
+  innenfarbe,
+  RING_OHNE_SORTE,
+  ringfarbe,
+  STATUS_FARBEN,
+} from './farben';
 
 const basis = { aktualisiert_am: '2026-01-01T00:00:00.000Z', geloescht: false };
 const sorte = (id: string, ringfarbe: string, geloescht = false): Sorte => ({ id, name: id, ringfarbe, ...basis, geloescht });
@@ -68,9 +76,9 @@ describe('baumPunkte', () => {
       [status('1', 'bereit'), status('2', 'geerntet', true)],
     );
     expect(punkte.features.map((f) => f.properties)).toEqual([
-      { id: '1', nummer: 'B-1', innen: STATUS_FARBEN.bereit, ring: '#1e88e5' },
-      { id: '2', nummer: 'B-2', innen: STATUS_FARBEN.nicht_bereit, ring: RING_OHNE_SORTE },
-      { id: '3', nummer: 'B-3', innen: STATUS_FARBEN.nicht_bereit, ring: RING_OHNE_SORTE },
+      { id: '1', nummer: 'B-1', innen: STATUS_FARBEN.bereit, ring: '#1e88e5', deckkraft: 1, groesse: 1 },
+      { id: '2', nummer: 'B-2', innen: STATUS_FARBEN.nicht_bereit, ring: RING_OHNE_SORTE, deckkraft: 1, groesse: 1 },
+      { id: '3', nummer: 'B-3', innen: STATUS_FARBEN.nicht_bereit, ring: RING_OHNE_SORTE, deckkraft: 1, groesse: 1 },
     ]);
     expect(punkte.features[0]?.geometry.coordinates).toEqual([10, 20]);
     expect(punkte.features[0]?.id).toBe('1');
@@ -78,5 +86,31 @@ describe('baumPunkte', () => {
 
   it('lässt gelöschte Bäume weg', () => {
     expect(baumPunkte([baum('1', null, true)], [], []).features).toEqual([]);
+  });
+});
+
+describe('baumPunkte mit Sortenfilter', () => {
+  const baeume = [baum('1', 'm'), baum('2', 'a'), baum('3', null), baum('4', 'weg'), baum('5', 'geloescht')];
+  const sorten = [sorte('m', '#1e88e5'), sorte('a', '#ffd600'), sorte('geloescht', '#000000', true)];
+  const darstellung = (filter: Parameters<typeof baumPunkte>[3]) =>
+    baumPunkte(baeume, sorten, [], filter).features.map((f) => `${f.id}:${f.properties.deckkraft}/${f.properties.groesse}`);
+  const hell = `${FILTER_DECKKRAFT}/1`;
+  const gross = `1/${FILTER_VERGROESSERUNG}`;
+
+  it('ohne Filter alle normal', () => {
+    expect(darstellung(null)).toEqual(['1:1/1', '2:1/1', '3:1/1', '4:1/1', '5:1/1']);
+  });
+
+  it('gewählte Sorte größer, alle anderen durchsichtig', () => {
+    expect(darstellung({ sorteId: 'm' })).toEqual([`1:${gross}`, `2:${hell}`, `3:${hell}`, `4:${hell}`, `5:${hell}`]);
+  });
+
+  it('Filter „ohne Sorte“ trifft auch Bäume mit gelöschter oder unbekannter Sorte', () => {
+    expect(darstellung({ sorteId: null })).toEqual([`1:${hell}`, `2:${hell}`, `3:${gross}`, `4:${gross}`, `5:${gross}`]);
+  });
+
+  it('60 % durchsichtig, 10 % größer', () => {
+    expect(FILTER_DECKKRAFT).toBeCloseTo(0.4);
+    expect(FILTER_VERGROESSERUNG).toBeCloseTo(1.1);
   });
 });

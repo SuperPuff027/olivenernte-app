@@ -147,6 +147,8 @@ export const de = {
   'statistik.gesamt': 'Bäume gesamt',
   'statistik.pro_sorte': 'Nach Sorte',
   'statistik.keine_baeume': 'Noch keine Bäume eingetragen.',
+  'filter.anleitung': 'Sorte antippen, um sie auf der Karte hervorzuheben. Die anderen Bäume werden durchsichtig.',
+  'filter.aufheben': 'Filter aufheben',
 
   'eintragen.gps': 'Hier per GPS',
   'eintragen.gps_text': 'Am Baum stehen. Die Position wird mehrfach gemessen und gemittelt.',

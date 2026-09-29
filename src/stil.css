@@ -570,12 +570,42 @@ body,
   box-shadow: none;
 }
 
-/* Zähler oben links; Hinweise (z-index 20) liegen darüber */
+/* Zähler oben links, daneben ein aktiver Sortenfilter; Hinweise (z-index 20) liegen darüber */
 .zaehler {
   position: absolute;
   top: calc(var(--abstand) + env(safe-area-inset-top));
   left: var(--abstand);
+  right: var(--abstand);
   z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.filter-anzeige {
+  pointer-events: auto;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--touch-min);
+  padding-left: 12px;
+  border: 2px solid var(--farbe-text);
+  border-radius: var(--radius);
+  background: var(--farbe-flaeche);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 40%);
+}
+
+.filter-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.filter-anzeige .knopf-schliessen {
+  border: none;
 }
 
 .statistik-gesamt {
@@ -597,11 +627,30 @@ body,
 }
 
 .statistik-liste li {
+  border-bottom: 1px solid #d0d0d0;
+}
+
+.statistik-zeile {
+  width: 100%;
   display: flex;
   align-items: center;
   gap: var(--abstand);
   min-height: var(--touch-min);
-  border-bottom: 1px solid #d0d0d0;
+  padding: 0 8px;
+  border: none;
+  border-radius: var(--radius);
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.statistik-zeile[aria-pressed='true'] {
+  background: #e3ecd9;
+  outline: 3px solid var(--farbe-akzent);
+  outline-offset: -3px;
+  font-weight: 700;
 }
 
 .statistik-name {

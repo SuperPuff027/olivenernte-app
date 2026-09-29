@@ -149,6 +149,8 @@ export const en: Uebersetzung = {
   'statistik.gesamt': 'Trees in total',
   'statistik.pro_sorte': 'By variety',
   'statistik.keine_baeume': 'No trees added yet.',
+  'filter.anleitung': 'Tap a variety to highlight it on the map. The other trees become transparent.',
+  'filter.aufheben': 'Clear filter',
 
   'eintragen.gps': 'Here by GPS',
   'eintragen.gps_text': 'Stand at the tree. The position is measured several times and averaged.',

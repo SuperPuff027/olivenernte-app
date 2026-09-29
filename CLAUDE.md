@@ -70,7 +70,7 @@ Alle IDs sind UUIDs. Alle Datensätze haben `aktualisiert_am` (ISO-Zeit) und `ge
 - **Datenmodell-Abweichungen:** `Baum.sorte_id`, `fuellstand`, `ertrag_kg`, `erntedatum` dürfen `null` sein; `Baum.hoehe_m` (optional, aus GeoJSON-Höhe); Einstellungen haben `sprache` (`null` = Gerätesprache). `SaisonStatus` hat den Schlüssel `[baum_id+jahr]`; Saison = Kalenderjahr.
 - **Ein Grundstück.** Bäume gehören zu ihm, auch wenn sie außerhalb der Grenze liegen (dann nur ein Hinweis).
 - **Baumnummern:** Format `B-n`. Neue Bäume bekommen die höchste B-Nummer unter den aktiven Bäumen + 1 (Lücken bleiben frei, Varianten wie „B_7“ zählen mit, fremde Formate werden ignoriert). Nummern sind eindeutig; der Import überspringt vorhandene.
-- **Darstellung:** Baum ohne Saisonstatus = `nicht_bereit` (rot); ohne Sorte weißer Ring. Keine Text-Labels auf der Karte (bräuchten Glyph-Dateien aus dem Netz); die Nummer steht im Panel.
+- **Darstellung:** Baum ohne Saisonstatus = `nicht_bereit` (rot); ohne Sorte weißer Ring. Sortenfilter (in der Übersicht): nicht passende Bäume 60 % durchsichtig, passende 10 % größer. Keine Text-Labels auf der Karte (bräuchten Glyph-Dateien aus dem Netz); die Nummer steht im Panel.
 - **Bäume platzieren:** per GPS-Mittelung, per Tipp auf die Karte und per Drag-Korrektur (nur im expliziten Modus „Position verschieben“; danach `gps_genauigkeit_m = null`).
 - **Offline-Karte:** Esri World Imagery, echte Luftbilder über dem Hain nur bis Zoom 18 (darüber vergrößert). Download für die Grundstücks-BBox + 100 m, Zoom 12–18, per Knopf; Workbox-CacheFirst mit eigenem Cache-Namen und Obergrenze.
 - **Grenze per GPS:** „Eckpunkt an meinem Standort setzen“ nutzt dieselbe GPS-Mittelung wie „Baum hier eintragen“.

@@ -22,11 +22,23 @@ export function ringfarbe(sorte: Sorte | null | undefined): string {
   return sorte && !sorte.geloescht && istHexFarbe(sorte.ringfarbe) ? sorte.ringfarbe : RING_OHNE_SORTE;
 }
 
+/** Sortenfilter: sorteId null = Bäume ohne Sorte; der ganze Filter null = kein Filter. */
+export type SortenFilter = { sorteId: string | null } | null;
+
+/** Deckkraft nicht passender Bäume bei aktivem Filter (60 % durchsichtig) */
+export const FILTER_DECKKRAFT = 0.4;
+/** Größe passender Bäume bei aktivem Filter (10 % größer) */
+export const FILTER_VERGROESSERUNG = 1.1;
+
 export interface BaumPunktEigenschaften {
   id: string;
   nummer: string;
   innen: string;
   ring: string;
+  /** 1 oder FILTER_DECKKRAFT */
+  deckkraft: number;
+  /** Faktor für Radius und Ring: 1 oder FILTER_VERGROESSERUNG */
+  groesse: number;
 }
 
 export interface BaumPunkte {
@@ -39,13 +51,19 @@ export interface BaumPunkte {
   }[];
 }
 
-/** GeoJSON für die Karte: aktive Bäume mit berechneten Farben der Saison. */
+/**
+ * GeoJSON für die Karte: aktive Bäume mit berechneten Farben der Saison.
+ * Mit Filter werden nicht passende Bäume durchsichtig und passende etwas größer. Bäume mit
+ * gelöschter oder unbekannter Sorte gelten wie auf der Karte (weißer Ring) als „ohne Sorte“.
+ */
 export function baumPunkte(
   baeume: readonly Baum[],
   sorten: readonly Sorte[],
   saisonStatus: readonly SaisonStatus[],
+  filter: SortenFilter = null,
 ): BaumPunkte {
-  const sorteNachId = new Map(sorten.map((s) => [s.id, s]));
+  const sorteNachId = new Map(sorten.filter((s) => !s.geloescht).map((s) => [s.id, s]));
+  const passt = (b: Baum) => (b.sorte_id !== null && sorteNachId.has(b.sorte_id) ? b.sorte_id : null) === filter?.sorteId;
   const statusNachBaum = new Map(saisonStatus.filter((s) => !s.geloescht).map((s) => [s.baum_id, s.status]));
   return {
     type: 'FeatureCollection',
@@ -59,6 +77,8 @@ export function baumPunkte(
           nummer: b.nummer,
           innen: innenfarbe(statusNachBaum.get(b.id)),
           ring: ringfarbe(b.sorte_id ? sorteNachId.get(b.sorte_id) : null),
+          deckkraft: filter && !passt(b) ? FILTER_DECKKRAFT : 1,
+          groesse: filter && passt(b) ? FILTER_VERGROESSERUNG : 1,
         },
         geometry: { type: 'Point', coordinates: [b.lon, b.lat] },
       })),

@@ -8,11 +8,11 @@ import { Karte } from './karte/Karte';
 import type { KartenSteuerung } from './karte/kartenSteuerung';
 import { bereichVon } from './logic/bereich';
 import { neueId, saisonJahr } from './logic/datensatz';
-import { baumPunkte } from './logic/farben';
+import { baumPunkte, RING_OHNE_SORTE, type SortenFilter } from './logic/farben';
 import { formatiereMeter, formatiereZahl } from './logic/format';
 import { leseGeojson, planeImport, type ImportPlan } from './logic/importGeojson';
 import { zaehleBaeume } from './logic/statistik';
-import type { Baum, Grundstueck, Position, Sorte } from './model/typen';
+import type { Baum, Grundstueck, Position, SaisonStatus, Sorte } from './model/typen';
 import { BaumEintragen } from './ui/BaumEintragen';
 import { BaumPanel } from './ui/BaumPanel';
 import { EintragWahl } from './ui/EintragWahl';
@@ -71,6 +71,8 @@ export function App() {
   const [karteBereit, setKarteBereit] = useState(false);
   const [baeume, setBaeume] = useState<readonly Baum[]>([]);
   const [sorten, setSorten] = useState<readonly Sorte[]>([]);
+  const [saisonStatus, setSaisonStatus] = useState<readonly SaisonStatus[]>([]);
+  const [filter, setFilter] = useState<SortenFilter>(null);
   const [uebersichtOffen, setUebersichtOffen] = useState(false);
   const statistik = useMemo(() => zaehleBaeume(baeume, sorten, sprache), [baeume, sorten, sprache]);
 
@@ -81,9 +83,19 @@ export function App() {
     setGrundstueck(g);
     setBaeume(bestand.baeume);
     setSorten(bestand.sorten);
+    setSaisonStatus(status);
     steuerung.current?.setzeGrundstueck(g?.polygon ?? null);
-    steuerung.current?.setzeBaeume(baumPunkte(bestand.baeume, bestand.sorten, status));
   }, []);
+
+  // Wird die gefilterte Sorte gelöscht, gilt der Filter nicht mehr.
+  const filterSorte = filter?.sorteId ? sorten.find((s) => s.id === filter.sorteId && !s.geloescht) : undefined;
+  useEffect(() => {
+    if (filter?.sorteId && !filterSorte) setFilter(null);
+  }, [filter, filterSorte]);
+
+  useEffect(() => {
+    if (karteBereit) steuerung.current?.setzeBaeume(baumPunkte(baeume, sorten, saisonStatus, filter));
+  }, [karteBereit, baeume, sorten, saisonStatus, filter]);
 
   useEffect(() => {
     if (!hinweis) return;
@@ -193,14 +205,36 @@ export function App() {
       )}
 
       {!grenzeBearbeiten && !baumEintragen && !gpsMessung && (
-        <button
-          type="button"
-          class="knopf zaehler"
-          onClick={() => setUebersichtOffen(true)}
-          aria-label={t('statistik.oeffnen', { n: statistik.gesamt })}
-        >
-          {t('statistik.knopf', { n: formatiereZahl(statistik.gesamt, sprache) })}
-        </button>
+        <div class="zaehler">
+          <button
+            type="button"
+            class="knopf"
+            onClick={() => setUebersichtOffen(true)}
+            aria-label={t('statistik.oeffnen', { n: statistik.gesamt })}
+          >
+            {t('statistik.knopf', { n: formatiereZahl(statistik.gesamt, sprache) })}
+          </button>
+          {filter && (
+            <span class="filter-anzeige">
+              <span
+                class="sorte-punkt"
+                style={{ borderColor: filterSorte?.ringfarbe ?? RING_OHNE_SORTE }}
+                aria-hidden="true"
+              />
+              <span class="filter-name">{filterSorte?.name ?? t('sorten.ohne_sorte')}</span>
+              <button
+                type="button"
+                class="knopf knopf-schliessen"
+                onClick={() => setFilter(null)}
+                aria-label={t('filter.aufheben')}
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" class="knopf-symbol">
+                  <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+                </svg>
+              </button>
+            </span>
+          )}
+        </div>
       )}
 
       {!grenzeBearbeiten && !baumEintragen && !gpsMessung && !ausgewaehlt && (
@@ -338,7 +372,17 @@ export function App() {
         />
       )}
 
-      {uebersichtOffen && <Uebersicht statistik={statistik} beiSchliessen={() => setUebersichtOffen(false)} />}
+      {uebersichtOffen && (
+        <Uebersicht
+          statistik={statistik}
+          filter={filter}
+          beiFilter={(f) => {
+            setFilter(f);
+            setUebersichtOffen(false);
+          }}
+          beiSchliessen={() => setUebersichtOffen(false)}
+        />
+      )}
 
       {offlineOffen &&<OfflineKarte beiSchliessen={() => setOfflineOffen(false)} />}
 
