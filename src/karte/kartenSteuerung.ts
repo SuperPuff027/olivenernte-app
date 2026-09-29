@@ -168,10 +168,12 @@ export function erstelleKarte(
     markiereBaum: (id) => beiGeladen(() => markiereBaumAuswahl(karte, id)),
     haltePunktSichtbar: (punkt, verdecktUntenPx) => {
       const p = karte.project([punkt[0], punkt[1]]);
-      const hoehe = karte.getContainer().clientHeight;
+      const { clientWidth: breite, clientHeight: hoehe } = karte.getContainer();
       const sichtbarBis = hoehe - verdecktUntenPx - RAND_PX;
-      // Punkt in die Mitte des frei bleibenden oberen Bereichs schieben
-      if (p.y > sichtbarBis || p.y < RAND_PX) karte.panBy([0, p.y - (hoehe - verdecktUntenPx) / 2]);
+      // Liegt der Punkt verdeckt oder am Rand, in die Mitte des frei bleibenden oberen Bereichs schieben.
+      const dx = p.x < RAND_PX || p.x > breite - RAND_PX ? p.x - breite / 2 : 0;
+      const dy = p.y > sichtbarBis || p.y < RAND_PX ? p.y - (hoehe - verdecktUntenPx) / 2 : 0;
+      if (dx !== 0 || dy !== 0) karte.panBy([dx, dy]);
     },
     zeigeMesspunkt: (punkt) => {
       if (!punkt) {

@@ -12,6 +12,8 @@ interface Props {
   steuerung: KartenSteuerung;
   beiUebernehmen: (punkt: Position, genauigkeit_m: number) => void;
   beiAbbrechen: () => void;
+  titel?: Schluessel;
+  anleitung?: Schluessel;
 }
 
 // Fehlercodes der Geolocation-API
@@ -26,7 +28,13 @@ function dauerText(ms: number): string {
 }
 
 /** „Baum hier eintragen“: sammelt GPS-Fixes und mittelt sie, bis die Zielgenauigkeit erreicht ist. */
-export function GpsMessung({ steuerung, beiUebernehmen, beiAbbrechen }: Props) {
+export function GpsMessung({
+  steuerung,
+  beiUebernehmen,
+  beiAbbrechen,
+  titel = 'gps.titel',
+  anleitung = 'gps.anleitung',
+}: Props) {
   const { t, sprache } = useSprache();
   const [ziel, setZiel] = useState(STANDARD_ZIEL_GPS_GENAUIGKEIT_M);
   const [fixes, setFixes] = useState<GpsFix[]>([]);
@@ -98,12 +106,12 @@ export function GpsMessung({ steuerung, beiUebernehmen, beiAbbrechen }: Props) {
   const meter = (m: number) => formatiereMeter(m, sprache);
 
   return (
-    <section class="panel" ref={panel} aria-label={t('gps.titel')}>
+    <section class="panel" ref={panel} aria-label={t(titel)}>
       <header class="blatt-kopf">
-        <h2>{t('gps.titel')}</h2>
+        <h2>{t(titel)}</h2>
       </header>
       <div class="blatt-inhalt" role="status">
-        <p class="panel-hilfe">{t('gps.anleitung')}</p>
+        <p class="panel-hilfe">{t(anleitung)}</p>
         <p class="gps-wert">
           {mittel.genauigkeit_m === null ? t('gps.warte') : t('gps.genauigkeit', { wert: meter(mittel.genauigkeit_m) })}
         </p>

@@ -73,7 +73,8 @@ Alle IDs sind UUIDs. Alle Datensätze haben `aktualisiert_am` (ISO-Zeit) und `ge
 - **Darstellung:** Baum ohne Saisonstatus = `nicht_bereit` (rot); ohne Sorte weißer Ring. Keine Text-Labels auf der Karte (bräuchten Glyph-Dateien aus dem Netz); die Nummer steht im Panel.
 - **Bäume platzieren:** per GPS-Mittelung, per Tipp auf die Karte und per Drag-Korrektur (nur im expliziten Modus „Position verschieben“; danach `gps_genauigkeit_m = null`).
 - **Offline-Karte:** Esri World Imagery, echte Luftbilder über dem Hain nur bis Zoom 18 (darüber vergrößert). Download für die Grundstücks-BBox + 100 m, Zoom 12–18, per Knopf; Workbox-CacheFirst mit eigenem Cache-Namen und Obergrenze.
-- **Geplant nach Schritt 15:** „Eckpunkt an meinem Standort setzen“ in der Grenzbearbeitung, mit derselben GPS-Mittelung.
+- **Grenze per GPS:** „Eckpunkt an meinem Standort setzen“ nutzt dieselbe GPS-Mittelung wie „Baum hier eintragen“.
+- **Ringfarben:** feste, benannte Palette in `src/logic/sorten.ts` ohne Grün/Rot/Grau (Statusfarben) und ohne Weiß (ohne Sorte).
 
 ## Technische Hinweise
 - MapLibre 6: nur benannte Importe (`Map as MapLibreMap`, `Marker`, …); der Worker wird über `maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url` und `setWorkerUrl` eingebunden. `['zoom']` nur als Eingabe eines `interpolate` auf oberster Ebene.

@@ -5,6 +5,7 @@ import { starteGrenzEditor, type GrenzEditor } from '../karte/grenzEditor';
 import type { KartenSteuerung } from '../karte/kartenSteuerung';
 import { alsPolygon, entfernePunkt, fuegePunktEin, offenerRing, pruefeRing, verschiebePunkt } from '../logic/polygon';
 import type { Grundstueck, Position } from '../model/typen';
+import { GpsMessung } from './GpsMessung';
 
 interface Props {
   steuerung: KartenSteuerung;
@@ -20,6 +21,8 @@ export function GrenzBearbeitung({ steuerung, grundstueck, beiGespeichert, beiAb
   const [verlauf, setVerlauf] = useState<Position[][]>([]);
   const [ausgewaehlt, setAusgewaehlt] = useState<number | null>(null);
   const [speichert, setSpeichert] = useState(false);
+  /** GPS-Messung läuft; ersetzt = Index des Punkts, der ersetzt wird (null = neuer Punkt) */
+  const [messung, setMessung] = useState<{ ersetzt: number | null } | null>(null);
   const editor = useRef<GrenzEditor | null>(null);
 
   // Ringänderung mit Verlauf für „Rückgängig“; Rückrufe über Ref, weil der Editor sie einmal bekommt.
@@ -28,16 +31,17 @@ export function GrenzBearbeitung({ steuerung, grundstueck, beiGespeichert, beiAb
     setRing(neu);
     setAusgewaehlt(null);
   };
-  const aktionen = useRef({ aendere, ring, setAusgewaehlt });
-  aktionen.current = { aendere, ring, setAusgewaehlt };
+  const aktionen = useRef({ aendere, ring, setAusgewaehlt, misst: false });
+  aktionen.current = { aendere, ring, setAusgewaehlt, misst: messung !== null };
 
   useEffect(() => {
     steuerung.zeigeGrundstueck(false);
     steuerung.beiGeladen(() => {
       editor.current = starteGrenzEditor(steuerung.karte, {
-        beiTipp: (p) => aktionen.current.aendere(fuegePunktEin(aktionen.current.ring, p)),
+        // Während der GPS-Messung setzen Tipps keine Punkte.
+        beiTipp: (p) => !aktionen.current.misst && aktionen.current.aendere(fuegePunktEin(aktionen.current.ring, p)),
         beiVerschieben: (i, p) => aktionen.current.aendere(verschiebePunkt(aktionen.current.ring, i, p)),
-        beiAuswahl: (i) => aktionen.current.setAusgewaehlt((alt) => (alt === i ? null : i)),
+        beiAuswahl: (i) => !aktionen.current.misst && aktionen.current.setAusgewaehlt((alt) => (alt === i ? null : i)),
       });
       editor.current.zeige(aktionen.current.ring, null);
     });
@@ -90,7 +94,26 @@ export function GrenzBearbeitung({ steuerung, grundstueck, beiGespeichert, beiAb
         </span>
       </div>
 
-      <div class="bearbeitung-leiste">
+      {messung && (
+        <GpsMessung
+          steuerung={steuerung}
+          titel="grundstueck.gps_titel"
+          anleitung="grundstueck.gps_anleitung"
+          beiAbbrechen={() => setMessung(null)}
+          beiUebernehmen={([lon, lat]) => {
+            const punkt: Position = [lon, lat];
+            setMessung(null);
+            aendere(messung.ersetzt === null ? fuegePunktEin(ring, punkt) : verschiebePunkt(ring, messung.ersetzt, punkt));
+          }}
+        />
+      )}
+
+      <div class="bearbeitung-leiste" hidden={messung !== null}>
+        <div class="bearbeitung-zeile">
+          <button type="button" class="knopf" onClick={() => setMessung({ ersetzt: ausgewaehlt })}>
+            {t(ausgewaehlt === null ? 'grundstueck.gps_punkt' : 'grundstueck.gps_punkt_verschieben')}
+          </button>
+        </div>
         <div class="bearbeitung-zeile">
           <button type="button" class="knopf" onClick={rueckgaengig} disabled={!geaendert}>
             {t('allgemein.rueckgaengig')}

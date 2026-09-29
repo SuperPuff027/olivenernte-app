@@ -299,10 +299,14 @@ body,
   box-shadow: 0 0 0 2px #000000;
 }
 
-/* Im Bearbeitungsmodus hat die Leiste zwei Reihen */
+/* Im Bearbeitungsmodus der Grenze hat die Leiste drei Reihen */
 .app-bearbeitung .maplibregl-ctrl-bottom-right,
 .app-bearbeitung .maplibregl-ctrl-bottom-left {
-  bottom: calc(2 * var(--touch-min) + 8px + 2 * var(--abstand) + env(safe-area-inset-bottom));
+  bottom: calc(3 * var(--touch-min) + 2 * 8px + 2 * var(--abstand) + env(safe-area-inset-bottom));
+}
+
+.bearbeitung-leiste[hidden] {
+  display: none;
 }
 
 .app-bearbeitung-einzeilig .maplibregl-ctrl-bottom-right,
