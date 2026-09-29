@@ -6,14 +6,19 @@ interface Props {
   beiSchliessen: () => void;
   beiGrenzeBearbeiten: () => void;
   beiOfflineKarte: () => void;
+  beiSorten: () => void;
   beiImportDatei: (datei: File) => void;
 }
 
-export function Menue({ hatGrundstueck, beiSchliessen, beiGrenzeBearbeiten, beiOfflineKarte, beiImportDatei }: Props) {
+export function Menue(props: Props) {
+  const { hatGrundstueck, beiSchliessen, beiGrenzeBearbeiten, beiOfflineKarte, beiSorten, beiImportDatei } = props;
   const { t } = useSprache();
   return (
     <Blatt titel={t('menue.oeffnen')} beiSchliessen={beiSchliessen}>
       <div class="menue-eintraege">
+        <button type="button" class="knopf knopf-breit" onClick={beiSorten}>
+          {t('sorten.titel')}
+        </button>
         <button type="button" class="knopf knopf-breit" onClick={beiGrenzeBearbeiten}>
           {t(hatGrundstueck ? 'grundstueck.bearbeiten' : 'grundstueck.zeichnen')}
         </button>

@@ -13,6 +13,7 @@ import { GrenzBearbeitung } from './ui/GrenzBearbeitung';
 import { ImportVorschau } from './ui/ImportVorschau';
 import { Menue } from './ui/Menue';
 import { OfflineKarte } from './ui/OfflineKarte';
+import { SortenVerwaltung } from './ui/SortenVerwaltung';
 
 const HINWEIS_DAUER_MS = 6000;
 
@@ -52,6 +53,7 @@ export function App() {
   const [grundstueck, setGrundstueck] = useState<Grundstueck | null>(null);
   const [grenzeBearbeiten, setGrenzeBearbeiten] = useState(false);
   const [offlineOffen, setOfflineOffen] = useState(false);
+  const [sortenOffen, setSortenOffen] = useState(false);
   const [karteBereit, setKarteBereit] = useState(false);
 
   const ladeDaten = useCallback(async () => {
@@ -177,6 +179,10 @@ export function App() {
             setHinweis(null);
             setGrenzeBearbeiten(true);
           }}
+          beiSorten={() => {
+            setMenueOffen(false);
+            setSortenOffen(true);
+          }}
           beiOfflineKarte={() => {
             setMenueOffen(false);
             setOfflineOffen(true);
@@ -187,6 +193,14 @@ export function App() {
               fehler('import.fehler.lesen');
             })
           }
+        />
+      )}
+
+      {sortenOffen && (
+        <SortenVerwaltung
+          beiSchliessen={() => setSortenOffen(false)}
+          beiGeaendert={() => void ladeDaten().catch(console.error)}
+          beiFehler={() => fehler('sorten.fehler.speichern')}
         />
       )}
 

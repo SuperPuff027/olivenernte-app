@@ -315,3 +315,104 @@ body,
   color: var(--farbe-warnung);
   font-weight: 600;
 }
+
+/* Eingabefelder */
+.eingabe {
+  min-height: var(--touch-min);
+  width: 100%;
+  padding: 0 12px;
+  border: 2px solid var(--farbe-text);
+  border-radius: var(--radius);
+  background: var(--farbe-flaeche);
+  color: var(--farbe-text);
+  /* ab 16px zoomt iOS beim Fokussieren nicht hinein */
+  font: inherit;
+}
+
+.feld {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 600;
+}
+
+/* Sortenverwaltung */
+.sorten-liste {
+  list-style: none;
+  margin: 0 0 var(--abstand);
+  padding: 0;
+}
+
+.sorte {
+  display: flex;
+  align-items: center;
+  gap: var(--abstand);
+  padding: 8px 0;
+  border-bottom: 1px solid #d0d0d0;
+}
+
+.sorte-farbe {
+  flex: none;
+  width: var(--touch-min);
+  height: var(--touch-min);
+  border-radius: 50%;
+  border: 3px solid var(--farbe-text);
+  box-shadow: inset 0 0 0 3px var(--farbe-flaeche);
+  cursor: pointer;
+}
+
+.sorte-name {
+  flex: 1;
+  min-height: var(--touch-min);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sorte-name small {
+  font-weight: 400;
+  color: #444444;
+}
+
+.knopf-symbolisch {
+  padding: 0;
+  box-shadow: none;
+  justify-content: center;
+}
+
+.sorte-umbenennen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sorte-umbenennen-knoepfe {
+  display: flex;
+  gap: 8px;
+}
+
+.sorte-umbenennen-knoepfe .knopf {
+  flex: 1;
+  justify-content: center;
+  box-shadow: none;
+}
+
+.sorte-neu {
+  display: flex;
+  gap: var(--abstand);
+}
+
+.sorte-neu .knopf {
+  flex: none;
+  box-shadow: none;
+}

@@ -68,6 +68,25 @@ export const de = {
   'offline.fehler': '{fehler} Kacheln konnten nicht geladen werden. Mit Netz erneut versuchen.',
   'offline.abgebrochen': 'Abgebrochen.',
   'offline.erneut': 'Erneut versuchen',
+
+  'sorten.titel': 'Sorten',
+  'sorten.leer': 'Noch keine Sorten angelegt.',
+  'sorten.neu_platzhalter': 'Name der neuen Sorte',
+  'sorten.hinzufuegen': 'Hinzufügen',
+  'sorten.baeume': 'Bäume: {n}',
+  'sorten.farbe_aendern': 'Ringfarbe von {name} ändern',
+  'sorten.umbenennen': '{name} umbenennen',
+  'sorten.loeschen': '{name} löschen',
+  'sorten.loeschen_frage': 'Sorte „{name}“ löschen?',
+  'sorten.loeschen_titel': '„{name}“ löschen',
+  'sorten.zugeordnet': 'Dieser Sorte sind noch Bäume zugeordnet: {n}. Was soll mit ihnen passieren?',
+  'sorten.umhaengen_auf': 'Bäume umhängen auf',
+  'sorten.ohne_sorte': 'ohne Sorte',
+  'sorten.umhaengen_und_loeschen': 'Umhängen und löschen',
+  'sorten.behalten': 'Sorte behalten',
+  'sorten.fehler.leer': 'Bitte einen Namen eingeben.',
+  'sorten.fehler.doppelt': 'Diese Sorte gibt es schon.',
+  'sorten.fehler.speichern': 'Speichern fehlgeschlagen.',
 } as const;
 
 export type Schluessel = keyof typeof de;
