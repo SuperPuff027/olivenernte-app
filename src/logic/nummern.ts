@@ -1,4 +1,6 @@
 import type { Baum } from '../model/typen';
+import type { Sprache } from './sprache';
+import { kleinschreiben } from './text';
 
 // Baumnummern: sichtbar und kurz, Format „B-17“.
 
@@ -27,4 +29,32 @@ export function naechsteNummer(baeume: readonly Baum[]): string {
     if (wert !== null && wert > hoechste) hoechste = wert;
   }
   return `${NUMMERN_PRAEFIX}${hoechste + 1}`;
+}
+
+/** Bringt Varianten wie „b7“ oder „B_007“ in die Form „B-7“; andere Nummern nur ohne Rand-Leerzeichen. */
+export function normiereNummer(nummer: string): string {
+  const wert = nummerWert(nummer);
+  return wert === null ? nummer.trim() : `${NUMMERN_PRAEFIX}${wert}`;
+}
+
+export type NummernFehler = 'leer' | 'doppelt';
+
+/** Vergleichsform: Varianten derselben B-n gelten als gleich, sonst ohne Groß-/Kleinschreibung. */
+function nummernSchluessel(nummer: string, sprache: Sprache): string {
+  return kleinschreiben(normiereNummer(nummer), sprache);
+}
+
+/** Prüft eine von Hand eingegebene Nummer gegen die aktiven Bäume; eigeneId schließt den bearbeiteten Baum aus. */
+export function pruefeNummer(
+  nummer: string,
+  baeume: readonly Baum[],
+  sprache: Sprache,
+  eigeneId: string | null = null,
+): NummernFehler | null {
+  if (nummer.trim() === '') return 'leer';
+  const schluessel = nummernSchluessel(nummer, sprache);
+  const doppelt = baeume.some(
+    (b) => b.id !== eigeneId && !b.geloescht && nummernSchluessel(b.nummer, sprache) === schluessel,
+  );
+  return doppelt ? 'doppelt' : null;
 }

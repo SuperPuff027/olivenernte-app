@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Baum, Grundstueck } from '../model/typen';
-import { neuerBaum } from './baum';
+import { fuellstandOptionen, letzteAenderung, neuerBaum } from './baum';
+import { neuerSaisonStatus } from './datensatz';
 import { alsPolygon } from './polygon';
 
 // Beliebige Testkoordinaten
@@ -70,5 +71,37 @@ describe('neuerBaum', () => {
       ausserhalb: false,
       baum: { grundstueck_id: null },
     });
+  });
+});
+
+describe('fuellstandOptionen', () => {
+  it('1 bis max', () => {
+    expect(fuellstandOptionen(5, null)).toEqual([1, 2, 3, 4, 5]);
+    expect(fuellstandOptionen(3, 2)).toEqual([1, 2, 3]);
+  });
+
+  it('behält einen gespeicherten Wert über max', () => {
+    expect(fuellstandOptionen(3, 5)).toEqual([1, 2, 3, 5]);
+  });
+
+  it('mindestens ein Knopf, auch bei unsinnigem max', () => {
+    expect(fuellstandOptionen(0, null)).toEqual([1]);
+    expect(fuellstandOptionen(2.7, null)).toEqual([1, 2]);
+  });
+});
+
+describe('letzteAenderung', () => {
+  const b = { ...vorhanden('B-1'), aktualisiert_am: '2026-09-01T10:00:00.000Z' };
+
+  it('nimmt den jüngeren Zeitpunkt', () => {
+    const s = neuerSaisonStatus('B-1', 2026, new Date('2026-09-02T08:00:00.000Z'));
+    expect(letzteAenderung(b, s)).toBe('2026-09-02T08:00:00.000Z');
+    expect(letzteAenderung({ ...b, aktualisiert_am: '2026-09-03T00:00:00.000Z' }, s)).toBe('2026-09-03T00:00:00.000Z');
+  });
+
+  it('ohne oder mit gelöschtem Status: Zeitpunkt des Baums', () => {
+    const s = { ...neuerSaisonStatus('B-1', 2026, new Date('2026-09-05T00:00:00.000Z')), geloescht: true };
+    expect(letzteAenderung(b, null)).toBe(b.aktualisiert_am);
+    expect(letzteAenderung(b, s)).toBe(b.aktualisiert_am);
   });
 });

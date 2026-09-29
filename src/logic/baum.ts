@@ -1,4 +1,4 @@
-import type { Baum, Grundstueck, Position } from '../model/typen';
+import type { Baum, Grundstueck, Position, SaisonStatus } from '../model/typen';
 import { naechsteNummer } from './nummern';
 import { liegtImPolygon } from './polygon';
 
@@ -37,4 +37,21 @@ export function neuerBaum(
     },
     ausserhalb: aktivesGrundstueck !== null && !liegtImPolygon(punkt, aktivesGrundstueck.polygon),
   };
+}
+
+/**
+ * Knöpfe für den Füllstand: 1 … max. Ein gespeicherter Wert über max (max wurde später
+ * verkleinert) bleibt als eigener Knopf sichtbar, damit er nicht stillschweigend verschwindet.
+ */
+export function fuellstandOptionen(max: number, aktuell: number | null): number[] {
+  const obergrenze = Math.max(1, Math.floor(max));
+  const optionen = Array.from({ length: obergrenze }, (_, i) => i + 1);
+  if (aktuell !== null && Number.isInteger(aktuell) && aktuell > obergrenze) optionen.push(aktuell);
+  return optionen;
+}
+
+/** Jüngster Änderungszeitpunkt von Baum und Saisonstatus (ISO). */
+export function letzteAenderung(baum: Baum, status: SaisonStatus | null): string {
+  if (!status || status.geloescht) return baum.aktualisiert_am;
+  return Date.parse(status.aktualisiert_am) > Date.parse(baum.aktualisiert_am) ? status.aktualisiert_am : baum.aktualisiert_am;
 }

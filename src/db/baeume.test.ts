@@ -1,7 +1,7 @@
 import 'fake-indexeddb/auto';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { alsPolygon } from '../logic/polygon';
-import { legeBaumAn, loescheBaum } from './baeume';
+import { aendereBaum, ladeBaum, legeBaumAn, loescheBaum } from './baeume';
 import { db } from './datenbank';
 import { speichereGrundstueck } from './grundstueck';
 import { ladeAktive } from './repo';
@@ -39,5 +39,35 @@ describe('legeBaumAn', () => {
     await loescheBaum(zweiter.baum.id);
     expect((await legeBaumAn([10.003, 20.003])).baum.nummer).toBe('B-2');
     expect((await db.baeume.get(zweiter.baum.id))?.geloescht).toBe(true);
+  });
+});
+
+describe('aendereBaum', () => {
+  it('ändert Sorte und Notiz und setzt aktualisiert_am', async () => {
+    const { baum } = await legeBaumAn([10.001, 20.001]);
+    await db.baeume.put({ ...baum, aktualisiert_am: '2000-01-01T00:00:00.000Z' });
+    const ergebnis = await aendereBaum(baum.id, { sorte_id: 's1', notiz: 'Schnitt nötig' }, 'de');
+    expect(ergebnis).toMatchObject({ ok: true, baum: { sorte_id: 's1', notiz: 'Schnitt nötig', nummer: 'B-1' } });
+    const gespeichert = await ladeBaum(baum.id);
+    expect(gespeichert?.notiz).toBe('Schnitt nötig');
+    expect(gespeichert?.aktualisiert_am).not.toBe('2000-01-01T00:00:00.000Z');
+  });
+
+  it('vereinheitlicht die Nummer und lehnt vergebene ab, ohne zu speichern', async () => {
+    const eins = await legeBaumAn([10.001, 20.001]);
+    const zwei = await legeBaumAn([10.002, 20.002]);
+    expect(await aendereBaum(zwei.baum.id, { nummer: ' b_1 ', notiz: 'x' }, 'de')).toEqual({ ok: false, fehler: 'doppelt' });
+    expect(await aendereBaum(zwei.baum.id, { nummer: '  ' }, 'de')).toEqual({ ok: false, fehler: 'leer' });
+    expect((await ladeBaum(zwei.baum.id))?.notiz).toBe('');
+    expect(await aendereBaum(zwei.baum.id, { nummer: 'b20' }, 'de')).toMatchObject({ ok: true, baum: { nummer: 'B-20' } });
+    // Die eigene Nummer in anderer Schreibweise ist erlaubt.
+    expect(await aendereBaum(eins.baum.id, { nummer: 'B_1' }, 'de')).toMatchObject({ ok: true, baum: { nummer: 'B-1' } });
+  });
+
+  it('ändert gelöschte Bäume nicht', async () => {
+    const { baum } = await legeBaumAn([10.001, 20.001]);
+    await loescheBaum(baum.id);
+    expect(await aendereBaum(baum.id, { notiz: 'x' }, 'de')).toEqual({ ok: false, fehler: 'nicht_gefunden' });
+    expect(await ladeBaum(baum.id)).toBeNull();
   });
 });

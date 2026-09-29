@@ -1,6 +1,8 @@
 import { neuerBaum, type NeuerBaum } from '../logic/baum';
-import { neueId } from '../logic/datensatz';
-import type { Position } from '../model/typen';
+import { geaendert, neueId } from '../logic/datensatz';
+import { normiereNummer, pruefeNummer, type NummernFehler } from '../logic/nummern';
+import type { Sprache } from '../logic/sprache';
+import type { Baum, Position } from '../model/typen';
 import { db } from './datenbank';
 import { ladeGrundstueck } from './grundstueck';
 import { ladeAktive, loescheWeich } from './repo';
@@ -26,4 +28,36 @@ export async function legeBaumAn(punkt: Position, gps_genauigkeit_m: number | nu
 
 export function loescheBaum(id: string): Promise<void> {
   return loescheWeich(db.baeume, id);
+}
+
+export type BaumAenderung = Partial<Pick<Baum, 'nummer' | 'sorte_id' | 'notiz'>>;
+
+export type BaumAenderungsErgebnis =
+  | { ok: true; baum: Baum }
+  | { ok: false; fehler: NummernFehler | 'nicht_gefunden' };
+
+/**
+ * Ändert Nummer, Sorte oder Notiz. Eine neue Nummer wird vereinheitlicht und in derselben
+ * Transaktion gegen alle aktiven Bäume geprüft; ist sie ungültig, wird nichts gespeichert.
+ */
+export async function aendereBaum(id: string, aenderung: BaumAenderung, sprache: Sprache): Promise<BaumAenderungsErgebnis> {
+  return db.transaction('rw', db.baeume, async () => {
+    const vorhanden = await db.baeume.get(id);
+    if (!vorhanden || vorhanden.geloescht) return { ok: false, fehler: 'nicht_gefunden' };
+    const neu = { ...vorhanden, ...aenderung };
+    if (aenderung.nummer !== undefined) {
+      const fehler = pruefeNummer(aenderung.nummer, await ladeAktive(db.baeume), sprache, id);
+      if (fehler) return { ok: false, fehler };
+      neu.nummer = normiereNummer(aenderung.nummer);
+    }
+    const gespeichert = geaendert(neu, new Date());
+    await db.baeume.put(gespeichert);
+    return { ok: true, baum: gespeichert };
+  });
+}
+
+/** Ein aktiver Baum oder null. */
+export async function ladeBaum(id: string): Promise<Baum | null> {
+  const baum = await db.baeume.get(id);
+  return baum && !baum.geloescht ? baum : null;
 }
