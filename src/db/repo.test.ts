@@ -8,6 +8,7 @@ import {
   ladeAktive,
   ladeEinstellungen,
   ladeSaisonStatus,
+  ladeSaisonStatusJahr,
   loescheWeich,
   speichere,
 } from './repo';
@@ -92,5 +93,13 @@ describe('Saisonstatus', () => {
 
     expect(await ladeSaisonStatus('a', 2026)).toMatchObject({ status: 'bereit', fuellstand: 4 });
     expect(await ladeSaisonStatus('a', 2025)).toMatchObject({ status: 'geerntet', fuellstand: null });
+  });
+
+  it('lädt alle aktiven Status eines Jahres', async () => {
+    await aendereSaisonStatus('a', 2026, { status: 'bereit' });
+    await aendereSaisonStatus('b', 2026, { status: 'geerntet' });
+    await aendereSaisonStatus('a', 2025, { status: 'geerntet' });
+    await db.saison_status.update(['b', 2026], { geloescht: true });
+    expect((await ladeSaisonStatusJahr(2026)).map((s) => s.baum_id)).toEqual(['a']);
   });
 });

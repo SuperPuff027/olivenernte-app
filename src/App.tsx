@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
-import { ladeGrundstueck } from './db/grundstueck';
 import { fuehreImportAus, ladeBestand } from './db/import';
+import { ladeSaisonStatusJahr } from './db/repo';
 import type { Platzhalter, Schluessel } from './i18n';
 import { useSprache } from './i18n/kontext';
 import { Karte } from './karte/Karte';
 import type { KartenSteuerung } from './karte/kartenSteuerung';
 import { bereichVon } from './logic/bereich';
-import { neueId } from './logic/datensatz';
+import { neueId, saisonJahr } from './logic/datensatz';
+import { baumPunkte } from './logic/farben';
 import { leseGeojson, planeImport, type ImportPlan } from './logic/importGeojson';
 import type { Grundstueck } from './model/typen';
 import { GrenzBearbeitung } from './ui/GrenzBearbeitung';
@@ -56,10 +57,13 @@ export function App() {
   const [sortenOffen, setSortenOffen] = useState(false);
   const [karteBereit, setKarteBereit] = useState(false);
 
+  // Lädt alles, was die Karte zeigt, und reicht es an sie weiter.
   const ladeDaten = useCallback(async () => {
-    const g = await ladeGrundstueck();
+    const [bestand, status] = await Promise.all([ladeBestand(), ladeSaisonStatusJahr(saisonJahr(new Date()))]);
+    const g = bestand.grundstuecke[0] ?? null;
     setGrundstueck(g);
     steuerung.current?.setzeGrundstueck(g?.polygon ?? null);
+    steuerung.current?.setzeBaeume(baumPunkte(bestand.baeume, bestand.sorten, status));
   }, []);
 
   useEffect(() => {

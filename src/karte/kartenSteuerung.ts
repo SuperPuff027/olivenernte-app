@@ -3,7 +3,9 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 import { pruefeAnsicht, type Ansicht } from '../logic/ansicht';
 import type { Bereich } from '../logic/bereich';
+import type { BaumPunkte } from '../logic/farben';
 import type { GeoJsonPolygon } from '../model/typen';
+import { legeBaumEbeneAn, setzeBaumDaten } from './baumEbene';
 import { legeGrundstueckEbeneAn, setzeGrundstueckDaten, zeigeGrundstueckEbene } from './grundstueckEbene';
 import { AKTIVE_KARTENQUELLE, type Kartenquelle } from './quelle';
 
@@ -32,6 +34,7 @@ export interface KartenSteuerung {
   beiGeladen(fn: () => void): void;
   setzeGrundstueck(polygon: GeoJsonPolygon | null): void;
   zeigeGrundstueck(sichtbar: boolean): void;
+  setzeBaeume(punkte: BaumPunkte): void;
   entferne(): void;
 }
 
@@ -113,6 +116,7 @@ export function erstelleKarte(
   const beiGeladen = (fn: () => void) => (geladen ? fn() : wartende.push(fn));
   karte.once('load', () => {
     legeGrundstueckEbeneAn(karte);
+    legeBaumEbeneAn(karte);
     geladen = true;
     for (const fn of wartende.splice(0)) fn();
   });
@@ -129,6 +133,7 @@ export function erstelleKarte(
     beiGeladen,
     setzeGrundstueck: (polygon) => beiGeladen(() => setzeGrundstueckDaten(karte, polygon)),
     zeigeGrundstueck: (sichtbar) => beiGeladen(() => zeigeGrundstueckEbene(karte, sichtbar)),
+    setzeBaeume: (punkte) => beiGeladen(() => setzeBaumDaten(karte, punkte)),
     entferne: () => karte.remove(),
   };
 }

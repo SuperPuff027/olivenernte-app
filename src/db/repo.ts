@@ -68,3 +68,8 @@ export async function aendereSaisonStatus(
     return neu;
   });
 }
+
+/** Alle aktiven Saisonstatus eines Jahres (für die Kartenfarben). */
+export async function ladeSaisonStatusJahr(jahr: number): Promise<SaisonStatus[]> {
+  return nurAktive(await db.saison_status.where('jahr').equals(jahr).toArray());
+}
