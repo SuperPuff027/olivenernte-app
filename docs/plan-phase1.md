@@ -44,7 +44,7 @@ Nach jedem Schritt: `npm run check`, Commit, Push; die GitHub Action baut und ve
 - [x] **10. Sortenverwaltung.** Sortiert per `localeCompare`, anlegen, umbenennen, Farbwähler; beim Löschen einer vergebenen Sorte Bäume umhängen oder Sorte behalten (`src/logic/sorten.ts`).
 - [x] **11. Baumdarstellung.** `src/logic/farben.ts` (Status → Innenfarbe, Sorte → Ring, ohne Status = nicht bereit). Punkte wachsen mit dem Zoom, dunkler Schatten für Kontrast.
 - [x] **12. Baum per Tipp eintragen + Nummerierung.** `src/logic/nummern.ts` (höchste B-n + 1, tolerant gegen Varianten wie „B_7“, fremde Formate ignoriert). Modus „Baum eintragen“: jeder Tipp legt einen Baum an, Rückgängig, Doppeltipp-Zoom aus. Außerhalb des Grundstücks Hinweis (Turf `booleanPointInPolygon`), gespeichert wird trotzdem.
-- [ ] **13. Baum-Panel (Anzeigen + Bearbeiten).** Ein Tipp auf einen Punkt öffnet das Panel. Jeder Wert lässt sich direkt ändern:
+- [x] **13. Baum-Panel (Anzeigen + Bearbeiten).** Ein Tipp auf einen Punkt öffnet das Panel. Jeder Wert lässt sich direkt ändern:
   - **Nummer:** Textfeld. Ist die Nummer schon vergeben, erscheint ein Hinweis und nichts wird gespeichert (Prüfung in `src/logic/nummern.ts`, mit Tests).
   - **Sorte:** Auswahlliste aller Sorten (plus „ohne Sorte“), mit Farbpunkt.
   - **Status:** drei große Umschalt-Knöpfe in den Punktfarben.
