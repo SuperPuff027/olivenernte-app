@@ -2,7 +2,7 @@
 
 Offline-fähige Karten-App (PWA) für einen Olivenhain in der Türkei. Jeder Baum ist ein Punkt mit GPS-Position, Sorte, Füllstand und Erntestatus. Genutzt auf iPhone und Android, im Feld oft ohne Empfang.
 
-**Aktuelle Phase: 2** (Details aller Phasen: `docs/phasen.md`; nur den Abschnitt der aktuellen Phase lesen). Plan und Fortschritt: `docs/plan-phase2.md` (erledigte Schritte dort abhaken). Phase 1 ist umgesetzt (`docs/plan-phase1.md`), ihr Feldtest auf Android und iPhone steht noch aus (`docs/feldtest-phase1.md`); Befunde daraus haben Vorrang.
+**Aktuelle Phase: 2** (Details aller Phasen: `docs/phasen.md`; nur den Abschnitt der aktuellen Phase lesen). Plan und Fortschritt: `docs/plan-phase2.md` (erledigte Schritte dort abhaken). Alle Schritte von Phase 2 sind umgesetzt; ihr Feldtest steht aus (`docs/feldtest-phase2.md`). Phase 1 ist umgesetzt (`docs/plan-phase1.md`), ihr Feldtest auf Android und iPhone steht noch aus (`docs/feldtest-phase1.md`); Befunde daraus haben Vorrang.
 
 ## Arbeitsweise
 - Nur die aktuelle Phase umsetzen. Spätere Phasen nur im Datenmodell vorbereiten, keinen Code dafür schreiben.
