@@ -124,3 +124,8 @@ export async function ladeSaisonJahre(): Promise<number[]> {
 export async function ladeSaisonStatusBaum(baum_id: string): Promise<SaisonStatus[]> {
   return nurAktive(await db.saison_status.where('baum_id').equals(baum_id).toArray());
 }
+
+/** Aktive Saisonstatus aller Jahre (für die Auswertung). */
+export async function ladeAlleSaisonStatus(): Promise<SaisonStatus[]> {
+  return nurAktive(await db.saison_status.toArray());
+}
