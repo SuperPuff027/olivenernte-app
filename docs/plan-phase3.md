@@ -20,7 +20,7 @@ Nach jedem Schritt: `npm run check`, Commit, Push; die GitHub Action baut und ve
 - [x] **3. Vergangene Saisons ansehen.** Saisonwahl in der Übersicht; Karte, Zähler und Filter zeigen die gewählte Saison mit deutlichem Hinweis und „zurück zur aktuellen Saison“. Umsetzung: Im Baum-Panel lassen sich Werte der angezeigten Saison nachtragen (z. B. Erträge früherer Jahre); nach einem Neustart zeigt die App wieder die aktuelle Saison.
 - [x] **4. Historie im Baum-Panel.** Alle Saisons des Baums: Status, Füllstand, Ertrag, Erntedatum.
 - [x] **5. Auswertung** (`src/logic/auswertung.ts`): Ertrag pro Sorte und Jahr, stärkste/schwächste Bäume, Füllstand gegen Ertrag (mittlerer Ertrag je Füllstand-Stufe und Saison). Einfache CSS-Balken.
-- [ ] **6. CSV-Export.** Bäume sowie Ernte-Historie (Zeile pro Baum und Saison); Semikolon, Dezimalkomma bei de/tr, UTF-8 mit BOM (Excel).
+- [x] **6. CSV-Export.** Bäume sowie Ernte-Historie (Zeile pro Baum und Saison); Semikolon, Dezimalkomma bei de/tr, UTF-8 mit BOM (Excel). Umsetzung: Englisch mit Komma und Dezimalpunkt; Formelschutz für Texte; im Export-Blatt als eigener Abschnitt „CSV für Excel“.
 - [ ] **7. CSV-Import von Bäumen** (Nummer, Breite, Länge, Sorte, Notiz); Trenner und Dezimalzeichen automatisch; vorhandene Import-Vorschau.
 - [ ] **8. Sync-Logik im Client.** Warteschlange per Dexie-Hooks, Zusammenführen „neuester gewinnt“, Protokoll mit Lesezeiger; Tests gegen einen simulierten Server.
 - [ ] **9. Server** (`server/`): Cloudflare Worker + D1, Endpunkte „Hain anlegen“ und „Abgleich“, Deploy per GitHub Action. Braucht Cloudflare-Konto und API-Token (GitHub-Secret).

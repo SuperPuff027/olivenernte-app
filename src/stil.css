@@ -1053,3 +1053,7 @@ body,
   display: block;
   color: #444444;
 }
+
+.export-knoepfe {
+  margin-bottom: var(--abstand);
+}
