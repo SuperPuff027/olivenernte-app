@@ -217,6 +217,10 @@ export const tr: Uebersetzung = {
   'speicher.hinweis_installieren': 'Uygulamayı yükleyin (tarayıcı menüsünde „Uygulamayı yükle“ veya „Ana ekrana ekle“) ve ardından tekrar isteyin.',
   'speicher.erneut': 'Kalıcı depolamayı tekrar iste',
 
+  'ernte.bilanz_titel': 'Hasat {jahr}',
+  'ernte.ertrag_gesamt': 'Toplam verim',
+  'ernte.geerntet_von': 'Hasat edilen: {gesamt} ağaçtan {n}',
+  'ernte.ohne_menge_anzahl': 'bunlardan {n} tanesi miktarsız',
   'ernte.ertrag': 'Verim (kg)',
   'ernte.menge_platzhalter': 'örn. 35,5',
   'ernte.datum': 'Hasat tarihi',

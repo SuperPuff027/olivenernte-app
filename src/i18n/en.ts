@@ -217,6 +217,10 @@ export const en: Uebersetzung = {
   'speicher.hinweis_installieren': 'Install the app (browser menu “Install app” or “Add to Home screen”) and then request again.',
   'speicher.erneut': 'Request persistent storage again',
 
+  'ernte.bilanz_titel': 'Harvest {jahr}',
+  'ernte.ertrag_gesamt': 'Total yield',
+  'ernte.geerntet_von': 'Harvested: {n} of {gesamt} trees',
+  'ernte.ohne_menge_anzahl': '{n} of them without an amount',
   'ernte.ertrag': 'Yield (kg)',
   'ernte.menge_platzhalter': 'e.g. 35.5',
   'ernte.datum': 'Harvest date',

@@ -23,6 +23,6 @@ Nach jedem Schritt: `npm run check`, Commit, Push; die GitHub Action baut und ve
 - [x] **3. Kg-Eingabe.** `src/logic/zahl.ts` liest „12,5“ / „12.5“ / „12“, lehnt Negatives und Unsinn ab, Obergrenze pro Baum; Tests für de/en/tr.
 - [x] **4. „Geerntet“ speichern.** `markiereGeerntet(baum, jahr, kg | null)`: Status geerntet, Erntedatum heute, Ertrag; Ertrag später änderbar. Zurücksetzen von „geerntet“ behält Ertrag und Datum, sie zählen dann aber nicht zum Gesamtertrag. Tests.
 - [x] **5. Schnellaktion im Baum-Panel.** Tipp auf „Geerntet“ öffnet ein großes Zahlenfeld (`inputmode="decimal"`) mit Erntedatum (heute, änderbar, nicht in der Zukunft), „Geerntet speichern“, „Ohne Menge“ und „Abbrechen“. Geerntete Bäume zeigen Ertrag und Erntedatum mit „Ertrag oder Datum ändern“. Der Knopf „Nächster passender Baum →“ kommt mit Schritt 7.
-- [ ] **6. Ertrag in der Übersicht.** Gesamtertrag der Saison, Ertrag pro Sorte, „geerntet n von m“, davon ohne Mengenangabe (`statistik.ts`, Tests).
+- [x] **6. Ertrag in der Übersicht.** Gesamtertrag der Saison, Ertrag pro Sorte, „geerntet n von m“, davon ohne Mengenangabe (`statistik.ts`, Tests).
 - [ ] **7. Nächste passende Bäume.** `src/logic/naechste.ts`: passende Bäume nach Entfernung sortiert, mit Meter und Himmelsrichtung (Tests). Bezugspunkt: eigener Standort (Knopf „Nächste“ neben der Filteranzeige, Liste der 5 nächsten) oder der gerade geerntete Baum (Knopf im Panel, ohne GPS). Tipp auf einen Eintrag zentriert die Karte und öffnet das Panel.
 - [ ] **8. Feldtest-Checkliste Phase 2** in `docs/feldtest-phase2.md`.

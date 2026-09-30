@@ -861,3 +861,20 @@ body,
   margin: 10px 0 0;
   font-weight: 600;
 }
+
+.statistik-name small {
+  display: block;
+  font-weight: 400;
+  color: #444444;
+}
+
+.ernte-bilanz {
+  margin: 4px 0 8px;
+  padding: 4px 12px 8px;
+  border-radius: var(--radius);
+  background: #eef3ea;
+}
+
+.ernte-bilanz h3 {
+  margin-top: 8px;
+}

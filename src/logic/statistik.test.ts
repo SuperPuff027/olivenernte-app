@@ -30,6 +30,7 @@ describe('zaehleBaeume', () => {
         { status: 'bereit', anzahl: 0 },
         { status: 'geerntet', anzahl: 0 },
       ],
+      ertrag: { kg: 0, geerntet: 0, ohneMenge: 0 },
     });
   });
 
@@ -89,5 +90,45 @@ describe('zaehleBaeume pro Status', () => {
       { status: 'geerntet', anzahl: 1 },
     ]);
     expect(s.proStatus.reduce((summe, z) => summe + z.anzahl, 0)).toBe(s.gesamt);
+  });
+});
+
+describe('zaehleBaeume Ertrag', () => {
+  const st = (baum_id: string, s: SaisonStatus['status'], ertrag_kg: number | null, geloescht = false): SaisonStatus => ({
+    baum_id,
+    jahr: 2026,
+    status: s,
+    fuellstand: null,
+    ertrag_kg,
+    erntedatum: '2026-10-10',
+    ...basis,
+    geloescht,
+  });
+  const baeume = [baum('1', 'm'), baum('2', 'm'), baum('3', 'a'), baum('4', null), baum('5', 'a'), baum('6', 'm', true)];
+  const sorten = [sorte('m', 'Memecik'), sorte('a', 'Ayvalık')];
+  const saison = [
+    st('1', 'geerntet', 30.25),
+    st('2', 'geerntet', null),
+    st('3', 'geerntet', 12.1),
+    // zurückgesetzt: Menge bleibt gespeichert, zählt aber nicht
+    st('4', 'bereit', 99),
+    // gelöschter Eintrag und gelöschter Baum zählen nicht
+    st('5', 'geerntet', 50, true),
+    st('6', 'geerntet', 70),
+  ];
+  const s = zaehleBaeume(baeume, sorten, 'de', saison);
+
+  it('Gesamtertrag, Anzahl geerntet und ohne Menge', () => {
+    expect(s.ertrag).toEqual({ kg: 42.4, geerntet: 3, ohneMenge: 1 });
+  });
+
+  it('Ertrag pro Sorte', () => {
+    expect(s.proSorte.map((z) => `${z.sorte?.name ?? 'ohne'}=${z.ertragKg}`)).toEqual(['Ayvalık=12.1', 'Memecik=30.3', 'ohne=0']);
+  });
+
+  it('rundet die Summe auf 0,1 kg ohne Gleitkomma-Reste', () => {
+    const viele = Array.from({ length: 10 }, (_, i) => baum(`x${i}`, null));
+    const mengen = viele.map((b) => st(b.id, 'geerntet', 0.1));
+    expect(zaehleBaeume(viele, [], 'de', mengen).ertrag.kg).toBe(1);
   });
 });

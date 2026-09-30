@@ -215,6 +215,10 @@ export const de = {
   'speicher.hinweis_installieren': 'Die App installieren (im Browser-Menü „App installieren“ oder „Zum Startbildschirm hinzufügen“) und danach erneut anfragen.',
   'speicher.erneut': 'Dauerhaften Speicher erneut anfragen',
 
+  'ernte.bilanz_titel': 'Ernte {jahr}',
+  'ernte.ertrag_gesamt': 'Ertrag gesamt',
+  'ernte.geerntet_von': 'Geerntet: {n} von {gesamt} Bäumen',
+  'ernte.ohne_menge_anzahl': 'davon {n} ohne Mengenangabe',
   'ernte.ertrag': 'Ertrag (kg)',
   'ernte.menge_platzhalter': 'z. B. 35,5',
   'ernte.datum': 'Erntedatum',

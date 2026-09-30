@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'preact/hooks';
 import { ladeEinstellungen } from '../db/repo';
 import { useSprache } from '../i18n/kontext';
-import { STANDARD_FUELLSTAND_MAX } from '../logic/datensatz';
+import { saisonJahr, STANDARD_FUELLSTAND_MAX } from '../logic/datensatz';
 import { innenfarbe, RING_OHNE_SORTE } from '../logic/farben';
 import {
   istFilterAktiv,
@@ -12,7 +12,7 @@ import {
   vorschlagFuellstand,
   type BaumFilter,
 } from '../logic/filter';
-import { formatiereZahl } from '../logic/format';
+import { formatiereKg, formatiereZahl } from '../logic/format';
 import type { BaumStatistik } from '../logic/statistik';
 import { Blatt } from './Blatt';
 import { Stufenwahl } from './Stufenwahl';
@@ -46,6 +46,26 @@ export function Uebersicht({ statistik, filter, beiFilter, beiSchliessen }: Prop
         <strong>{formatiereZahl(statistik.gesamt, sprache)}</strong>
       </p>
       {statistik.gesamt === 0 && <p>{t('statistik.keine_baeume')}</p>}
+
+      {statistik.gesamt > 0 && (
+        <section class="ernte-bilanz" aria-label={t('ernte.bilanz_titel', { jahr: saisonJahr(new Date()) })}>
+          <h3>{t('ernte.bilanz_titel', { jahr: saisonJahr(new Date()) })}</h3>
+          <p class="statistik-gesamt">
+            <span>{t('ernte.ertrag_gesamt')}</span>
+            <strong>{formatiereKg(statistik.ertrag.kg, sprache)}</strong>
+          </p>
+          <progress class="fortschritt" max={statistik.gesamt} value={statistik.ertrag.geerntet} />
+          <p class="panel-hilfe">
+            {t('ernte.geerntet_von', {
+              n: formatiereZahl(statistik.ertrag.geerntet, sprache),
+              gesamt: formatiereZahl(statistik.gesamt, sprache),
+            })}
+            {statistik.ertrag.ohneMenge > 0 &&
+              ` · ${t('ernte.ohne_menge_anzahl', { n: formatiereZahl(statistik.ertrag.ohneMenge, sprache) })}`}
+          </p>
+        </section>
+      )}
+
       <p class="panel-hilfe">{t('filter.anleitung')}</p>
 
       <h3>{t('statistik.pro_status')}</h3>
@@ -73,7 +93,7 @@ export function Uebersicht({ statistik, filter, beiFilter, beiSchliessen }: Prop
         <>
           <h3>{t('statistik.pro_sorte')}</h3>
           <ul class="statistik-liste">
-            {statistik.proSorte.map(({ sorte, anzahl }) => {
+            {statistik.proSorte.map(({ sorte, anzahl, ertragKg }) => {
               const sorteId = sorte?.id ?? null;
               const aktiv = filter.sorte !== null && filter.sorte.sorteId === sorteId;
               return (
@@ -89,7 +109,10 @@ export function Uebersicht({ statistik, filter, beiFilter, beiSchliessen }: Prop
                       style={{ borderColor: sorte?.ringfarbe ?? RING_OHNE_SORTE }}
                       aria-hidden="true"
                     />
-                    <span class="statistik-name">{sorte?.name ?? t('sorten.ohne_sorte')}</span>
+                    <span class="statistik-name">
+                      {sorte?.name ?? t('sorten.ohne_sorte')}
+                      {ertragKg > 0 && <small>{formatiereKg(ertragKg, sprache)}</small>}
+                    </span>
                     <strong>{formatiereZahl(anzahl, sprache)}</strong>
                   </button>
                 </li>
