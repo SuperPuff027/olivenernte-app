@@ -21,7 +21,7 @@ export const de = {
 
   'menue.oeffnen': 'Menü',
 
-  'import.knopf': 'GeoJSON importieren',
+  'import.knopf': 'Importieren (GeoJSON, CSV)',
   'import.titel': 'Import prüfen',
   'import.grundstueck_neu': 'Neues Grundstück: {name}',
   'import.grundstueck_ersetzt': 'Grundstücksgrenze wird ersetzt: {name}',
@@ -41,10 +41,11 @@ export const de = {
   'import.fertig': 'Import abgeschlossen.',
   'import.fehler.kein_geojson': 'Die Datei ist kein gültiges GeoJSON.',
   'import.fehler.leer': 'Die Datei enthält weder ein Grundstück noch Bäume.',
+  'import.fehler.spalten_fehlen': 'In der Tabelle fehlen die Spalten Nummer, Breite und Länge (Überschriften in der ersten Zeile).',
   'import.fehler.lesen': 'Die Datei konnte nicht gelesen werden.',
   'import.fehler.speichern': 'Import fehlgeschlagen. Es wurde nichts gespeichert.',
 
-  'export.knopf': 'GeoJSON exportieren',
+  'export.knopf': 'Exportieren (GeoJSON, CSV)',
   'export.titel': 'Daten exportieren',
   'export.beschreibung': 'Sichert Grundstück, Bäume, Sorten und den Saisonstatus aller Jahre in einer GeoJSON-Datei. Mit „GeoJSON importieren“ lässt sich alles wiederherstellen.',
   'export.bereite_vor': 'Datei wird erstellt …',

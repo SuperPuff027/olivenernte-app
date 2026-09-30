@@ -20,7 +20,8 @@ import {
 } from './logic/filter';
 import { naechsteBaeume } from './logic/naechste';
 import { formatiereMeter, formatiereZahl } from './logic/format';
-import { leseGeojson, planeImport, type ImportPlan } from './logic/importGeojson';
+import { leseCsvBaeume } from './logic/csvImport';
+import { leseGeojson, planeImport, type GelesenerImport, type ImportPlan } from './logic/importGeojson';
 import { zaehleBaeume } from './logic/statistik';
 import type { Baum, Grundstueck, Position, SaisonStatus, Sorte } from './model/typen';
 import { BaumEintragen } from './ui/BaumEintragen';
@@ -192,15 +193,25 @@ export function App() {
     } catch {
       return fehler('import.fehler.lesen');
     }
-    let json: unknown;
-    try {
-      json = JSON.parse(text);
-    } catch {
-      return fehler('import.fehler.kein_geojson');
+    // CSV an der Endung oder am Inhalt erkennen (GeoJSON beginnt mit „{“; \s deckt auch ein BOM ab).
+    const istCsv = /\.(csv|txt|tsv)$/i.test(datei.name) || !/^\s*[{[]/.test(text);
+    let daten: GelesenerImport;
+    if (istCsv) {
+      const gelesen = leseCsvBaeume(text);
+      if (!gelesen.ok) return fehler(`import.fehler.${gelesen.fehler}`);
+      daten = gelesen.daten;
+    } else {
+      let json: unknown;
+      try {
+        json = JSON.parse(text);
+      } catch {
+        return fehler('import.fehler.kein_geojson');
+      }
+      const gelesen = leseGeojson(json);
+      if (!gelesen.ok) return fehler(`import.fehler.${gelesen.fehler}`);
+      daten = gelesen.daten;
     }
-    const gelesen = leseGeojson(json);
-    if (!gelesen.ok) return fehler(`import.fehler.${gelesen.fehler}`);
-    setImportPlan(planeImport(gelesen.daten, await ladeBestand(), new Date(), neueId, sprache));
+    setImportPlan(planeImport(daten, await ladeBestand(), new Date(), neueId, sprache));
   }
 
   async function importAusfuehren(plan: ImportPlan) {

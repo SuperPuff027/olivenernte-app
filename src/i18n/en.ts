@@ -23,7 +23,7 @@ export const en: Uebersetzung = {
 
   'menue.oeffnen': 'Menu',
 
-  'import.knopf': 'Import GeoJSON',
+  'import.knopf': 'Import (GeoJSON, CSV)',
   'import.titel': 'Review import',
   'import.grundstueck_neu': 'New plot: {name}',
   'import.grundstueck_ersetzt': 'Plot boundary will be replaced: {name}',
@@ -43,10 +43,11 @@ export const en: Uebersetzung = {
   'import.fertig': 'Import complete.',
   'import.fehler.kein_geojson': 'The file is not valid GeoJSON.',
   'import.fehler.leer': 'The file contains neither a plot nor trees.',
+  'import.fehler.spalten_fehlen': 'The table lacks the columns number, latitude and longitude (headings in the first row).',
   'import.fehler.lesen': 'The file could not be read.',
   'import.fehler.speichern': 'Import failed. Nothing was saved.',
 
-  'export.knopf': 'Export GeoJSON',
+  'export.knopf': 'Export (GeoJSON, CSV)',
   'export.titel': 'Export data',
   'export.beschreibung': 'Saves the property, trees, varieties and the season status of all years in a GeoJSON file. “Import GeoJSON” restores everything.',
   'export.bereite_vor': 'Creating file …',

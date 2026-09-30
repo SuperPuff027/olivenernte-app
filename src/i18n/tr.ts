@@ -23,7 +23,7 @@ export const tr: Uebersetzung = {
 
   'menue.oeffnen': 'Menü',
 
-  'import.knopf': 'GeoJSON içe aktar',
+  'import.knopf': 'İçe aktar (GeoJSON, CSV)',
   'import.titel': 'İçe aktarmayı kontrol et',
   'import.grundstueck_neu': 'Yeni arazi: {name}',
   'import.grundstueck_ersetzt': 'Arazi sınırı değiştirilecek: {name}',
@@ -43,10 +43,11 @@ export const tr: Uebersetzung = {
   'import.fertig': 'İçe aktarma tamamlandı.',
   'import.fehler.kein_geojson': 'Dosya geçerli bir GeoJSON değil.',
   'import.fehler.leer': 'Dosyada ne arazi ne de ağaç var.',
+  'import.fehler.spalten_fehlen': 'Tabloda numara, enlem ve boylam sütunları eksik (başlıklar ilk satırda).',
   'import.fehler.lesen': 'Dosya okunamadı.',
   'import.fehler.speichern': 'İçe aktarma başarısız. Hiçbir şey kaydedilmedi.',
 
-  'export.knopf': 'GeoJSON dışa aktar',
+  'export.knopf': 'Dışa aktar (GeoJSON, CSV)',
   'export.titel': 'Verileri dışa aktar',
   'export.beschreibung': 'Araziyi, ağaçları, çeşitleri ve tüm yılların sezon durumunu bir GeoJSON dosyasına kaydeder. „GeoJSON içe aktar“ ile her şey geri yüklenir.',
   'export.bereite_vor': 'Dosya oluşturuluyor …',
