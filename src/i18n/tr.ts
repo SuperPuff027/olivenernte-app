@@ -216,4 +216,17 @@ export const tr: Uebersetzung = {
   'speicher.hinweis_ios': 'iPhone’da: Safari’de „Paylaş“ ve ardından „Ana Ekrana Ekle“ye dokunun ve uygulamayı yalnızca oradan açın. Veriler ancak o zaman güvenle korunur.',
   'speicher.hinweis_installieren': 'Uygulamayı yükleyin (tarayıcı menüsünde „Uygulamayı yükle“ veya „Ana ekrana ekle“) ve ardından tekrar isteyin.',
   'speicher.erneut': 'Kalıcı depolamayı tekrar iste',
+
+  'ernte.ertrag': 'Verim (kg)',
+  'ernte.menge_platzhalter': 'örn. 35,5',
+  'ernte.datum': 'Hasat tarihi',
+  'ernte.speichern': 'Hasat edildi olarak kaydet',
+  'ernte.ohne_menge': 'Miktarsız',
+  'ernte.aendern': 'Verimi veya tarihi değiştir',
+  'ernte.anzeige': 'Verim: {kg} · hasat tarihi {datum}',
+  'ernte.anzeige_ohne_menge': 'Miktar girilmedi · hasat tarihi {datum}',
+  'ernte.fehler.leer': 'Lütfen bir miktar girin veya „Miktarsız“ seçin.',
+  'ernte.fehler.ungueltig': 'Lütfen bir sayı girin, örn. 35,5.',
+  'ernte.fehler.negativ': 'Miktar negatif olamaz.',
+  'ernte.fehler.zu_gross': 'Bir ağaçtan {max} kg’dan fazla mı? Lütfen kontrol edin.',
 };

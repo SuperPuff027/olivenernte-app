@@ -216,4 +216,17 @@ export const en: Uebersetzung = {
   'speicher.hinweis_ios': 'On iPhone: in Safari tap “Share”, then “Add to Home Screen”, and only open the app from there. Only then is the data kept safely.',
   'speicher.hinweis_installieren': 'Install the app (browser menu “Install app” or “Add to Home screen”) and then request again.',
   'speicher.erneut': 'Request persistent storage again',
+
+  'ernte.ertrag': 'Yield (kg)',
+  'ernte.menge_platzhalter': 'e.g. 35.5',
+  'ernte.datum': 'Harvest date',
+  'ernte.speichern': 'Save as harvested',
+  'ernte.ohne_menge': 'No amount',
+  'ernte.aendern': 'Change yield or date',
+  'ernte.anzeige': 'Yield: {kg} · harvested on {datum}',
+  'ernte.anzeige_ohne_menge': 'No amount given · harvested on {datum}',
+  'ernte.fehler.leer': 'Please enter an amount or choose “No amount”.',
+  'ernte.fehler.ungueltig': 'Please enter a number, e.g. 35.5.',
+  'ernte.fehler.negativ': 'The amount cannot be negative.',
+  'ernte.fehler.zu_gross': 'More than {max} kg from one tree? Please check.',
 };

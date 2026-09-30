@@ -214,6 +214,19 @@ export const de = {
   'speicher.hinweis_ios': 'Auf dem iPhone: In Safari auf „Teilen“ und dann „Zum Home-Bildschirm“ tippen und die App nur noch von dort öffnen. Nur dann bleiben die Daten sicher erhalten.',
   'speicher.hinweis_installieren': 'Die App installieren (im Browser-Menü „App installieren“ oder „Zum Startbildschirm hinzufügen“) und danach erneut anfragen.',
   'speicher.erneut': 'Dauerhaften Speicher erneut anfragen',
+
+  'ernte.ertrag': 'Ertrag (kg)',
+  'ernte.menge_platzhalter': 'z. B. 35,5',
+  'ernte.datum': 'Erntedatum',
+  'ernte.speichern': 'Geerntet speichern',
+  'ernte.ohne_menge': 'Ohne Menge',
+  'ernte.aendern': 'Ertrag oder Datum ändern',
+  'ernte.anzeige': 'Ertrag: {kg} · geerntet am {datum}',
+  'ernte.anzeige_ohne_menge': 'Ohne Mengenangabe · geerntet am {datum}',
+  'ernte.fehler.leer': 'Bitte eine Menge eingeben oder „Ohne Menge“ wählen.',
+  'ernte.fehler.ungueltig': 'Bitte eine Zahl eingeben, z. B. 35,5.',
+  'ernte.fehler.negativ': 'Die Menge kann nicht negativ sein.',
+  'ernte.fehler.zu_gross': 'Mehr als {max} kg an einem Baum? Bitte prüfen.',
 } as const;
 
 export type Schluessel = keyof typeof de;

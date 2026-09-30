@@ -2,17 +2,24 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { aendereBaum, ladeBaum, loescheBaum, type BaumAenderung } from '../db/baeume';
 import { ladeBestand } from '../db/import';
 import { ladeSorten } from '../db/sorten';
-import { aendereSaisonStatus, ladeEinstellungen, ladeSaisonStatus, type SaisonAenderung } from '../db/repo';
+import {
+  aendereSaisonStatus,
+  ladeEinstellungen,
+  ladeSaisonStatus,
+  markiereGeerntet,
+  type SaisonAenderung,
+} from '../db/repo';
 import type { Schluessel } from '../i18n';
 import { useSprache } from '../i18n/kontext';
 import type { KartenSteuerung } from '../karte/kartenSteuerung';
 import { fuellstandOptionen, letzteAenderung } from '../logic/baum';
 import { saisonJahr, STANDARD_FUELLSTAND_MAX, STANDARD_STATUS } from '../logic/datensatz';
-import { formatiereGrad, formatiereMeter, formatiereZeitpunkt } from '../logic/format';
+import { formatiereDatum, formatiereGrad, formatiereKg, formatiereMeter, formatiereZeitpunkt } from '../logic/format';
 import { normiereNummer, pruefeNummer, type NummernFehler } from '../logic/nummern';
 import { sortiereSorten } from '../logic/sorten';
 import { ERNTE_STATUS, type Baum, type SaisonStatus, type Sorte } from '../model/typen';
 import { BaumVerschieben } from './BaumVerschieben';
+import { ErnteEingabe } from './ErnteEingabe';
 import { SortenWahl } from './SortenWahl';
 
 interface Props {
@@ -57,6 +64,8 @@ export function BaumPanel({
   const notizZeitgeber = useRef<ReturnType<typeof setTimeout> | null>(null);
   const offeneNotiz = useRef<string | null>(null);
   const [verschieben, setVerschieben] = useState(false);
+  /** kg-Eingabe beim Markieren als geerntet (oder beim Ändern des Ertrags) */
+  const [ernteOffen, setErnteOffen] = useState(false);
   const [positionMeldung, setPositionMeldung] = useState<{ schluessel: Schluessel; warnung: boolean } | null>(null);
 
   useEffect(() => {
@@ -127,6 +136,19 @@ export function BaumPanel({
   async function speichereSaison(aenderung: SaisonAenderung) {
     try {
       setStatus(await aendereSaisonStatus(baumId, jahr, aenderung));
+      beiGeaendert();
+    } catch (e) {
+      console.error(e);
+      beiFehler();
+    }
+  }
+
+  async function ernteSpeichern(kg: number | null, erntedatum: string) {
+    try {
+      let neu = await markiereGeerntet(baumId, jahr, kg);
+      if (neu.erntedatum !== erntedatum) neu = await aendereSaisonStatus(baumId, jahr, { erntedatum });
+      setStatus(neu);
+      setErnteOffen(false);
       beiGeaendert();
     } catch (e) {
       console.error(e);
@@ -213,12 +235,45 @@ export function BaumPanel({
                 type="button"
                 class={`knopf status-knopf status-${s}`}
                 aria-pressed={aktuellerStatus === s}
-                onClick={() => aktuellerStatus !== s && void speichereSaison({ status: s })}
+                onClick={() => {
+                  // „Geerntet“ fragt erst nach der Menge; die anderen Status speichern sofort.
+                  if (s === 'geerntet') {
+                    if (aktuellerStatus !== s) setErnteOffen(true);
+                    return;
+                  }
+                  setErnteOffen(false);
+                  if (aktuellerStatus !== s) void speichereSaison({ status: s });
+                }}
               >
                 {t(`status.${s}`)}
               </button>
             ))}
           </div>
+
+          {ernteOffen ? (
+            <ErnteEingabe
+              vorher={status}
+              beiSpeichern={(kg, datum) => void ernteSpeichern(kg, datum)}
+              beiAbbrechen={() => setErnteOffen(false)}
+            />
+          ) : (
+            aktuellerStatus === 'geerntet' &&
+            status?.erntedatum && (
+              <div class="ernte-anzeige">
+                <p>
+                  {status.ertrag_kg === null
+                    ? t('ernte.anzeige_ohne_menge', { datum: formatiereDatum(status.erntedatum, sprache) })
+                    : t('ernte.anzeige', {
+                        kg: formatiereKg(status.ertrag_kg, sprache),
+                        datum: formatiereDatum(status.erntedatum, sprache),
+                      })}
+                </p>
+                <button type="button" class="knopf knopf-breit panel-knopf" onClick={() => setErnteOffen(true)}>
+                  {t('ernte.aendern')}
+                </button>
+              </div>
+            )
+          )}
 
           <h3>{t('baum.fuellstand')}</h3>
           <div class="auswahl-reihe" role="group" aria-label={t('baum.fuellstand')}>
