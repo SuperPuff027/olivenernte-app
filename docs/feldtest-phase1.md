@@ -48,7 +48,7 @@ Vor Ort den Flugmodus einschalten **oder** mobile Daten ausschalten. **GPS/Stand
 | C7 | Nächster Baum per „+“ → „Per Tipp auf die Karte“: 3–5 Bäume antippen, einen per „Rückgängig“ entfernen, „Fertig“ | Nummern fortlaufend, entfernter Baum verschwindet | | |
 | C8 | Bekannten Baum antippen, Nummer ändern (z. B. auf eine schon vergebene) | Hinweis „schon vergeben“, nichts gespeichert. Mit freier Nummer wird gespeichert | | |
 | C9 | „Bäume: n“ antippen | Zahlen pro Sorte stimmen mit dem Eingetragenen | | |
-| C10 | In der Übersicht eine Sorte antippen (Filter) | Andere Bäume blass, gewählte Sorte etwas größer; ✕ oben hebt den Filter auf | | |
+| C10 | In der Übersicht eine Sorte antippen, dann zusätzlich einen Status (z. B. „Bereit“) | Nur passende Bäume kräftig und etwas größer, andere blass; Anzeige oben z. B. „Memecik · Bereit (3)“ mit richtiger Zahl; ✕ hebt den Filter auf | | |
 | C11 | Menü → Grundstück bearbeiten → an eine Ecke stellen → „Eckpunkt hier setzen (GPS)“ → „Übernehmen“. Danach „Abbrechen“ (falls die Grenze nicht geändert werden soll) oder „Speichern“ | Punkt erscheint an der Standortposition | | |
 | C12 | Genauigkeit notieren: Wie weit liegen GPS-Punkte neben den Kronen im Luftbild? | Notiz: ______ | | |
 | C13 | Bedienung mit Handschuhen und in praller Sonne | Knöpfe treffbar, Texte und Farben lesbar | | |

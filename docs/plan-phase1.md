@@ -1,6 +1,6 @@
 # Plan Phase 1: Kern-Karte (MVP)
 
-**Stand 2026-09-29:** Alle 19 Schritte umgesetzt, geprüft (`npm run check`, Browsertests) und auf GitHub Pages veröffentlicht. **Offen:** Feldtest im Hain auf Android und iPhone nach `docs/feldtest-phase1.md`; erst danach ist Phase 1 abgeschlossen.
+**Stand 2026-09-30:** Alle 19 Schritte und die Nachträge (u. a. Filter nach Sorte und Status) umgesetzt, geprüft (`npm run check`, Browsertests) und auf GitHub Pages veröffentlicht. **Offen:** Feldtest im Hain auf Android und iPhone nach `docs/feldtest-phase1.md`; erst danach ist Phase 1 abgeschlossen.
 
 ## Kontext
 Phase 1 liefert eine installierbare Offline-PWA: Satellitenkarte, Grundstücksgrenze, Bäume eintragen (GPS gemittelt oder per Tipp), Eigenschaften setzen, Farben sehen, Daten überleben einen Neustart, dazu GeoJSON-Export und -Import.
@@ -20,7 +20,7 @@ Phase 1 liefert eine installierbare Offline-PWA: Satellitenkarte, Grundstücksgr
 - „Eckpunkt an meinem Standort setzen“ per GPS-Mittelung (nach Schritt 15 eingebaut).
 - Neue Sorte direkt im Baum-Panel anlegen, Ringfarbe aus einer benannten Palette (Blau, Magenta, Lila, Braun, …).
 - Baumpunkte klein halten, damit dicht stehende Bäume sich nicht überdecken.
-- Sortenfilter schon in Phase 1 (eigentlich Thema von Phase 2): nicht passende Bäume 60 % durchsichtig, passende 10 % größer.
+- Filter schon in Phase 1 (eigentlich Thema von Phase 2): nach Sorte und/oder Erntestatus, kombinierbar; nicht passende Bäume 60 % durchsichtig, passende 10 % größer.
 
 ## Technische Festlegungen
 - **UI mit Preact** statt Vanilla-TS: Panel, Sortenverwaltung, Einstellungen und GPS-Dialog sind formularlastig mit viel Zustand. Die Karte bleibt imperativ (MapLibre), Preact steuert nur die Overlays.
