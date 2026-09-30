@@ -4,7 +4,7 @@ import { ladeBestand } from '../db/import';
 import { ladeSorten } from '../db/sorten';
 import {
   aendereSaisonStatus,
-  ladeEinstellungen,
+  ladeHain,
   ladeSaisonStatus,
   markiereGeerntet,
   type SaisonAenderung,
@@ -79,11 +79,11 @@ export function BaumPanel({
   useEffect(() => {
     let aktiv = true;
     void (async () => {
-      const [b, s, bestand, einstellungen] = await Promise.all([
+      const [b, s, bestand, hain] = await Promise.all([
         ladeBaum(baumId),
         ladeSaisonStatus(baumId, jahr),
         ladeBestand(),
-        ladeEinstellungen(),
+        ladeHain(),
       ]);
       if (!aktiv) return;
       if (!b) return beiSchliessen();
@@ -91,7 +91,7 @@ export function BaumPanel({
       setStatus(s);
       setSorten(sortiereSorten(bestand.sorten, sprache));
       setBaeume(bestand.baeume);
-      setFuellstandMax(einstellungen.fuellstand_max);
+      setFuellstandMax(hain.fuellstand_max);
       setNummer(b.nummer);
       setNotiz(b.notiz);
     })().catch((e: unknown) => {

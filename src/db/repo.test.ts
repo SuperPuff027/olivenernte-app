@@ -4,9 +4,11 @@ import type { Baum } from '../model/typen';
 import { db } from './datenbank';
 import {
   aendereEinstellungen,
+  aendereHain,
   aendereSaisonStatus,
   ladeAktive,
   ladeEinstellungen,
+  ladeHain,
   ladeSaisonStatus,
   ladeSaisonStatusJahr,
   loescheWeich,
@@ -64,7 +66,6 @@ describe('speichere / ladeAktive / loescheWeich', () => {
 describe('Einstellungen', () => {
   it('liefert Standardwerte, solange nichts gespeichert ist', async () => {
     const e = await ladeEinstellungen();
-    expect(e.fuellstand_max).toBe(5);
     expect(e.ziel_gps_genauigkeit_m).toBe(5);
     expect(e.sprache).toBeNull();
   });
@@ -75,7 +76,20 @@ describe('Einstellungen', () => {
     const e = await ladeEinstellungen();
     expect(e.sprache).toBe('tr');
     expect(e.ziel_gps_genauigkeit_m).toBe(3);
-    expect(e.fuellstand_max).toBe(5);
+  });
+});
+
+describe('Hain-Einstellungen', () => {
+  it('Standard: aktuelle Saison = laufendes Jahr, Füllstand max 5', async () => {
+    expect(await ladeHain()).toMatchObject({ id: 'hain', aktuelle_saison: new Date().getFullYear(), fuellstand_max: 5 });
+  });
+
+  it('speichert Änderungen mit aktualisiert_am und behält die übrigen Werte', async () => {
+    await aendereHain({ fuellstand_max: 7 });
+    const h = await aendereHain({ aktuelle_saison: 2027 });
+    expect(h).toMatchObject({ aktuelle_saison: 2027, fuellstand_max: 7, geloescht: false });
+    expect(await ladeHain()).toEqual(h);
+    expect(Date.parse(h.aktualisiert_am)).toBeGreaterThan(Date.now() - 60_000);
   });
 });
 

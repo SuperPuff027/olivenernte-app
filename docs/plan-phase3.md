@@ -15,7 +15,7 @@
 ## Schritte
 Nach jedem Schritt: `npm run check`, Commit, Push; die GitHub Action baut und veröffentlicht.
 
-- [ ] **1. Gemeinsame Einstellungen (Datenmodell v2).** Tabelle `hain` mit einem Datensatz (aktuelle Saison, `fuellstand_max`), abgleichbar wie alle anderen (id, `aktualisiert_am`, `geloescht`). Dexie-Migration v1 → v2 übernimmt `fuellstand_max` aus den Geräte-Einstellungen; aktuelle Saison = laufendes Jahr. Tests inkl. Migration.
+- [x] **1. Gemeinsame Einstellungen (Datenmodell v2).** Tabelle `hain` mit einem Datensatz (aktuelle Saison, `fuellstand_max`), abgleichbar wie alle anderen (id, `aktualisiert_am`, `geloescht`). Dexie-Migration v1 → v2 übernimmt `fuellstand_max` aus den Geräte-Einstellungen; aktuelle Saison = laufendes Jahr. Tests inkl. Migration.
 - [ ] **2. Saisonwechsel.** Die App nutzt die aktuelle Saison statt des Kalenderjahrs. „Neue Saison beginnen“ mit Rückfrage; alle Bäume starten als „nicht bereit“, alte Saisons bleiben. Vorschlag zum Wechsel, wenn das Kalenderjahr voraus ist.
 - [ ] **3. Vergangene Saisons ansehen.** Saisonwahl in der Übersicht; Karte, Zähler und Filter zeigen die gewählte Saison mit deutlichem Hinweis und „zurück zur aktuellen Saison“.
 - [ ] **4. Historie im Baum-Panel.** Alle Saisons des Baums: Status, Füllstand, Ertrag, Erntedatum.

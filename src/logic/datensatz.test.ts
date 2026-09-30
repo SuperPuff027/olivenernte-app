@@ -6,7 +6,9 @@ import {
   neuerSaisonStatus,
   nurAktive,
   saisonJahr,
+  hainAusAltenEinstellungen,
   standardEinstellungen,
+  standardHainEinstellungen,
 } from './datensatz';
 
 const ZEIT = new Date('2026-10-05T11:30:00Z');
@@ -41,9 +43,8 @@ describe('alsGeloescht / nurAktive', () => {
 });
 
 describe('Standardwerte', () => {
-  it('Einstellungen: Füllstand max 5, GPS-Ziel 5 m, Gerätesprache', () => {
+  it('Einstellungen: GPS-Ziel 5 m, Gerätesprache', () => {
     const e = standardEinstellungen(ZEIT);
-    expect(e.fuellstand_max).toBe(5);
     expect(e.ziel_gps_genauigkeit_m).toBe(5);
     expect(e.sprache).toBeNull();
   });
@@ -57,5 +58,27 @@ describe('Standardwerte', () => {
 
   it('Saison ist das Kalenderjahr', () => {
     expect(saisonJahr(new Date(2026, 10, 20))).toBe(2026);
+  });
+});
+
+describe('Hain-Einstellungen', () => {
+  it('Standard: Saison = Jahr des Zeitpunkts, Füllstand max 5', () => {
+    expect(standardHainEinstellungen(ZEIT)).toEqual({
+      id: 'hain',
+      aktuelle_saison: ZEIT.getFullYear(),
+      fuellstand_max: 5,
+      aktualisiert_am: ZEIT.toISOString(),
+      geloescht: false,
+    });
+  });
+
+  it('Migration übernimmt fuellstand_max aus den alten Geräte-Einstellungen', () => {
+    expect(hainAusAltenEinstellungen({ id: 'einstellungen', fuellstand_max: 7 }, ZEIT).fuellstand_max).toBe(7);
+  });
+
+  it('Migration: fehlende oder ungültige Werte ergeben den Standard', () => {
+    for (const alt of [undefined, null, {}, { fuellstand_max: 0 }, { fuellstand_max: 2.5 }, { fuellstand_max: '7' }]) {
+      expect(hainAusAltenEinstellungen(alt, ZEIT)).toEqual(standardHainEinstellungen(ZEIT));
+    }
   });
 });

@@ -1,5 +1,12 @@
 import { useEffect, useState } from 'preact/hooks';
-import { aendereEinstellungen, ladeEinstellungen, type EinstellungsAenderung } from '../db/repo';
+import {
+  aendereEinstellungen,
+  aendereHain,
+  ladeEinstellungen,
+  ladeHain,
+  type EinstellungsAenderung,
+  type HainAenderung,
+} from '../db/repo';
 import { belegterSpeicher, fordereDauerhaftenSpeicher, pruefeSpeicher } from '../db/speicher';
 import { useSprache } from '../i18n/kontext';
 import {
@@ -11,7 +18,7 @@ import {
 } from '../logic/einstellungen';
 import { formatiereMeter, formatiereZahl } from '../logic/format';
 import { ermittleSprache, SPRACHEN, type Sprache } from '../logic/sprache';
-import type { Einstellungen as EinstellungsDaten } from '../model/typen';
+import type { Einstellungen as EinstellungsDaten, HainEinstellungen } from '../model/typen';
 import { Blatt } from './Blatt';
 import { Stufenwahl } from './Stufenwahl';
 
@@ -30,6 +37,7 @@ function istInstalliert(): boolean {
 export function Einstellungen({ beiSchliessen, beiFehler }: Props) {
   const { t, sprache, setzeSprache } = useSprache();
   const [daten, setDaten] = useState<EinstellungsDaten | null>(null);
+  const [hain, setHain] = useState<HainEinstellungen | null>(null);
   const [speicher, setSpeicher] = useState<SpeicherZustand | null>(null);
   const [belegt, setBelegt] = useState<number | null>(null);
   const installiert = istInstalliert();
@@ -37,9 +45,15 @@ export function Einstellungen({ beiSchliessen, beiFehler }: Props) {
   const geraeteSprache = ermittleSprache(null, navigator.languages);
 
   useEffect(() => {
-    void Promise.all([ladeEinstellungen(), pruefeSpeicher(navigator.storage), belegterSpeicher(navigator.storage)])
-      .then(([e, s, b]) => {
+    void Promise.all([
+      ladeEinstellungen(),
+      ladeHain(),
+      pruefeSpeicher(navigator.storage),
+      belegterSpeicher(navigator.storage),
+    ])
+      .then(([e, h, s, b]) => {
         setDaten(e);
+        setHain(h);
         setSpeicher(s);
         setBelegt(b);
       })
@@ -52,6 +66,15 @@ export function Einstellungen({ beiSchliessen, beiFehler }: Props) {
   async function aendere(aenderung: EinstellungsAenderung) {
     try {
       setDaten(await aendereEinstellungen(aenderung));
+    } catch (e) {
+      console.error(e);
+      beiFehler();
+    }
+  }
+
+  async function aendereFuerHain(aenderung: HainAenderung) {
+    try {
+      setHain(await aendereHain(aenderung));
     } catch (e) {
       console.error(e);
       beiFehler();
@@ -95,15 +118,19 @@ export function Einstellungen({ beiSchliessen, beiFehler }: Props) {
             ))}
           </div>
 
-          <h3>{t('einstellungen.fuellstand_max')}</h3>
-          <Stufenwahl
-            beschriftung={t('einstellungen.fuellstand_max')}
-            wert={daten.fuellstand_max}
-            bereich={FUELLSTAND_MAX_BEREICH}
-            anzeige={formatiereZahl(daten.fuellstand_max, sprache)}
-            beiAenderung={(wert) => void aendere({ fuellstand_max: wert })}
-          />
-          <p class="panel-hilfe">{t('einstellungen.fuellstand_max_hilfe')}</p>
+          {hain && (
+            <>
+              <h3>{t('einstellungen.fuellstand_max')}</h3>
+              <Stufenwahl
+                beschriftung={t('einstellungen.fuellstand_max')}
+                wert={hain.fuellstand_max}
+                bereich={FUELLSTAND_MAX_BEREICH}
+                anzeige={formatiereZahl(hain.fuellstand_max, sprache)}
+                beiAenderung={(wert) => void aendereFuerHain({ fuellstand_max: wert })}
+              />
+              <p class="panel-hilfe">{t('einstellungen.fuellstand_max_hilfe')}</p>
+            </>
+          )}
 
           <h3>{t('einstellungen.ziel_genauigkeit')}</h3>
           <Stufenwahl

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'preact/hooks';
-import { ladeEinstellungen } from '../db/repo';
+import { ladeHain } from '../db/repo';
 import { useSprache } from '../i18n/kontext';
 import { saisonJahr, STANDARD_FUELLSTAND_MAX } from '../logic/datensatz';
 import { innenfarbe, RING_OHNE_SORTE } from '../logic/farben';
@@ -33,8 +33,8 @@ export function Uebersicht({ statistik, filter, beiFilter, beiSchliessen }: Prop
   const { t, sprache } = useSprache();
   const [fuellstandMax, setFuellstandMax] = useState(STANDARD_FUELLSTAND_MAX);
   useEffect(() => {
-    void ladeEinstellungen()
-      .then((e) => setFuellstandMax(e.fuellstand_max))
+    void ladeHain()
+      .then((h) => setFuellstandMax(h.fuellstand_max))
       .catch(console.error);
   }, []);
   const bereich = filter.fuellstand;

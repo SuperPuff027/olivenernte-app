@@ -5,9 +5,17 @@ import {
   neuerSaisonStatus,
   nurAktive,
   standardEinstellungen,
+  standardHainEinstellungen,
 } from '../logic/datensatz';
 import { ernteAenderung } from '../logic/ernte';
-import { EINSTELLUNGEN_ID, type Einstellungen, type MitId, type SaisonStatus } from '../model/typen';
+import {
+  EINSTELLUNGEN_ID,
+  HAIN_ID,
+  type Einstellungen,
+  type HainEinstellungen,
+  type MitId,
+  type SaisonStatus,
+} from '../model/typen';
 import { db } from './datenbank';
 
 // Alle Schreibzugriffe laufen über diese Funktionen, damit aktualisiert_am
@@ -35,13 +43,29 @@ export async function ladeEinstellungen(): Promise<Einstellungen> {
 }
 
 export type EinstellungsAenderung = Partial<
-  Pick<Einstellungen, 'fuellstand_max' | 'ziel_gps_genauigkeit_m' | 'sprache'>
+  Pick<Einstellungen, 'ziel_gps_genauigkeit_m' | 'sprache'>
 >;
 
 export async function aendereEinstellungen(aenderung: EinstellungsAenderung): Promise<Einstellungen> {
   return db.transaction('rw', db.einstellungen, async () => {
     const neu = geaendert({ ...(await ladeEinstellungen()), ...aenderung }, new Date());
     await db.einstellungen.put(neu);
+    return neu;
+  });
+}
+
+/** Hain-weite Einstellungen; ohne Datensatz die Standardwerte (aktuelle Saison = laufendes Jahr). */
+export async function ladeHain(): Promise<HainEinstellungen> {
+  const hain = await db.hain.get(HAIN_ID);
+  return hain && !hain.geloescht ? hain : standardHainEinstellungen(new Date());
+}
+
+export type HainAenderung = Partial<Pick<HainEinstellungen, 'aktuelle_saison' | 'fuellstand_max'>>;
+
+export async function aendereHain(aenderung: HainAenderung): Promise<HainEinstellungen> {
+  return db.transaction('rw', db.hain, async () => {
+    const neu = geaendert({ ...(await ladeHain()), ...aenderung }, new Date());
+    await db.hain.put(neu);
     return neu;
   });
 }

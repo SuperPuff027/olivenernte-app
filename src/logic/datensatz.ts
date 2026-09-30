@@ -1,6 +1,8 @@
 import {
   EINSTELLUNGEN_ID,
+  HAIN_ID,
   type Einstellungen,
+  type HainEinstellungen,
   type ErnteStatus,
   type SaisonStatus,
   type Synchronisierbar,
@@ -29,7 +31,7 @@ export function nurAktive<T extends Synchronisierbar>(datensaetze: readonly T[])
   return datensaetze.filter((d) => !d.geloescht);
 }
 
-/** Saison = Kalenderjahr (Saisonwechsel folgt in einer späteren Phase). */
+/** Kalenderjahr als Vorschlag für die Saison (die aktuelle Saison steht in den Hain-Einstellungen). */
 export function saisonJahr(jetzt: Date): number {
   return jetzt.getFullYear();
 }
@@ -37,12 +39,32 @@ export function saisonJahr(jetzt: Date): number {
 export function standardEinstellungen(jetzt: Date): Einstellungen {
   return {
     id: EINSTELLUNGEN_ID,
-    fuellstand_max: STANDARD_FUELLSTAND_MAX,
     ziel_gps_genauigkeit_m: STANDARD_ZIEL_GPS_GENAUIGKEIT_M,
     sprache: null,
     aktualisiert_am: jetzt.toISOString(),
     geloescht: false,
   };
+}
+
+export function standardHainEinstellungen(jetzt: Date): HainEinstellungen {
+  return {
+    id: HAIN_ID,
+    aktuelle_saison: saisonJahr(jetzt),
+    fuellstand_max: STANDARD_FUELLSTAND_MAX,
+    aktualisiert_am: jetzt.toISOString(),
+    geloescht: false,
+  };
+}
+
+/**
+ * Migration v1 → v2: `fuellstand_max` stand bisher in den Geräte-Einstellungen und zieht in die
+ * Hain-Einstellungen um. Ungültige oder fehlende Werte ergeben den Standard; Saison = laufendes Jahr.
+ */
+export function hainAusAltenEinstellungen(alt: unknown, jetzt: Date): HainEinstellungen {
+  const hain = standardHainEinstellungen(jetzt);
+  if (typeof alt !== 'object' || alt === null) return hain;
+  const wert = (alt as Record<string, unknown>).fuellstand_max;
+  return typeof wert === 'number' && Number.isInteger(wert) && wert >= 1 ? { ...hain, fuellstand_max: wert } : hain;
 }
 
 export function neuerSaisonStatus(baum_id: string, jahr: number, jetzt: Date): SaisonStatus {

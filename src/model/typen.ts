@@ -65,12 +65,22 @@ export interface SaisonStatus extends Synchronisierbar {
 
 export const EINSTELLUNGEN_ID = 'einstellungen';
 
+/** Einstellungen dieses Geräts; werden nicht abgeglichen. */
 export interface Einstellungen extends Synchronisierbar {
   id: typeof EINSTELLUNGEN_ID;
-  fuellstand_max: number;
   ziel_gps_genauigkeit_m: number;
   /** null = Gerätesprache verwenden */
   sprache: Sprache | null;
+}
+
+export const HAIN_ID = 'hain';
+
+/** Einstellungen, die für alle Geräte des Hains gelten und abgeglichen werden (ein Datensatz). */
+export interface HainEinstellungen extends Synchronisierbar {
+  id: typeof HAIN_ID;
+  /** Saison, in die Status, Füllstand und Ertrag geschrieben werden (Jahr des Erntebeginns) */
+  aktuelle_saison: number;
+  fuellstand_max: number;
 }
 
 /** Ab Phase 4 (Bewässerung); in Phase 1 nur im Schema. */
