@@ -5,16 +5,15 @@ import { useSprache } from '../i18n/kontext';
 import {
   FUELLSTAND_MAX_BEREICH,
   istIos,
-  schritt,
   speicherHinweis,
   ZIEL_GENAUIGKEIT_BEREICH,
-  type Bereich,
   type SpeicherZustand,
 } from '../logic/einstellungen';
 import { formatiereMeter, formatiereZahl } from '../logic/format';
 import { ermittleSprache, SPRACHEN, type Sprache } from '../logic/sprache';
 import type { Einstellungen as EinstellungsDaten } from '../model/typen';
 import { Blatt } from './Blatt';
+import { Stufenwahl } from './Stufenwahl';
 
 interface Props {
   beiSchliessen: () => void;
@@ -26,43 +25,6 @@ const BYTE_PRO_MB = 1024 * 1024;
 function istInstalliert(): boolean {
   const iosStandalone = (navigator as Navigator & { standalone?: boolean }).standalone === true;
   return iosStandalone || matchMedia('(display-mode: standalone)').matches;
-}
-
-/** Zahl mit großen −/+-Knöpfen (besser mit Handschuhen als ein Schieberegler). */
-function Stufenwahl(props: {
-  beschriftung: string;
-  wert: number;
-  bereich: Bereich;
-  anzeige: string;
-  beiAenderung: (wert: number) => void;
-}) {
-  const { t } = useSprache();
-  const { beschriftung, wert, bereich, anzeige, beiAenderung } = props;
-  return (
-    <div class="stufenwahl" role="group" aria-label={beschriftung}>
-      <button
-        type="button"
-        class="knopf"
-        disabled={wert <= bereich.min}
-        aria-label={`${beschriftung}: ${t('einstellungen.weniger')}`}
-        onClick={() => beiAenderung(schritt(wert, -1, bereich))}
-      >
-        −
-      </button>
-      <output class="stufenwahl-wert" aria-live="polite">
-        {anzeige}
-      </output>
-      <button
-        type="button"
-        class="knopf"
-        disabled={wert >= bereich.max}
-        aria-label={`${beschriftung}: ${t('einstellungen.mehr')}`}
-        onClick={() => beiAenderung(schritt(wert, 1, bereich))}
-      >
-        +
-      </button>
-    </div>
-  );
 }
 
 export function Einstellungen({ beiSchliessen, beiFehler }: Props) {

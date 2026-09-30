@@ -4,8 +4,10 @@ import {
   istFilterAktiv,
   KEIN_FILTER,
   passtZuFilter,
+  setzeFuellstand,
   umschalteSorte,
   umschalteStatus,
+  vorschlagFuellstand,
   zaehleTreffer,
   type BaumFilter,
 } from './filter';
@@ -39,39 +41,80 @@ const status = (baum_id: string, s: SaisonStatus['status'], geloescht = false): 
 
 describe('Filter umschalten', () => {
   it('Sorte setzen, wechseln und durch erneutes Antippen aufheben; Status bleibt', () => {
-    const mitStatus: BaumFilter = { sorte: null, status: 'bereit' };
+    const mitStatus: BaumFilter = { sorte: null, status: 'bereit', fuellstand: null };
     const m = umschalteSorte(mitStatus, 'm');
-    expect(m).toEqual({ sorte: { sorteId: 'm' }, status: 'bereit' });
-    expect(umschalteSorte(m, 'a')).toEqual({ sorte: { sorteId: 'a' }, status: 'bereit' });
+    expect(m).toEqual({ sorte: { sorteId: 'm' }, status: 'bereit', fuellstand: null });
+    expect(umschalteSorte(m, 'a')).toEqual({ sorte: { sorteId: 'a' }, status: 'bereit', fuellstand: null });
     expect(umschalteSorte(m, 'm')).toEqual(mitStatus);
   });
 
   it('„ohne Sorte“ ist eine eigene Wahl', () => {
-    expect(umschalteSorte(KEIN_FILTER, null)).toEqual({ sorte: { sorteId: null }, status: null });
-    expect(umschalteSorte({ sorte: { sorteId: null }, status: null }, null)).toEqual(KEIN_FILTER);
+    expect(umschalteSorte(KEIN_FILTER, null)).toEqual({ sorte: { sorteId: null }, status: null, fuellstand: null });
+    expect(umschalteSorte({ sorte: { sorteId: null }, status: null, fuellstand: null }, null)).toEqual(KEIN_FILTER);
   });
 
   it('Status setzen, wechseln und aufheben; Sorte bleibt', () => {
-    const f = umschalteStatus({ sorte: { sorteId: 'm' }, status: null }, 'geerntet');
-    expect(f).toEqual({ sorte: { sorteId: 'm' }, status: 'geerntet' });
+    const f = umschalteStatus({ sorte: { sorteId: 'm' }, status: null, fuellstand: null }, 'geerntet');
+    expect(f).toEqual({ sorte: { sorteId: 'm' }, status: 'geerntet', fuellstand: null });
     expect(umschalteStatus(f, 'bereit').status).toBe('bereit');
-    expect(umschalteStatus(f, 'geerntet')).toEqual({ sorte: { sorteId: 'm' }, status: null });
+    expect(umschalteStatus(f, 'geerntet')).toEqual({ sorte: { sorteId: 'm' }, status: null, fuellstand: null });
   });
 
   it('aktiv, sobald Sorte oder Status gewählt ist', () => {
     expect(istFilterAktiv(KEIN_FILTER)).toBe(false);
-    expect(istFilterAktiv({ sorte: null, status: 'bereit' })).toBe(true);
-    expect(istFilterAktiv({ sorte: { sorteId: null }, status: null })).toBe(true);
+    expect(istFilterAktiv({ sorte: null, status: 'bereit', fuellstand: null })).toBe(true);
+    expect(istFilterAktiv({ sorte: { sorteId: null }, status: null, fuellstand: null })).toBe(true);
   });
 });
 
 describe('passtZuFilter', () => {
+  const m = (sorteId: string | null, s: SaisonStatus['status'], fuellstand: number | null = null) => ({
+    sorteId,
+    status: s,
+    fuellstand,
+  });
+
   it('kein Filter passt immer, sonst muss alles Gewählte passen', () => {
-    expect(passtZuFilter('m', 'bereit', KEIN_FILTER)).toBe(true);
-    expect(passtZuFilter('m', 'bereit', { sorte: { sorteId: 'm' }, status: 'bereit' })).toBe(true);
-    expect(passtZuFilter('m', 'geerntet', { sorte: { sorteId: 'm' }, status: 'bereit' })).toBe(false);
-    expect(passtZuFilter(null, 'bereit', { sorte: { sorteId: 'm' }, status: null })).toBe(false);
-    expect(passtZuFilter(null, 'bereit', { sorte: { sorteId: null }, status: null })).toBe(true);
+    expect(passtZuFilter(m('m', 'bereit'), KEIN_FILTER)).toBe(true);
+    expect(passtZuFilter(m('m', 'bereit'), { sorte: { sorteId: 'm' }, status: 'bereit', fuellstand: null })).toBe(true);
+    expect(passtZuFilter(m('m', 'geerntet'), { sorte: { sorteId: 'm' }, status: 'bereit', fuellstand: null })).toBe(false);
+    expect(passtZuFilter(m(null, 'bereit'), { sorte: { sorteId: 'm' }, status: null, fuellstand: null })).toBe(false);
+    expect(passtZuFilter(m(null, 'bereit'), { sorte: { sorteId: null }, status: null, fuellstand: null })).toBe(true);
+  });
+
+  it('Füllstand-Bereich einschließlich der Grenzen; ohne Schätzung passt nicht', () => {
+    const f: BaumFilter = { sorte: null, status: null, fuellstand: { von: 3, bis: 4 } };
+    expect([1, 2, 3, 4, 5].map((n) => passtZuFilter(m('m', 'bereit', n), f))).toEqual([false, false, true, true, false]);
+    expect(passtZuFilter(m('m', 'bereit', null), f)).toBe(false);
+  });
+
+  it('Füllstand zusammen mit Sorte und Status', () => {
+    const f: BaumFilter = { sorte: { sorteId: 'm' }, status: 'bereit', fuellstand: { von: 4, bis: 5 } };
+    expect(passtZuFilter(m('m', 'bereit', 5), f)).toBe(true);
+    expect(passtZuFilter(m('m', 'nicht_bereit', 5), f)).toBe(false);
+    expect(passtZuFilter(m('a', 'bereit', 5), f)).toBe(false);
+    expect(passtZuFilter(m('m', 'bereit', 3), f)).toBe(false);
+  });
+});
+
+describe('setzeFuellstand', () => {
+  it('begrenzt auf 1 … max, rundet und tauscht von/bis', () => {
+    expect(setzeFuellstand(KEIN_FILTER, { von: 3, bis: 5 }, 5).fuellstand).toEqual({ von: 3, bis: 5 });
+    expect(setzeFuellstand(KEIN_FILTER, { von: 5, bis: 2 }, 5).fuellstand).toEqual({ von: 2, bis: 5 });
+    expect(setzeFuellstand(KEIN_FILTER, { von: 0, bis: 9 }, 5).fuellstand).toEqual({ von: 1, bis: 5 });
+    expect(setzeFuellstand(KEIN_FILTER, { von: 2.6, bis: Number.NaN }, 5).fuellstand).toEqual({ von: 1, bis: 3 });
+  });
+
+  it('null hebt nur den Füllstand auf, Sorte und Status bleiben', () => {
+    const f: BaumFilter = { sorte: { sorteId: 'm' }, status: 'bereit', fuellstand: { von: 3, bis: 5 } };
+    expect(setzeFuellstand(f, null, 5)).toEqual({ sorte: { sorteId: 'm' }, status: 'bereit', fuellstand: null });
+    expect(istFilterAktiv(setzeFuellstand(KEIN_FILTER, { von: 1, bis: 5 }, 5))).toBe(true);
+  });
+
+  it('Vorschlag: obere Hälfte der Stufen', () => {
+    expect(vorschlagFuellstand(5)).toEqual({ von: 3, bis: 5 });
+    expect(vorschlagFuellstand(10)).toEqual({ von: 6, bis: 10 });
+    expect(vorschlagFuellstand(2)).toEqual({ von: 2, bis: 2 });
   });
 });
 
@@ -82,10 +125,16 @@ describe('zaehleTreffer', () => {
 
   it('zählt aktive passende Bäume; ohne Eintrag gilt „nicht bereit“', () => {
     expect(zaehleTreffer(baeume, sorten, st, KEIN_FILTER)).toBe(4);
-    expect(zaehleTreffer(baeume, sorten, st, { sorte: null, status: 'bereit' })).toBe(2);
-    expect(zaehleTreffer(baeume, sorten, st, { sorte: null, status: 'nicht_bereit' })).toBe(2);
-    expect(zaehleTreffer(baeume, sorten, st, { sorte: { sorteId: 'm' }, status: 'bereit' })).toBe(1);
+    expect(zaehleTreffer(baeume, sorten, st, { sorte: null, status: 'bereit', fuellstand: null })).toBe(2);
+    expect(zaehleTreffer(baeume, sorten, st, { sorte: null, status: 'nicht_bereit', fuellstand: null })).toBe(2);
+    expect(zaehleTreffer(baeume, sorten, st, { sorte: { sorteId: 'm' }, status: 'bereit', fuellstand: null })).toBe(1);
     // Baum mit gelöschter Sorte zählt als „ohne Sorte“
-    expect(zaehleTreffer(baeume, sorten, st, { sorte: { sorteId: null }, status: null })).toBe(2);
+    expect(zaehleTreffer(baeume, sorten, st, { sorte: { sorteId: null }, status: null, fuellstand: null })).toBe(2);
+  });
+
+  it('zählt nach Füllstand aus dem Saisonstatus', () => {
+    const mitFuellstand = [{ ...status('1', 'bereit'), fuellstand: 4 }, { ...status('2', 'bereit'), fuellstand: 2 }, status('3', 'bereit')];
+    const f: BaumFilter = { sorte: null, status: null, fuellstand: { von: 3, bis: 5 } };
+    expect(zaehleTreffer(baeume, sorten, mitFuellstand, f)).toBe(1);
   });
 });

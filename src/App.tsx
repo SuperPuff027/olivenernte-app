@@ -244,6 +244,11 @@ export function App() {
                   {[
                     filter.sorte ? (filterSorte?.name ?? t('sorten.ohne_sorte')) : null,
                     filter.status ? t(`status.${filter.status}`) : null,
+                    filter.fuellstand === null
+                      ? null
+                      : filter.fuellstand.von === filter.fuellstand.bis
+                        ? t('filter.fuellstand_einzeln', { wert: filter.fuellstand.von })
+                        : t('filter.fuellstand_bereich', { von: filter.fuellstand.von, bis: filter.fuellstand.bis }),
                   ]
                     .filter(Boolean)
                     .join(' · ')}{' '}
@@ -412,9 +417,9 @@ export function App() {
         <Uebersicht
           statistik={statistik}
           filter={filter}
-          beiFilter={(f) => {
+          beiFilter={(f, schliessen) => {
             setFilter(f);
-            setUebersichtOffen(false);
+            if (schliessen) setUebersichtOffen(false);
           }}
           beiSchliessen={() => setUebersichtOffen(false)}
         />

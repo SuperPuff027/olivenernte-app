@@ -162,6 +162,13 @@ export const de = {
   'statistik.keine_baeume': 'Noch keine Bäume eingetragen.',
   'filter.anleitung': 'Sorte oder Status antippen, um passende Bäume auf der Karte hervorzuheben; beides lässt sich kombinieren. Die anderen Bäume werden durchsichtig.',
   'filter.aufheben': 'Filter aufheben',
+  'filter.fuellstand_eingrenzen': 'Füllstand eingrenzen',
+  'filter.fuellstand_egal': 'Füllstand egal',
+  'filter.fuellstand_hinweis': 'Bäume ohne geschätzten Füllstand passen dann nicht.',
+  'filter.fuellstand_bereich': 'Füllstand {von}–{bis}',
+  'filter.fuellstand_einzeln': 'Füllstand {wert}',
+  'filter.von': 'von',
+  'filter.bis': 'bis',
 
   'eintragen.gps': 'Hier per GPS',
   'eintragen.gps_text': 'Am Baum stehen. Die Position wird mehrfach gemessen und gemittelt.',

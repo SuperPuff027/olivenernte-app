@@ -164,6 +164,13 @@ export const tr: Uebersetzung = {
   'statistik.keine_baeume': 'Henüz ağaç eklenmedi.',
   'filter.anleitung': 'Eşleşen ağaçları haritada öne çıkarmak için bir çeşide veya duruma dokunun; ikisi birlikte seçilebilir. Diğer ağaçlar saydamlaşır.',
   'filter.aufheben': 'Filtreyi kaldır',
+  'filter.fuellstand_eingrenzen': 'Doluluğu sınırla',
+  'filter.fuellstand_egal': 'Doluluk fark etmez',
+  'filter.fuellstand_hinweis': 'Doluluğu tahmin edilmemiş ağaçlar bu durumda eşleşmez.',
+  'filter.fuellstand_bereich': 'Doluluk {von}–{bis}',
+  'filter.fuellstand_einzeln': 'Doluluk {wert}',
+  'filter.von': 'en az',
+  'filter.bis': 'en çok',
 
   'eintragen.gps': 'Burada GPS ile',
   'eintragen.gps_text': 'Ağacın yanında durun. Konum birkaç kez ölçülür ve ortalaması alınır.',

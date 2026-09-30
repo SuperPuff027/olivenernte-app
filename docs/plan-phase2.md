@@ -18,7 +18,7 @@
 ## Schritte
 Nach jedem Schritt: `npm run check`, Commit, Push; die GitHub Action baut und veröffentlicht.
 
-- [ ] **1. Füllstand-Bereich im Filter.** `BaumFilter.fuellstand: { von, bis } | null` in `src/logic/filter.ts` (mit Tests). Übersicht: Abschnitt „Füllstand“ mit −/+-Wählern „von … bis …“ und „egal“; Filteranzeige z. B. „Memecik · Bereit · Füllstand 3–5 (4)“.
+- [x] **1. Füllstand-Bereich im Filter.** `BaumFilter.fuellstand: { von, bis } | null` in `src/logic/filter.ts` (mit Tests). Übersicht: Abschnitt „Füllstand“ mit −/+-Wählern „von … bis …“ und „egal“; Filteranzeige z. B. „Memecik · Bereit · Füllstand 3–5 (4)“.
 - [ ] **2. Filter merken.** Der Filter übersteht einen App-Neustart (localStorage, nur dieses Gerät, nicht im Export).
 - [ ] **3. Kg-Eingabe.** `src/logic/zahl.ts` liest „12,5“ / „12.5“ / „12“, lehnt Negatives und Unsinn ab, Obergrenze pro Baum; Tests für de/en/tr.
 - [ ] **4. „Geerntet“ speichern.** `markiereGeerntet(baum, jahr, kg | null)`: Status geerntet, Erntedatum heute, Ertrag; Ertrag später änderbar. Zurücksetzen von „geerntet“ behält Ertrag und Datum, sie zählen dann aber nicht zum Gesamtertrag. Tests.

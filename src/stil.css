@@ -833,3 +833,8 @@ body,
   color: inherit;
   cursor: pointer;
 }
+
+.stufenwahl-beschriftung {
+  margin: 8px 0 4px;
+  font-weight: 600;
+}

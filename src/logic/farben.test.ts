@@ -103,23 +103,23 @@ describe('baumPunkte mit Sortenfilter', () => {
   });
 
   it('gewählte Sorte größer, alle anderen durchsichtig', () => {
-    expect(darstellung({ sorte: { sorteId: 'm' }, status: null })).toEqual([`1:${gross}`, `2:${hell}`, `3:${hell}`, `4:${hell}`, `5:${hell}`]);
+    expect(darstellung({ sorte: { sorteId: 'm' }, status: null, fuellstand: null })).toEqual([`1:${gross}`, `2:${hell}`, `3:${hell}`, `4:${hell}`, `5:${hell}`]);
   });
 
   it('Filter „ohne Sorte“ trifft auch Bäume mit gelöschter oder unbekannter Sorte', () => {
-    expect(darstellung({ sorte: { sorteId: null }, status: null })).toEqual([`1:${hell}`, `2:${hell}`, `3:${gross}`, `4:${gross}`, `5:${gross}`]);
+    expect(darstellung({ sorte: { sorteId: null }, status: null, fuellstand: null })).toEqual([`1:${hell}`, `2:${hell}`, `3:${gross}`, `4:${gross}`, `5:${gross}`]);
   });
 
   it('nach Status: ohne Eintrag zählt ein Baum als nicht bereit', () => {
     const st = [status('1', 'bereit'), status('2', 'geerntet')];
-    expect(darstellung({ sorte: null, status: 'bereit' }, st)).toEqual([`1:${gross}`, `2:${hell}`, `3:${hell}`, `4:${hell}`, `5:${hell}`]);
-    expect(darstellung({ sorte: null, status: 'nicht_bereit' }, st)).toEqual([`1:${hell}`, `2:${hell}`, `3:${gross}`, `4:${gross}`, `5:${gross}`]);
+    expect(darstellung({ sorte: null, status: 'bereit', fuellstand: null }, st)).toEqual([`1:${gross}`, `2:${hell}`, `3:${hell}`, `4:${hell}`, `5:${hell}`]);
+    expect(darstellung({ sorte: null, status: 'nicht_bereit', fuellstand: null }, st)).toEqual([`1:${hell}`, `2:${hell}`, `3:${gross}`, `4:${gross}`, `5:${gross}`]);
   });
 
   it('Sorte und Status zusammen: beides muss passen', () => {
     const st = [status('1', 'bereit'), status('2', 'bereit')];
-    expect(darstellung({ sorte: { sorteId: 'm' }, status: 'bereit' }, st)).toEqual([`1:${gross}`, `2:${hell}`, `3:${hell}`, `4:${hell}`, `5:${hell}`]);
-    expect(darstellung({ sorte: { sorteId: 'a' }, status: 'geerntet' }, st)).toEqual([`1:${hell}`, `2:${hell}`, `3:${hell}`, `4:${hell}`, `5:${hell}`]);
+    expect(darstellung({ sorte: { sorteId: 'm' }, status: 'bereit', fuellstand: null }, st)).toEqual([`1:${gross}`, `2:${hell}`, `3:${hell}`, `4:${hell}`, `5:${hell}`]);
+    expect(darstellung({ sorte: { sorteId: 'a' }, status: 'geerntet', fuellstand: null }, st)).toEqual([`1:${hell}`, `2:${hell}`, `3:${hell}`, `4:${hell}`, `5:${hell}`]);
   });
 
   it('60 % durchsichtig, 10 % größer', () => {

@@ -164,6 +164,13 @@ export const en: Uebersetzung = {
   'statistik.keine_baeume': 'No trees added yet.',
   'filter.anleitung': 'Tap a variety or status to highlight matching trees on the map; both can be combined. The other trees become transparent.',
   'filter.aufheben': 'Clear filter',
+  'filter.fuellstand_eingrenzen': 'Limit fill level',
+  'filter.fuellstand_egal': 'Any fill level',
+  'filter.fuellstand_hinweis': 'Trees without an estimated fill level then do not match.',
+  'filter.fuellstand_bereich': 'Fill level {von}–{bis}',
+  'filter.fuellstand_einzeln': 'Fill level {wert}',
+  'filter.von': 'from',
+  'filter.bis': 'to',
 
   'eintragen.gps': 'Here by GPS',
   'eintragen.gps_text': 'Stand at the tree. The position is measured several times and averaged.',

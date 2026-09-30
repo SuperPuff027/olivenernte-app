@@ -1,6 +1,6 @@
 import type { Baum, ErnteStatus, SaisonStatus, Sorte } from '../model/typen';
 import { STANDARD_STATUS } from './datensatz';
-import { KEIN_FILTER, istFilterAktiv, passtZuFilter, statusNachBaum, wirksameSorte, type BaumFilter } from './filter';
+import { erstelleMerkmale, istFilterAktiv, KEIN_FILTER, passtZuFilter, type BaumFilter } from './filter';
 import { istHexFarbe } from './sorten';
 
 /** Innenfarbe nach Erntestatus; kräftig, damit sie auf dem Luftbild auffällt. */
@@ -62,26 +62,28 @@ export function baumPunkte(
   filter: BaumFilter = KEIN_FILTER,
 ): BaumPunkte {
   const sorteNachId = new Map(sorten.filter((s) => !s.geloescht).map((s) => [s.id, s]));
-  const aktiveSorten = new Set(sorteNachId.keys());
-  const statusVon = statusNachBaum(saisonStatus);
+  const merkmale = erstelleMerkmale(sorten, saisonStatus);
   const aktiv = istFilterAktiv(filter);
-  const passt = (b: Baum) => passtZuFilter(wirksameSorte(b, aktiveSorten), statusVon(b.id), filter);
   return {
     type: 'FeatureCollection',
     features: baeume
       .filter((b) => !b.geloescht)
-      .map((b) => ({
-        type: 'Feature',
-        id: b.id,
-        properties: {
+      .map((b) => {
+        const m = merkmale(b);
+        const passt = passtZuFilter(m, filter);
+        return {
+          type: 'Feature',
           id: b.id,
-          nummer: b.nummer,
-          innen: innenfarbe(statusVon(b.id)),
-          ring: ringfarbe(b.sorte_id ? sorteNachId.get(b.sorte_id) : null),
-          deckkraft: aktiv && !passt(b) ? FILTER_DECKKRAFT : 1,
-          groesse: aktiv && passt(b) ? FILTER_VERGROESSERUNG : 1,
-        },
-        geometry: { type: 'Point', coordinates: [b.lon, b.lat] },
-      })),
+          properties: {
+            id: b.id,
+            nummer: b.nummer,
+            innen: innenfarbe(m.status),
+            ring: ringfarbe(b.sorte_id ? sorteNachId.get(b.sorte_id) : null),
+            deckkraft: aktiv && !passt ? FILTER_DECKKRAFT : 1,
+            groesse: aktiv && passt ? FILTER_VERGROESSERUNG : 1,
+          },
+          geometry: { type: 'Point', coordinates: [b.lon, b.lat] },
+        };
+      }),
   };
 }
