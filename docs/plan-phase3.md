@@ -2,7 +2,7 @@
 
 **Laut `docs/phasen.md`:** Saisonwechsel (alte Saisons bleiben), Export/Import als CSV und GeoJSON, Auswertungen (Ertrag pro Baum, Sorte, Jahr; Füllstand gegen Ertrag), Sync zwischen mehreren Handys mit der Regel „neuester `aktualisiert_am` gewinnt pro Datensatz“.
 
-**Stand 2026-09-30:** Plan freigegeben, Umsetzung läuft. Die Feldtests von Phase 1 und 2 stehen noch aus und laufen parallel; Befunde daraus haben Vorrang.
+**Stand 2026-09-30:** Schritte 1–8 umgesetzt und veröffentlicht (Saison, Verlauf, Auswertung, CSV-Export/-Import, Sync-Logik mit Tests gegen simulierten Server). **Nächster Schritt 9 (Server) wartet auf:** Zustimmung zu `wrangler` (nur in `server/`), ein Cloudflare-Konto und einen API-Token als GitHub-Secret. Danach 10 (Sync-Oberfläche), 11 (doppelte Nummern), 12 (Feldtest-Checkliste). Die Feldtests von Phase 1 und 2 stehen noch aus und laufen parallel; Befunde daraus haben Vorrang.
 
 ## Entscheidungen
 - **Backend:** Cloudflare Worker + D1 (SQLite) mit eigener kleiner Sync-Schnittstelle. Begründung: kostenlos ohne Pausieren (Supabase pausiert kostenlose Projekte nach 7 Tagen ohne Nutzung – ungünstig für eine saisonale App), keine neue Client-Bibliothek (nur `fetch`), wenig eigener Code, Standort EU wählbar, später kann ein WLAN-Gateway (Phase 4) per HTTP einliefern.
