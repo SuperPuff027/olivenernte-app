@@ -971,3 +971,85 @@ body,
   background: #eef3ea;
   border-radius: 6px;
 }
+
+/* Auswertung */
+.tabelle-rahmen {
+  overflow-x: auto;
+  margin: 4px -8px 8px;
+  padding: 0 8px;
+}
+
+.auswertung-tabelle {
+  border-collapse: collapse;
+  min-width: 100%;
+  font-size: 0.95rem;
+}
+
+.auswertung-tabelle th,
+.auswertung-tabelle td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #d0d0d0;
+  text-align: right;
+  white-space: nowrap;
+  vertical-align: top;
+}
+
+.auswertung-tabelle th[scope='row'],
+.auswertung-tabelle thead th:first-child {
+  text-align: left;
+  position: sticky;
+  left: 0;
+  background: var(--farbe-flaeche);
+}
+
+.auswertung-tabelle small {
+  display: block;
+  font-size: 0.8rem;
+  color: #444444;
+}
+
+.auswertung-tabelle tfoot th,
+.auswertung-tabelle tfoot td {
+  font-weight: 700;
+  border-top: 2px solid var(--farbe-text);
+}
+
+.sorte-punkt.klein {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-width: 4px;
+  margin-right: 8px;
+  vertical-align: -2px;
+}
+
+/* Waagrechter Balken unter einem Namen (Ertrag relativ zum größten Wert) */
+.balken {
+  display: block;
+  height: 8px;
+  margin-top: 4px;
+  border-radius: 4px;
+  background: var(--farbe-akzent);
+  min-width: 2px;
+}
+
+.fuellstand-zeile {
+  display: flex;
+  align-items: center;
+  gap: var(--abstand);
+  min-height: var(--touch-min);
+  padding: 4px 8px;
+}
+
+.fuellstand-zeile .statistik-name {
+  flex: 1;
+}
+
+.fuellstand-wert {
+  text-align: right;
+}
+
+.fuellstand-wert small {
+  display: block;
+  color: #444444;
+}

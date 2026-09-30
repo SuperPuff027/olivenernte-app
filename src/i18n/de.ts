@@ -268,6 +268,23 @@ export const de = {
   'verlauf.titel': 'Verlauf',
   'verlauf.leer': 'Noch keine Einträge in einer Saison.',
   'verlauf.fuellstand': 'Füllstand {wert}',
+
+  'auswertung.titel': 'Auswertung',
+  'auswertung.hinweis': 'Es zählen geerntete Bäume mit Mengenangabe aus allen Saisons.',
+  'auswertung.leer': 'Noch keine Erträge erfasst. Sobald Bäume als geerntet mit Menge eingetragen sind, erscheint hier die Auswertung.',
+  'auswertung.pro_sorte': 'Ertrag pro Sorte und Jahr',
+  'auswertung.baeume_anzahl': '{n} Bäume',
+  'auswertung.ein_baum': '1 Baum',
+  'auswertung.gesamt': 'Gesamt',
+  'auswertung.alle_jahre': 'Alle Jahre',
+  'auswertung.staerkste': 'Stärkste Bäume {jahr}',
+  'auswertung.schwaechste': 'Schwächste Bäume {jahr}',
+  'auswertung.fuellstand_jahr': 'Füllstand gegen Ertrag {jahr}',
+  'auswertung.fuellstand_alle': 'Füllstand gegen Ertrag (alle Jahre)',
+  'auswertung.fuellstand_hinweis': 'Vor der Ernte geschätzter Füllstand und tatsächlich geerntete Menge. Nur Bäume mit beiden Angaben.',
+  'auswertung.mittel': 'Ø {kg}',
+  'auswertung.keine_daten': 'keine Daten',
+  'auswertung.fehler': 'Auswertung konnte nicht geladen werden.',
 } as const;
 
 export type Schluessel = keyof typeof de;

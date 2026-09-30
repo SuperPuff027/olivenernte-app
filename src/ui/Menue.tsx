@@ -10,6 +10,7 @@ interface Props {
   beiImportDatei: (datei: File) => void;
   beiEinstellungen: () => void;
   beiExport: () => void;
+  beiAuswertung: () => void;
 }
 
 export function Menue(props: Props) {
@@ -22,6 +23,7 @@ export function Menue(props: Props) {
     beiImportDatei,
     beiEinstellungen,
     beiExport,
+    beiAuswertung,
   } = props;
   const { t } = useSprache();
   return (
@@ -51,6 +53,9 @@ export function Menue(props: Props) {
             }}
           />
         </label>
+        <button type="button" class="knopf knopf-breit" onClick={beiAuswertung}>
+          {t('auswertung.titel')}
+        </button>
         <button type="button" class="knopf knopf-breit" onClick={beiExport}>
           {t('export.knopf')}
         </button>

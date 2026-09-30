@@ -24,6 +24,7 @@ import { leseGeojson, planeImport, type ImportPlan } from './logic/importGeojson
 import { zaehleBaeume } from './logic/statistik';
 import type { Baum, Grundstueck, Position, SaisonStatus, Sorte } from './model/typen';
 import { BaumEintragen } from './ui/BaumEintragen';
+import { Auswertung } from './ui/Auswertung';
 import { BaumPanel } from './ui/BaumPanel';
 import { Einstellungen } from './ui/Einstellungen';
 import { ExportBlatt } from './ui/ExportBlatt';
@@ -92,6 +93,7 @@ export function App() {
   const [sortenOffen, setSortenOffen] = useState(false);
   const [einstellungenOffen, setEinstellungenOffen] = useState(false);
   const [exportOffen, setExportOffen] = useState(false);
+  const [auswertungOffen, setAuswertungOffen] = useState(false);
   const [karteBereit, setKarteBereit] = useState(false);
   const [baeume, setBaeume] = useState<readonly Baum[]>([]);
   const [sorten, setSorten] = useState<readonly Sorte[]>([]);
@@ -472,6 +474,10 @@ export function App() {
             setMenueOffen(false);
             setExportOffen(true);
           }}
+          beiAuswertung={() => {
+            setMenueOffen(false);
+            setAuswertungOffen(true);
+          }}
           beiImportDatei={(d) =>
             importDateiGewaehlt(d).catch((e) => {
               console.error(e);
@@ -521,6 +527,18 @@ export function App() {
             if (schliessen) setUebersichtOffen(false);
           }}
           beiSchliessen={() => setUebersichtOffen(false)}
+        />
+      )}
+
+      {auswertungOffen && (
+        <Auswertung
+          saison={gezeigteSaison}
+          beiBaum={(baum) => {
+            setAuswertungOffen(false);
+            oeffneBaum(baum);
+          }}
+          beiSchliessen={() => setAuswertungOffen(false)}
+          beiFehler={() => fehler('auswertung.fehler')}
         />
       )}
 
