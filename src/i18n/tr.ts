@@ -254,4 +254,14 @@ export const tr: Uebersetzung = {
   'richtung.sw': 'GB',
   'richtung.w': 'B',
   'richtung.nw': 'KB',
+
+  'saison.titel': 'Sezon',
+  'saison.aktuell': 'Geçerli sezon',
+  'saison.hilfe': 'Durum, doluluk ve verim geçerli sezon için geçerlidir. Değiştirildiğinde tüm ağaçlar „hazır değil“ olarak başlar; önceki sezonların verileri korunur.',
+  'saison.neu': 'Yeni {jahr} sezonunu başlat',
+  'saison.neu_frage': 'Yeni {neu} sezonu başlatılsın mı? Tüm ağaçlar dolulukları olmadan „hazır değil“ olarak başlar. {alt} sezonunun verileri korunur.',
+  'saison.zurueck': '{jahr} sezonuna geri dön',
+  'saison.zurueck_frage': '{jahr} sezonuna geri dönülsün mü? Harita ve yeni girişler yeniden {jahr} için geçerli olur.',
+  'saison.vorschlag': '{alt} hasadı bitti mi? O zaman şimdi {neu} sezonunu başlatın.',
+  'saison.gewechselt': 'Geçerli sezon: {jahr}',
 };

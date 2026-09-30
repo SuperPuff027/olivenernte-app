@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'preact/hooks';
 import { ladeHain } from '../db/repo';
 import { useSprache } from '../i18n/kontext';
-import { saisonJahr, STANDARD_FUELLSTAND_MAX } from '../logic/datensatz';
+import { saisonwechselFaellig, STANDARD_FUELLSTAND_MAX } from '../logic/datensatz';
 import { innenfarbe, RING_OHNE_SORTE } from '../logic/farben';
 import {
   istFilterAktiv,
@@ -19,6 +19,9 @@ import { Stufenwahl } from './Stufenwahl';
 
 interface Props {
   statistik: BaumStatistik;
+  saison: number;
+  /** Vorschlag „Neue Saison beginnen“ angenommen */
+  beiNeueSaison: () => void;
   filter: BaumFilter;
   /**
    * Sorte oder Status antippen setzt den Filter, erneut antippen hebt diesen Teil auf.
@@ -29,7 +32,7 @@ interface Props {
 }
 
 /** Bäume gesamt, pro Sorte (mit Ringfarbe) und pro Erntestatus (mit Punktfarbe); zugleich Filterauswahl. */
-export function Uebersicht({ statistik, filter, beiFilter, beiSchliessen }: Props) {
+export function Uebersicht({ statistik, saison, beiNeueSaison, filter, beiFilter, beiSchliessen }: Props) {
   const { t, sprache } = useSprache();
   const [fuellstandMax, setFuellstandMax] = useState(STANDARD_FUELLSTAND_MAX);
   useEffect(() => {
@@ -47,9 +50,18 @@ export function Uebersicht({ statistik, filter, beiFilter, beiSchliessen }: Prop
       </p>
       {statistik.gesamt === 0 && <p>{t('statistik.keine_baeume')}</p>}
 
+      {saisonwechselFaellig(saison, new Date()) && (
+        <div class="saison-vorschlag">
+          <p>{t('saison.vorschlag', { neu: saison + 1, alt: saison })}</p>
+          <button type="button" class="knopf knopf-primaer knopf-breit" onClick={beiNeueSaison}>
+            {t('saison.neu', { jahr: saison + 1 })}
+          </button>
+        </div>
+      )}
+
       {statistik.gesamt > 0 && (
-        <section class="ernte-bilanz" aria-label={t('ernte.bilanz_titel', { jahr: saisonJahr(new Date()) })}>
-          <h3>{t('ernte.bilanz_titel', { jahr: saisonJahr(new Date()) })}</h3>
+        <section class="ernte-bilanz" aria-label={t('ernte.bilanz_titel', { jahr: saison })}>
+          <h3>{t('ernte.bilanz_titel', { jahr: saison })}</h3>
           <p class="statistik-gesamt">
             <span>{t('ernte.ertrag_gesamt')}</span>
             <strong>{formatiereKg(statistik.ertrag.kg, sprache)}</strong>

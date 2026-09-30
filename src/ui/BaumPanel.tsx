@@ -13,7 +13,7 @@ import type { Schluessel } from '../i18n';
 import { useSprache } from '../i18n/kontext';
 import type { KartenSteuerung } from '../karte/kartenSteuerung';
 import { fuellstandOptionen, letzteAenderung } from '../logic/baum';
-import { saisonJahr, STANDARD_FUELLSTAND_MAX, STANDARD_STATUS } from '../logic/datensatz';
+import { STANDARD_FUELLSTAND_MAX, STANDARD_STATUS } from '../logic/datensatz';
 import { formatiereDatum, formatiereGrad, formatiereKg, formatiereMeter, formatiereZeitpunkt } from '../logic/format';
 import { normiereNummer, pruefeNummer, type NummernFehler } from '../logic/nummern';
 import { sortiereSorten } from '../logic/sorten';
@@ -24,6 +24,8 @@ import { SortenWahl } from './SortenWahl';
 
 interface Props {
   baumId: string;
+  /** Saison, in die Status, Füllstand und Ertrag geschrieben werden */
+  saison: number;
   steuerung: KartenSteuerung;
   beiSchliessen: () => void;
   /** Nach jeder gespeicherten Änderung, damit die Karte neu zeichnet. */
@@ -45,6 +47,7 @@ const NOTIZ_VERZOEGERUNG_MS = 600;
  */
 export function BaumPanel({
   baumId,
+  saison,
   steuerung,
   beiSchliessen,
   beiGeaendert,
@@ -54,7 +57,7 @@ export function BaumPanel({
   beiNaechsterBaum,
 }: Props) {
   const { t, sprache } = useSprache();
-  const jahr = saisonJahr(new Date());
+  const jahr = saison;
   const [baum, setBaum] = useState<Baum | null>(null);
   const [status, setStatus] = useState<SaisonStatus | null>(null);
   const [sorten, setSorten] = useState<Sorte[]>([]);

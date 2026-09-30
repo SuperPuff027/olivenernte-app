@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'preact/hooks';
 import { ladeExportDaten } from '../db/export';
 import { useSprache } from '../i18n/kontext';
-import { saisonJahr } from '../logic/datensatz';
 import { erstelleExport, exportDateiname } from '../logic/exportGeojson';
 import { Blatt } from './Blatt';
 
 interface Props {
+  /** Aktuelle Saison (für die flachen Statusfelder im Export) */
+  saison: number;
   beiSchliessen: () => void;
   beiFehler: () => void;
 }
@@ -40,7 +41,7 @@ function herunterladen(datei: File) {
  * Export in zwei Schritten: erst die Datei vorbereiten, dann teilen. iOS erlaubt das
  * Teilen-Menü nur direkt nach einem Tipp; vorheriges Laden aus der Datenbank würde das verhindern.
  */
-export function ExportBlatt({ beiSchliessen, beiFehler }: Props) {
+export function ExportBlatt({ saison, beiSchliessen, beiFehler }: Props) {
   const { t } = useSprache();
   const [vorbereitet, setVorbereitet] = useState<Vorbereitet | null>(null);
 
@@ -48,7 +49,7 @@ export function ExportBlatt({ beiSchliessen, beiFehler }: Props) {
     void ladeExportDaten()
       .then((daten) => {
         const jetzt = new Date();
-        const text = JSON.stringify(erstelleExport(daten, jetzt, saisonJahr(jetzt)), null, 2);
+        const text = JSON.stringify(erstelleExport(daten, jetzt, saison), null, 2);
         setVorbereitet({
           datei: new File([text], exportDateiname(jetzt), { type: DATEITYP }),
           baeume: daten.baeume.length,

@@ -8,6 +8,7 @@ import { Karte } from './karte/Karte';
 import type { KartenSteuerung } from './karte/kartenSteuerung';
 import { bereichVon } from './logic/bereich';
 import { neueId, saisonJahr } from './logic/datensatz';
+import { aendereHain, ladeHain } from './db/repo';
 import { baumPunkte, innenfarbe, RING_OHNE_SORTE } from './logic/farben';
 import {
   erstelleMerkmale,
@@ -95,6 +96,8 @@ export function App() {
   const [baeume, setBaeume] = useState<readonly Baum[]>([]);
   const [sorten, setSorten] = useState<readonly Sorte[]>([]);
   const [saisonStatus, setSaisonStatus] = useState<readonly SaisonStatus[]>([]);
+  /** Aktuelle Saison aus den Hain-Einstellungen; bis zum Laden die vorgeschlagene. */
+  const [saison, setSaison] = useState(() => saisonJahr(new Date()));
   const [filter, setFilter] = useState<BaumFilter>(ladeFilter);
   const [datenGeladen, setDatenGeladen] = useState(false);
   const [uebersichtOffen, setUebersichtOffen] = useState(false);
@@ -111,7 +114,9 @@ export function App() {
 
   // Lädt alles, was die Karte zeigt, und reicht es an sie weiter.
   const ladeDaten = useCallback(async () => {
-    const [bestand, status] = await Promise.all([ladeBestand(), ladeSaisonStatusJahr(saisonJahr(new Date()))]);
+    const hain = await ladeHain();
+    const [bestand, status] = await Promise.all([ladeBestand(), ladeSaisonStatusJahr(hain.aktuelle_saison)]);
+    setSaison(hain.aktuelle_saison);
     const g = bestand.grundstuecke[0] ?? null;
     setGrundstueck(g);
     setBaeume(bestand.baeume);
@@ -204,6 +209,18 @@ export function App() {
   }
 
   const neuLaden = useCallback(() => void ladeDaten().catch(console.error), [ladeDaten]);
+
+  /** Neue Saison beginnen (oder bei einem Versehen zurück); alte Saisons bleiben unverändert. */
+  async function wechsleSaison(neu: number) {
+    try {
+      await aendereHain({ aktuelle_saison: neu });
+      setHinweis({ schluessel: 'saison.gewechselt', platzhalter: { jahr: neu }, art: 'info' });
+      await ladeDaten();
+    } catch (e) {
+      console.error(e);
+      fehler('einstellungen.fehler');
+    }
+  }
 
   /** Karte auf den Baum und sein Panel öffnen. */
   function oeffneBaum(baum: Baum) {
@@ -362,6 +379,7 @@ export function App() {
         <BaumPanel
           key={ausgewaehlt}
           baumId={ausgewaehlt}
+          saison={saison}
           steuerung={steuerung.current}
           beiSchliessen={() => setAusgewaehlt(null)}
           beiGeaendert={neuLaden}
@@ -466,6 +484,13 @@ export function App() {
       {uebersichtOffen && (
         <Uebersicht
           statistik={statistik}
+          saison={saison}
+          beiNeueSaison={() => {
+            if (confirm(t('saison.neu_frage', { neu: saison + 1, alt: saison }))) {
+              setUebersichtOffen(false);
+              void wechsleSaison(saison + 1);
+            }
+          }}
           filter={filter}
           beiFilter={(f, schliessen) => {
             setFilter(f);
@@ -476,11 +501,13 @@ export function App() {
       )}
 
       {exportOffen && (
-        <ExportBlatt beiSchliessen={() => setExportOffen(false)} beiFehler={() => fehler('export.fehler')} />
+        <ExportBlatt saison={saison} beiSchliessen={() => setExportOffen(false)} beiFehler={() => fehler('export.fehler')} />
       )}
 
       {einstellungenOffen && (
         <Einstellungen
+          saison={saison}
+          beiSaisonWechsel={(neu) => void wechsleSaison(neu)}
           beiSchliessen={() => setEinstellungenOffen(false)}
           beiFehler={() => fehler('einstellungen.fehler')}
         />

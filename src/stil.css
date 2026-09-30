@@ -889,3 +889,16 @@ body,
   border: 6px solid;
   box-shadow: 0 0 0 2px var(--farbe-text);
 }
+
+.saison-vorschlag {
+  margin: 8px 0;
+  padding: 12px;
+  border-radius: var(--radius);
+  border: 3px solid var(--farbe-akzent);
+  background: #eef3ea;
+}
+
+.saison-vorschlag p {
+  margin: 0 0 8px;
+  font-weight: 600;
+}

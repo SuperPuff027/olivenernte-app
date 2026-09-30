@@ -254,4 +254,14 @@ export const en: Uebersetzung = {
   'richtung.sw': 'SW',
   'richtung.w': 'W',
   'richtung.nw': 'NW',
+
+  'saison.titel': 'Season',
+  'saison.aktuell': 'Current season',
+  'saison.hilfe': 'Status, fill level and yield apply to the current season. When switching, all trees start as “not ready”; data of earlier seasons is kept.',
+  'saison.neu': 'Start new season {jahr}',
+  'saison.neu_frage': 'Start new season {neu}? All trees start as “not ready” without a fill level. The data of season {alt} is kept.',
+  'saison.zurueck': 'Back to season {jahr}',
+  'saison.zurueck_frage': 'Switch back to season {jahr}? The map and new entries will then apply to {jahr} again.',
+  'saison.vorschlag': 'Is the {alt} harvest over? Then start season {neu} now.',
+  'saison.gewechselt': 'Current season: {jahr}',
 };

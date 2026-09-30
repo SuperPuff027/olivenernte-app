@@ -252,6 +252,16 @@ export const de = {
   'richtung.sw': 'SW',
   'richtung.w': 'W',
   'richtung.nw': 'NW',
+
+  'saison.titel': 'Saison',
+  'saison.aktuell': 'Aktuelle Saison',
+  'saison.hilfe': 'Status, Füllstand und Ertrag gelten für die aktuelle Saison. Beim Wechsel starten alle Bäume als „nicht bereit“; die Daten früherer Saisons bleiben erhalten.',
+  'saison.neu': 'Neue Saison {jahr} beginnen',
+  'saison.neu_frage': 'Neue Saison {neu} beginnen? Alle Bäume starten als „nicht bereit“ ohne Füllstand. Die Daten der Saison {alt} bleiben erhalten.',
+  'saison.zurueck': 'Zurück zur Saison {jahr}',
+  'saison.zurueck_frage': 'Zur Saison {jahr} zurückwechseln? Karte und neue Eingaben gelten dann wieder für {jahr}.',
+  'saison.vorschlag': 'Die Ernte {alt} ist vorbei? Dann jetzt die Saison {neu} beginnen.',
+  'saison.gewechselt': 'Aktuelle Saison: {jahr}',
 } as const;
 
 export type Schluessel = keyof typeof de;

@@ -31,9 +31,24 @@ export function nurAktive<T extends Synchronisierbar>(datensaetze: readonly T[])
   return datensaetze.filter((d) => !d.geloescht);
 }
 
-/** Kalenderjahr als Vorschlag für die Saison (die aktuelle Saison steht in den Hain-Einstellungen). */
+/**
+ * Monat (1–12), ab dem die App die Saison des laufenden Jahres vorschlägt. Die Ernte läuft bis in
+ * Januar/Februar; erst danach wachsen die Früchte der nächsten Saison.
+ */
+export const SAISON_VORSCHLAG_AB_MONAT = 5;
+
+/**
+ * Vorgeschlagene Saison (= Jahr des Erntebeginns) zu einem Zeitpunkt: ab Mai das laufende Jahr,
+ * davor das Vorjahr. Die tatsächlich aktuelle Saison steht in den Hain-Einstellungen.
+ */
 export function saisonJahr(jetzt: Date): number {
-  return jetzt.getFullYear();
+  const jahr = jetzt.getFullYear();
+  return jetzt.getMonth() + 1 >= SAISON_VORSCHLAG_AB_MONAT ? jahr : jahr - 1;
+}
+
+/** Soll die App vorschlagen, eine neue Saison zu beginnen? */
+export function saisonwechselFaellig(aktuelleSaison: number, jetzt: Date): boolean {
+  return saisonJahr(jetzt) > aktuelleSaison;
 }
 
 export function standardEinstellungen(jetzt: Date): Einstellungen {

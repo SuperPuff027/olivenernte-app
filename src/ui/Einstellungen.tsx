@@ -23,6 +23,9 @@ import { Blatt } from './Blatt';
 import { Stufenwahl } from './Stufenwahl';
 
 interface Props {
+  saison: number;
+  /** Saison gewechselt (neue Saison oder zurück); lädt die Karte neu */
+  beiSaisonWechsel: (neu: number) => void;
   beiSchliessen: () => void;
   beiFehler: () => void;
 }
@@ -34,7 +37,7 @@ function istInstalliert(): boolean {
   return iosStandalone || matchMedia('(display-mode: standalone)').matches;
 }
 
-export function Einstellungen({ beiSchliessen, beiFehler }: Props) {
+export function Einstellungen({ saison, beiSaisonWechsel, beiSchliessen, beiFehler }: Props) {
   const { t, sprache, setzeSprache } = useSprache();
   const [daten, setDaten] = useState<EinstellungsDaten | null>(null);
   const [hain, setHain] = useState<HainEinstellungen | null>(null);
@@ -117,6 +120,27 @@ export function Einstellungen({ beiSchliessen, beiFehler }: Props) {
               </button>
             ))}
           </div>
+
+          <h3>{t('saison.titel')}</h3>
+          <p class="statistik-gesamt">
+            <span>{t('saison.aktuell')}</span>
+            <strong>{saison}</strong>
+          </p>
+          <p class="panel-hilfe">{t('saison.hilfe')}</p>
+          <button
+            type="button"
+            class="knopf knopf-breit panel-knopf"
+            onClick={() => confirm(t('saison.neu_frage', { neu: saison + 1, alt: saison })) && beiSaisonWechsel(saison + 1)}
+          >
+            {t('saison.neu', { jahr: saison + 1 })}
+          </button>
+          <button
+            type="button"
+            class="knopf knopf-breit panel-knopf"
+            onClick={() => confirm(t('saison.zurueck_frage', { jahr: saison - 1 })) && beiSaisonWechsel(saison - 1)}
+          >
+            {t('saison.zurueck', { jahr: saison - 1 })}
+          </button>
 
           {hain && (
             <>

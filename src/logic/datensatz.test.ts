@@ -6,6 +6,7 @@ import {
   neuerSaisonStatus,
   nurAktive,
   saisonJahr,
+  saisonwechselFaellig,
   hainAusAltenEinstellungen,
   standardEinstellungen,
   standardHainEinstellungen,
@@ -56,8 +57,21 @@ describe('Standardwerte', () => {
     expect(s.geloescht).toBe(false);
   });
 
-  it('Saison ist das Kalenderjahr', () => {
+  it('Saison = Jahr des Erntebeginns: ab Mai das laufende Jahr, davor das Vorjahr', () => {
     expect(saisonJahr(new Date(2026, 10, 20))).toBe(2026);
+    expect(saisonJahr(new Date(2026, 4, 1))).toBe(2026);
+    // Ernte im Januar/Februar gehört noch zur Saison des Vorjahres
+    expect(saisonJahr(new Date(2027, 0, 15))).toBe(2026);
+    expect(saisonJahr(new Date(2027, 3, 30))).toBe(2026);
+  });
+
+  it('Saisonwechsel wird erst ab Mai vorgeschlagen', () => {
+    expect(saisonwechselFaellig(2026, new Date(2026, 11, 1))).toBe(false);
+    expect(saisonwechselFaellig(2026, new Date(2027, 1, 10))).toBe(false);
+    expect(saisonwechselFaellig(2026, new Date(2027, 4, 2))).toBe(true);
+    expect(saisonwechselFaellig(2027, new Date(2027, 4, 2))).toBe(false);
+    // Nach einem Wechsel „zu früh“ kein erneuter Vorschlag
+    expect(saisonwechselFaellig(2028, new Date(2027, 8, 1))).toBe(false);
   });
 });
 
