@@ -264,4 +264,6 @@ export const tr: Uebersetzung = {
   'saison.zurueck_frage': '{jahr} sezonuna geri dönülsün mü? Harita ve yeni girişler yeniden {jahr} için geçerli olur.',
   'saison.vorschlag': '{alt} hasadı bitti mi? O zaman şimdi {neu} sezonunu başlatın.',
   'saison.gewechselt': 'Geçerli sezon: {jahr}',
+  'saison.ansicht': '{jahr} sezonu gösteriliyor',
+  'saison.ansicht_zurueck': '{jahr} sezonuna dön',
 };

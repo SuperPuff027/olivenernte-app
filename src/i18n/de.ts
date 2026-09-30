@@ -262,6 +262,8 @@ export const de = {
   'saison.zurueck_frage': 'Zur Saison {jahr} zurückwechseln? Karte und neue Eingaben gelten dann wieder für {jahr}.',
   'saison.vorschlag': 'Die Ernte {alt} ist vorbei? Dann jetzt die Saison {neu} beginnen.',
   'saison.gewechselt': 'Aktuelle Saison: {jahr}',
+  'saison.ansicht': 'Saison {jahr} wird angezeigt',
+  'saison.ansicht_zurueck': 'Zurück zu {jahr}',
 } as const;
 
 export type Schluessel = keyof typeof de;

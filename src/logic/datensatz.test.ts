@@ -5,6 +5,7 @@ import {
   neueId,
   neuerSaisonStatus,
   nurAktive,
+  saisonAuswahl,
   saisonJahr,
   saisonwechselFaellig,
   hainAusAltenEinstellungen,
@@ -94,5 +95,13 @@ describe('Hain-Einstellungen', () => {
     for (const alt of [undefined, null, {}, { fuellstand_max: 0 }, { fuellstand_max: 2.5 }, { fuellstand_max: '7' }]) {
       expect(hainAusAltenEinstellungen(alt, ZEIT)).toEqual(standardHainEinstellungen(ZEIT));
     }
+  });
+});
+
+describe('saisonAuswahl', () => {
+  it('Saisons mit Daten und die aktuelle, neueste zuerst, ohne Doppelte', () => {
+    expect(saisonAuswahl([2024, 2026, 2025, 2026], 2026)).toEqual([2026, 2025, 2024]);
+    expect(saisonAuswahl([2024], 2027)).toEqual([2027, 2024]);
+    expect(saisonAuswahl([], 2026)).toEqual([2026]);
   });
 });

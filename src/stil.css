@@ -902,3 +902,35 @@ body,
   margin: 0 0 8px;
   font-weight: 600;
 }
+
+/* Auswahl der Saison in der Übersicht */
+.saison-wahl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.saison-wahl .knopf {
+  box-shadow: none;
+}
+
+/* Leiste, solange eine ältere Saison angezeigt wird */
+.saison-ansicht {
+  pointer-events: auto;
+  flex-basis: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 6px 6px 14px;
+  border-radius: var(--radius);
+  background: #ffd600;
+  color: #000000;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 40%);
+}
+
+.saison-ansicht .knopf {
+  box-shadow: none;
+}

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'preact/hooks';
-import { ladeHain } from '../db/repo';
+import { ladeHain, ladeSaisonJahre } from '../db/repo';
 import { useSprache } from '../i18n/kontext';
-import { saisonwechselFaellig, STANDARD_FUELLSTAND_MAX } from '../logic/datensatz';
+import { saisonAuswahl, saisonwechselFaellig, STANDARD_FUELLSTAND_MAX } from '../logic/datensatz';
 import { innenfarbe, RING_OHNE_SORTE } from '../logic/farben';
 import {
   istFilterAktiv,
@@ -19,7 +19,11 @@ import { Stufenwahl } from './Stufenwahl';
 
 interface Props {
   statistik: BaumStatistik;
+  /** Aktuelle Saison */
   saison: number;
+  /** Angezeigte Saison (aktuelle oder eine ältere) */
+  gezeigteSaison: number;
+  beiSaisonAnsicht: (jahr: number) => void;
   /** Vorschlag „Neue Saison beginnen“ angenommen */
   beiNeueSaison: () => void;
   filter: BaumFilter;
@@ -32,9 +36,24 @@ interface Props {
 }
 
 /** Bäume gesamt, pro Sorte (mit Ringfarbe) und pro Erntestatus (mit Punktfarbe); zugleich Filterauswahl. */
-export function Uebersicht({ statistik, saison, beiNeueSaison, filter, beiFilter, beiSchliessen }: Props) {
+export function Uebersicht({
+  statistik,
+  saison,
+  gezeigteSaison,
+  beiSaisonAnsicht,
+  beiNeueSaison,
+  filter,
+  beiFilter,
+  beiSchliessen,
+}: Props) {
   const { t, sprache } = useSprache();
   const [fuellstandMax, setFuellstandMax] = useState(STANDARD_FUELLSTAND_MAX);
+  const [jahre, setJahre] = useState<number[]>([]);
+  useEffect(() => {
+    void ladeSaisonJahre()
+      .then((j) => setJahre(saisonAuswahl(j, saison)))
+      .catch(console.error);
+  }, [saison]);
   useEffect(() => {
     void ladeHain()
       .then((h) => setFuellstandMax(h.fuellstand_max))
@@ -50,7 +69,23 @@ export function Uebersicht({ statistik, saison, beiNeueSaison, filter, beiFilter
       </p>
       {statistik.gesamt === 0 && <p>{t('statistik.keine_baeume')}</p>}
 
-      {saisonwechselFaellig(saison, new Date()) && (
+      {jahre.length > 1 && (
+        <div class="saison-wahl" role="group" aria-label={t('saison.titel')}>
+          {jahre.map((jahr) => (
+            <button
+              key={jahr}
+              type="button"
+              class="knopf wahl-knopf"
+              aria-pressed={jahr === gezeigteSaison}
+              onClick={() => beiSaisonAnsicht(jahr)}
+            >
+              {jahr}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {gezeigteSaison === saison && saisonwechselFaellig(saison, new Date()) && (
         <div class="saison-vorschlag">
           <p>{t('saison.vorschlag', { neu: saison + 1, alt: saison })}</p>
           <button type="button" class="knopf knopf-primaer knopf-breit" onClick={beiNeueSaison}>
@@ -60,8 +95,8 @@ export function Uebersicht({ statistik, saison, beiNeueSaison, filter, beiFilter
       )}
 
       {statistik.gesamt > 0 && (
-        <section class="ernte-bilanz" aria-label={t('ernte.bilanz_titel', { jahr: saison })}>
-          <h3>{t('ernte.bilanz_titel', { jahr: saison })}</h3>
+        <section class="ernte-bilanz" aria-label={t('ernte.bilanz_titel', { jahr: gezeigteSaison })}>
+          <h3>{t('ernte.bilanz_titel', { jahr: gezeigteSaison })}</h3>
           <p class="statistik-gesamt">
             <span>{t('ernte.ertrag_gesamt')}</span>
             <strong>{formatiereKg(statistik.ertrag.kg, sprache)}</strong>

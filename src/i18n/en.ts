@@ -264,4 +264,6 @@ export const en: Uebersetzung = {
   'saison.zurueck_frage': 'Switch back to season {jahr}? The map and new entries will then apply to {jahr} again.',
   'saison.vorschlag': 'Is the {alt} harvest over? Then start season {neu} now.',
   'saison.gewechselt': 'Current season: {jahr}',
+  'saison.ansicht': 'Showing season {jahr}',
+  'saison.ansicht_zurueck': 'Back to {jahr}',
 };

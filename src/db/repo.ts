@@ -110,3 +110,12 @@ export async function markiereGeerntet(baum_id: string, jahr: number, kg: number
     return aendereSaisonStatus(baum_id, jahr, ernteAenderung(vorher, kg, jetzt));
   });
 }
+
+/** Jahre, zu denen es aktive Saisonstatus gibt (unsortiert, ohne Doppelte). */
+export async function ladeSaisonJahre(): Promise<number[]> {
+  const jahre = new Set<number>();
+  await db.saison_status.each((s) => {
+    if (!s.geloescht) jahre.add(s.jahr);
+  });
+  return [...jahre];
+}

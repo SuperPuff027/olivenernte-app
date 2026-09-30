@@ -98,6 +98,11 @@ export function App() {
   const [saisonStatus, setSaisonStatus] = useState<readonly SaisonStatus[]>([]);
   /** Aktuelle Saison aus den Hain-Einstellungen; bis zum Laden die vorgeschlagene. */
   const [saison, setSaison] = useState(() => saisonJahr(new Date()));
+  /** Angezeigte ältere Saison; null = aktuelle Saison */
+  const [ansichtSaison, setAnsichtSaison] = useState<number | null>(null);
+  const ansichtRef = useRef<number | null>(null);
+  ansichtRef.current = ansichtSaison;
+  const gezeigteSaison = ansichtSaison ?? saison;
   const [filter, setFilter] = useState<BaumFilter>(ladeFilter);
   const [datenGeladen, setDatenGeladen] = useState(false);
   const [uebersichtOffen, setUebersichtOffen] = useState(false);
@@ -115,7 +120,8 @@ export function App() {
   // Lädt alles, was die Karte zeigt, und reicht es an sie weiter.
   const ladeDaten = useCallback(async () => {
     const hain = await ladeHain();
-    const [bestand, status] = await Promise.all([ladeBestand(), ladeSaisonStatusJahr(hain.aktuelle_saison)]);
+    const jahr = ansichtRef.current ?? hain.aktuelle_saison;
+    const [bestand, status] = await Promise.all([ladeBestand(), ladeSaisonStatusJahr(jahr)]);
     setSaison(hain.aktuelle_saison);
     const g = bestand.grundstuecke[0] ?? null;
     setGrundstueck(g);
@@ -210,10 +216,18 @@ export function App() {
 
   const neuLaden = useCallback(() => void ladeDaten().catch(console.error), [ladeDaten]);
 
+  // Andere Saison angezeigt: deren Status laden. Ein offenes Baum-Panel gehört zur vorigen Saison.
+  useEffect(() => {
+    setAusgewaehlt(null);
+    if (karteBereit) neuLaden();
+  }, [ansichtSaison]);
+
   /** Neue Saison beginnen (oder bei einem Versehen zurück); alte Saisons bleiben unverändert. */
   async function wechsleSaison(neu: number) {
     try {
       await aendereHain({ aktuelle_saison: neu });
+      setAnsichtSaison(null);
+      ansichtRef.current = null;
       setHinweis({ schluessel: 'saison.gewechselt', platzhalter: { jahr: neu }, art: 'info' });
       await ladeDaten();
     } catch (e) {
@@ -274,6 +288,14 @@ export function App() {
 
       {!grenzeBearbeiten && !baumEintragen && !gpsMessung && (
         <div class="zaehler">
+          {ansichtSaison !== null && (
+            <div class="saison-ansicht" role="status">
+              <span>{t('saison.ansicht', { jahr: ansichtSaison })}</span>
+              <button type="button" class="knopf" onClick={() => setAnsichtSaison(null)}>
+                {t('saison.ansicht_zurueck', { jahr: saison })}
+              </button>
+            </div>
+          )}
           <button
             type="button"
             class="knopf"
@@ -379,7 +401,7 @@ export function App() {
         <BaumPanel
           key={ausgewaehlt}
           baumId={ausgewaehlt}
-          saison={saison}
+          saison={gezeigteSaison}
           steuerung={steuerung.current}
           beiSchliessen={() => setAusgewaehlt(null)}
           beiGeaendert={neuLaden}
@@ -485,6 +507,8 @@ export function App() {
         <Uebersicht
           statistik={statistik}
           saison={saison}
+          gezeigteSaison={gezeigteSaison}
+          beiSaisonAnsicht={(jahr) => setAnsichtSaison(jahr === saison ? null : jahr)}
           beiNeueSaison={() => {
             if (confirm(t('saison.neu_frage', { neu: saison + 1, alt: saison }))) {
               setUebersichtOffen(false);

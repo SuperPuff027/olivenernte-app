@@ -10,6 +10,7 @@ import {
   ladeEinstellungen,
   ladeHain,
   ladeSaisonStatus,
+  ladeSaisonJahre,
   ladeSaisonStatusJahr,
   loescheWeich,
   markiereGeerntet,
@@ -139,5 +140,16 @@ describe('markiereGeerntet', () => {
     const geerntet = await markiereGeerntet('b-3', 2026, 12);
     const zurueck = await aendereSaisonStatus('b-3', 2026, { status: 'bereit' });
     expect(zurueck).toMatchObject({ status: 'bereit', ertrag_kg: 12, erntedatum: geerntet.erntedatum });
+  });
+});
+
+describe('ladeSaisonJahre', () => {
+  it('Jahre mit aktiven Einträgen', async () => {
+    await aendereSaisonStatus('b-1', 2024, { status: 'geerntet' });
+    await aendereSaisonStatus('b-2', 2026, { status: 'bereit' });
+    await aendereSaisonStatus('b-1', 2026, { status: 'bereit' });
+    const geloescht = await aendereSaisonStatus('b-3', 2023, { status: 'bereit' });
+    await db.saison_status.put({ ...geloescht, geloescht: true });
+    expect((await ladeSaisonJahre()).sort()).toEqual([2024, 2026]);
   });
 });

@@ -94,3 +94,8 @@ export function neuerSaisonStatus(baum_id: string, jahr: number, jetzt: Date): S
     geloescht: false,
   };
 }
+
+/** Wählbare Saisons: alle mit Daten plus die aktuelle, neueste zuerst, ohne Doppelte. */
+export function saisonAuswahl(jahreMitDaten: readonly number[], aktuelleSaison: number): number[] {
+  return [...new Set([...jahreMitDaten.filter(Number.isInteger), aktuelleSaison])].sort((a, b) => b - a);
+}
