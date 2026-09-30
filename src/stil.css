@@ -809,3 +809,27 @@ body,
   background: #fdecee;
   border-radius: 4px;
 }
+
+/* Punkt in Statusfarbe (Übersicht, Filteranzeige) */
+.status-punkt {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--farbe-text);
+}
+
+.filter-oeffnen {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--touch-min);
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  cursor: pointer;
+}

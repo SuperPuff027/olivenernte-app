@@ -9,6 +9,7 @@ import {
   ringfarbe,
   STATUS_FARBEN,
 } from './farben';
+import { KEIN_FILTER, type BaumFilter } from './filter';
 
 const basis = { aktualisiert_am: '2026-01-01T00:00:00.000Z', geloescht: false };
 const sorte = (id: string, ringfarbe: string, geloescht = false): Sorte => ({ id, name: id, ringfarbe, ...basis, geloescht });
@@ -92,21 +93,33 @@ describe('baumPunkte', () => {
 describe('baumPunkte mit Sortenfilter', () => {
   const baeume = [baum('1', 'm'), baum('2', 'a'), baum('3', null), baum('4', 'weg'), baum('5', 'geloescht')];
   const sorten = [sorte('m', '#1e88e5'), sorte('a', '#ffd600'), sorte('geloescht', '#000000', true)];
-  const darstellung = (filter: Parameters<typeof baumPunkte>[3]) =>
-    baumPunkte(baeume, sorten, [], filter).features.map((f) => `${f.id}:${f.properties.deckkraft}/${f.properties.groesse}`);
+  const darstellung = (filter: BaumFilter, status: SaisonStatus[] = []) =>
+    baumPunkte(baeume, sorten, status, filter).features.map((f) => `${f.id}:${f.properties.deckkraft}/${f.properties.groesse}`);
   const hell = `${FILTER_DECKKRAFT}/1`;
   const gross = `1/${FILTER_VERGROESSERUNG}`;
 
   it('ohne Filter alle normal', () => {
-    expect(darstellung(null)).toEqual(['1:1/1', '2:1/1', '3:1/1', '4:1/1', '5:1/1']);
+    expect(darstellung(KEIN_FILTER)).toEqual(['1:1/1', '2:1/1', '3:1/1', '4:1/1', '5:1/1']);
   });
 
   it('gewählte Sorte größer, alle anderen durchsichtig', () => {
-    expect(darstellung({ sorteId: 'm' })).toEqual([`1:${gross}`, `2:${hell}`, `3:${hell}`, `4:${hell}`, `5:${hell}`]);
+    expect(darstellung({ sorte: { sorteId: 'm' }, status: null })).toEqual([`1:${gross}`, `2:${hell}`, `3:${hell}`, `4:${hell}`, `5:${hell}`]);
   });
 
   it('Filter „ohne Sorte“ trifft auch Bäume mit gelöschter oder unbekannter Sorte', () => {
-    expect(darstellung({ sorteId: null })).toEqual([`1:${hell}`, `2:${hell}`, `3:${gross}`, `4:${gross}`, `5:${gross}`]);
+    expect(darstellung({ sorte: { sorteId: null }, status: null })).toEqual([`1:${hell}`, `2:${hell}`, `3:${gross}`, `4:${gross}`, `5:${gross}`]);
+  });
+
+  it('nach Status: ohne Eintrag zählt ein Baum als nicht bereit', () => {
+    const st = [status('1', 'bereit'), status('2', 'geerntet')];
+    expect(darstellung({ sorte: null, status: 'bereit' }, st)).toEqual([`1:${gross}`, `2:${hell}`, `3:${hell}`, `4:${hell}`, `5:${hell}`]);
+    expect(darstellung({ sorte: null, status: 'nicht_bereit' }, st)).toEqual([`1:${hell}`, `2:${hell}`, `3:${gross}`, `4:${gross}`, `5:${gross}`]);
+  });
+
+  it('Sorte und Status zusammen: beides muss passen', () => {
+    const st = [status('1', 'bereit'), status('2', 'bereit')];
+    expect(darstellung({ sorte: { sorteId: 'm' }, status: 'bereit' }, st)).toEqual([`1:${gross}`, `2:${hell}`, `3:${hell}`, `4:${hell}`, `5:${hell}`]);
+    expect(darstellung({ sorte: { sorteId: 'a' }, status: 'geerntet' }, st)).toEqual([`1:${hell}`, `2:${hell}`, `3:${hell}`, `4:${hell}`, `5:${hell}`]);
   });
 
   it('60 % durchsichtig, 10 % größer', () => {

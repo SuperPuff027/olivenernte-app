@@ -160,8 +160,9 @@ export const en: Uebersetzung = {
   'statistik.titel': 'Overview',
   'statistik.gesamt': 'Trees in total',
   'statistik.pro_sorte': 'By variety',
+  'statistik.pro_status': 'By status',
   'statistik.keine_baeume': 'No trees added yet.',
-  'filter.anleitung': 'Tap a variety to highlight it on the map. The other trees become transparent.',
+  'filter.anleitung': 'Tap a variety or status to highlight matching trees on the map; both can be combined. The other trees become transparent.',
   'filter.aufheben': 'Clear filter',
 
   'eintragen.gps': 'Here by GPS',

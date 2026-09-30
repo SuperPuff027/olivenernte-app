@@ -1,4 +1,6 @@
 import type { Baum, ErnteStatus, SaisonStatus, Sorte } from '../model/typen';
+import { STANDARD_STATUS } from './datensatz';
+import { KEIN_FILTER, istFilterAktiv, passtZuFilter, statusNachBaum, wirksameSorte, type BaumFilter } from './filter';
 import { istHexFarbe } from './sorten';
 
 /** Innenfarbe nach Erntestatus; kräftig, damit sie auf dem Luftbild auffällt. */
@@ -9,7 +11,7 @@ export const STATUS_FARBEN: Readonly<Record<ErnteStatus, string>> = {
 };
 
 /** Ohne Saisonstatus gilt ein Baum als nicht bereit (wie ein neu angelegter Status). */
-export const STANDARD_STATUS: ErnteStatus = 'nicht_bereit';
+export { STANDARD_STATUS };
 
 /** Ringfarbe für Bäume ohne (gültige) Sorte */
 export const RING_OHNE_SORTE = '#ffffff';
@@ -21,9 +23,6 @@ export function innenfarbe(status: ErnteStatus | null | undefined): string {
 export function ringfarbe(sorte: Sorte | null | undefined): string {
   return sorte && !sorte.geloescht && istHexFarbe(sorte.ringfarbe) ? sorte.ringfarbe : RING_OHNE_SORTE;
 }
-
-/** Sortenfilter: sorteId null = Bäume ohne Sorte; der ganze Filter null = kein Filter. */
-export type SortenFilter = { sorteId: string | null } | null;
 
 /** Deckkraft nicht passender Bäume bei aktivem Filter (60 % durchsichtig) */
 export const FILTER_DECKKRAFT = 0.4;
@@ -60,11 +59,13 @@ export function baumPunkte(
   baeume: readonly Baum[],
   sorten: readonly Sorte[],
   saisonStatus: readonly SaisonStatus[],
-  filter: SortenFilter = null,
+  filter: BaumFilter = KEIN_FILTER,
 ): BaumPunkte {
   const sorteNachId = new Map(sorten.filter((s) => !s.geloescht).map((s) => [s.id, s]));
-  const passt = (b: Baum) => (b.sorte_id !== null && sorteNachId.has(b.sorte_id) ? b.sorte_id : null) === filter?.sorteId;
-  const statusNachBaum = new Map(saisonStatus.filter((s) => !s.geloescht).map((s) => [s.baum_id, s.status]));
+  const aktiveSorten = new Set(sorteNachId.keys());
+  const statusVon = statusNachBaum(saisonStatus);
+  const aktiv = istFilterAktiv(filter);
+  const passt = (b: Baum) => passtZuFilter(wirksameSorte(b, aktiveSorten), statusVon(b.id), filter);
   return {
     type: 'FeatureCollection',
     features: baeume
@@ -75,10 +76,10 @@ export function baumPunkte(
         properties: {
           id: b.id,
           nummer: b.nummer,
-          innen: innenfarbe(statusNachBaum.get(b.id)),
+          innen: innenfarbe(statusVon(b.id)),
           ring: ringfarbe(b.sorte_id ? sorteNachId.get(b.sorte_id) : null),
-          deckkraft: filter && !passt(b) ? FILTER_DECKKRAFT : 1,
-          groesse: filter && passt(b) ? FILTER_VERGROESSERUNG : 1,
+          deckkraft: aktiv && !passt(b) ? FILTER_DECKKRAFT : 1,
+          groesse: aktiv && passt(b) ? FILTER_VERGROESSERUNG : 1,
         },
         geometry: { type: 'Point', coordinates: [b.lon, b.lat] },
       })),

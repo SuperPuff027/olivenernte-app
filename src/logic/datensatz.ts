@@ -1,9 +1,13 @@
 import {
   EINSTELLUNGEN_ID,
   type Einstellungen,
+  type ErnteStatus,
   type SaisonStatus,
   type Synchronisierbar,
 } from '../model/typen';
+
+/** Status ohne Eintrag für die Saison und Status eines neu angelegten Saisonstatus */
+export const STANDARD_STATUS: ErnteStatus = 'nicht_bereit';
 
 export const STANDARD_FUELLSTAND_MAX = 5;
 export const STANDARD_ZIEL_GPS_GENAUIGKEIT_M = 5;
@@ -45,7 +49,7 @@ export function neuerSaisonStatus(baum_id: string, jahr: number, jetzt: Date): S
   return {
     baum_id,
     jahr,
-    status: 'nicht_bereit',
+    status: STANDARD_STATUS,
     fuellstand: null,
     ertrag_kg: null,
     erntedatum: null,

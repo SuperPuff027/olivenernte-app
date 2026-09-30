@@ -8,7 +8,8 @@ import { Karte } from './karte/Karte';
 import type { KartenSteuerung } from './karte/kartenSteuerung';
 import { bereichVon } from './logic/bereich';
 import { neueId, saisonJahr } from './logic/datensatz';
-import { baumPunkte, RING_OHNE_SORTE, type SortenFilter } from './logic/farben';
+import { baumPunkte, innenfarbe, RING_OHNE_SORTE } from './logic/farben';
+import { istFilterAktiv, KEIN_FILTER, zaehleTreffer, type BaumFilter } from './logic/filter';
 import { formatiereMeter, formatiereZahl } from './logic/format';
 import { leseGeojson, planeImport, type ImportPlan } from './logic/importGeojson';
 import { zaehleBaeume } from './logic/statistik';
@@ -76,9 +77,16 @@ export function App() {
   const [baeume, setBaeume] = useState<readonly Baum[]>([]);
   const [sorten, setSorten] = useState<readonly Sorte[]>([]);
   const [saisonStatus, setSaisonStatus] = useState<readonly SaisonStatus[]>([]);
-  const [filter, setFilter] = useState<SortenFilter>(null);
+  const [filter, setFilter] = useState<BaumFilter>(KEIN_FILTER);
   const [uebersichtOffen, setUebersichtOffen] = useState(false);
-  const statistik = useMemo(() => zaehleBaeume(baeume, sorten, sprache), [baeume, sorten, sprache]);
+  const statistik = useMemo(
+    () => zaehleBaeume(baeume, sorten, sprache, saisonStatus),
+    [baeume, sorten, sprache, saisonStatus],
+  );
+  const treffer = useMemo(
+    () => zaehleTreffer(baeume, sorten, saisonStatus, filter),
+    [baeume, sorten, saisonStatus, filter],
+  );
 
   // Lädt alles, was die Karte zeigt, und reicht es an sie weiter.
   const ladeDaten = useCallback(async () => {
@@ -91,11 +99,12 @@ export function App() {
     steuerung.current?.setzeGrundstueck(g?.polygon ?? null);
   }, []);
 
-  // Wird die gefilterte Sorte gelöscht, gilt der Filter nicht mehr.
-  const filterSorte = filter?.sorteId ? sorten.find((s) => s.id === filter.sorteId && !s.geloescht) : undefined;
+  // Wird die gefilterte Sorte gelöscht, gilt dieser Teil des Filters nicht mehr.
+  const filterSorteId = filter.sorte?.sorteId ?? null;
+  const filterSorte = filterSorteId ? sorten.find((s) => s.id === filterSorteId && !s.geloescht) : undefined;
   useEffect(() => {
-    if (filter?.sorteId && !filterSorte) setFilter(null);
-  }, [filter, filterSorte]);
+    if (filterSorteId && !filterSorte) setFilter((f) => ({ ...f, sorte: null }));
+  }, [filterSorteId, filterSorte]);
 
   useEffect(() => {
     if (karteBereit) steuerung.current?.setzeBaeume(baumPunkte(baeume, sorten, saisonStatus, filter));
@@ -218,18 +227,33 @@ export function App() {
           >
             {t('statistik.knopf', { n: formatiereZahl(statistik.gesamt, sprache) })}
           </button>
-          {filter && (
+          {istFilterAktiv(filter) && (
             <span class="filter-anzeige">
-              <span
-                class="sorte-punkt"
-                style={{ borderColor: filterSorte?.ringfarbe ?? RING_OHNE_SORTE }}
-                aria-hidden="true"
-              />
-              <span class="filter-name">{filterSorte?.name ?? t('sorten.ohne_sorte')}</span>
+              <button type="button" class="filter-oeffnen" onClick={() => setUebersichtOffen(true)}>
+                {filter.status && (
+                  <span class="status-punkt" style={{ background: innenfarbe(filter.status) }} aria-hidden="true" />
+                )}
+                {filter.sorte && (
+                  <span
+                    class="sorte-punkt"
+                    style={{ borderColor: filterSorte?.ringfarbe ?? RING_OHNE_SORTE }}
+                    aria-hidden="true"
+                  />
+                )}
+                <span class="filter-name">
+                  {[
+                    filter.sorte ? (filterSorte?.name ?? t('sorten.ohne_sorte')) : null,
+                    filter.status ? t(`status.${filter.status}`) : null,
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')}{' '}
+                  ({formatiereZahl(treffer, sprache)})
+                </span>
+              </button>
               <button
                 type="button"
                 class="knopf knopf-schliessen"
-                onClick={() => setFilter(null)}
+                onClick={() => setFilter(KEIN_FILTER)}
                 aria-label={t('filter.aufheben')}
               >
                 <svg viewBox="0 0 24 24" aria-hidden="true" class="knopf-symbol">

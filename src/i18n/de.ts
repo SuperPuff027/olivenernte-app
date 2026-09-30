@@ -158,8 +158,9 @@ export const de = {
   'statistik.titel': 'Übersicht',
   'statistik.gesamt': 'Bäume gesamt',
   'statistik.pro_sorte': 'Nach Sorte',
+  'statistik.pro_status': 'Nach Status',
   'statistik.keine_baeume': 'Noch keine Bäume eingetragen.',
-  'filter.anleitung': 'Sorte antippen, um sie auf der Karte hervorzuheben. Die anderen Bäume werden durchsichtig.',
+  'filter.anleitung': 'Sorte oder Status antippen, um passende Bäume auf der Karte hervorzuheben; beides lässt sich kombinieren. Die anderen Bäume werden durchsichtig.',
   'filter.aufheben': 'Filter aufheben',
 
   'eintragen.gps': 'Hier per GPS',
