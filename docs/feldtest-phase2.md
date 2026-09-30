@@ -17,6 +17,7 @@ Ergebnis je Zeile eintragen: ✅ ok · ❌ Fehler (unten unter „Befunde“ bes
 | # | Schritt | Erwartet | Android | iPhone |
 |---|---|---|---|---|
 | A1 | Menü → „GeoJSON exportieren“ → Datei sichern | Sicherung vor dem Test | | |
+| A1b | Mit Netz: Menü → „Karte offline speichern“ erneut ausführen (lädt jetzt auch die Ortsnamen) | „Fertig“ ohne Fehler; weit herausgezoomt sind Ortsnamen zu sehen, ab etwa Zoom 17 verschwinden sie | | |
 | A2 | Bei 5–10 Bäumen im Panel Status und Füllstand setzen (einige „Bereit“, verschiedene Füllstände) | Farben auf der Karte stimmen | | |
 | A3 | „Bäume: n“ antippen | Abschnitt „Ernte {Jahr}“ (noch 0 kg), „Nach Status“ und „Nach Sorte“ mit richtigen Zahlen | | |
 
