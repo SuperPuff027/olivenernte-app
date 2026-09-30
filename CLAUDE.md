@@ -78,6 +78,7 @@ Alle IDs sind UUIDs. Alle Datensätze haben `aktualisiert_am` (ISO-Zeit) und `ge
 - **Baum-Panel:** nicht modal (Karte bleibt bedienbar, anderer Baum antippen wechselt), jede Änderung wird sofort gespeichert. Baumpunkte sind klein (Zoom 18 ≈ 3 m), antippbar über eine Trefferfläche von ca. 44 px.
 - **Einstellungen:** Füllstand-Maximum 2–10, GPS-Zielgenauigkeit 1–20 m (Schritt 0,5 m); Grenzen in `src/logic/einstellungen.ts`. Sprachwechsel wirkt sofort (`setzeSprache` im Sprachkontext).
 - **Export-Bedienung:** erst Datei vorbereiten, dann „Teilen oder speichern“ im zweiten Tipp (iOS öffnet das Teilen-Menü nur direkt nach einer Nutzeraktion); „Herunterladen“ als Alternative.
+- **Ernte (Phase 2):** „Geerntet“ im Panel fragt Menge (kg, `src/logic/zahl.ts`, max. 500 kg/Baum, 0,1 kg) und Erntedatum (lokales Datum, änderbar). Ertrag zählt nur bei Status „geerntet“. „Nächste“ (`src/logic/naechste.ts`) sortiert passende Bäume nach Entfernung zum Standort bzw. vom gerade geernteten Baum und überspringt Geerntete, außer beim Filter „Geerntet“.
 - **Grenze per GPS:** „Eckpunkt an meinem Standort setzen“ nutzt dieselbe GPS-Mittelung wie „Baum hier eintragen“.
 - **Ringfarben:** feste, benannte Palette in `src/logic/sorten.ts` ohne Grün/Rot/Grau (Statusfarben) und ohne Weiß (ohne Sorte).
 

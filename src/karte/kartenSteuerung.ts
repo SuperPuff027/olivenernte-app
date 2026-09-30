@@ -24,6 +24,10 @@ const BEREICH_MAX_ZOOM = AKTIVE_KARTENQUELLE.maxZoom;
 const ANIMATION_AB_ZOOM = 12;
 /** Mindestabstand eines hervorgehobenen Punkts vom Rand des sichtbaren Bereichs */
 const RAND_PX = 40;
+/** Zoom, auf den beim Springen zu einem Baum mindestens gezoomt wird */
+const BAUM_ZOOM = 17.5;
+/** Anteil der Kartenhöhe, den das Baum-Panel höchstens verdeckt (siehe .panel max-height) */
+const PANEL_ANTEIL = 0.62;
 
 export interface KartenSteuerung {
   karte: MapLibreMap;
@@ -44,6 +48,8 @@ export interface KartenSteuerung {
   markiereBaum(id: string | null): void;
   /** Verschiebt die Karte, falls der Punkt unter einem unten eingeblendeten Panel läge. */
   haltePunktSichtbar(punkt: Position, verdecktUntenPx: number): void;
+  /** Springt zu einem Baum (mindestens nah genug gezoomt), sodass er über dem Baum-Panel liegt. */
+  zeigeBaum(punkt: Position): void;
   /** Zeigt den aktuellen Messpunkt der GPS-Mittelung (null blendet ihn aus). */
   zeigeMesspunkt(punkt: Position | null): void;
   /** Macht einen Baum ziehbar; meldet jede neue Position. Rückgabe beendet das Verschieben. */
@@ -175,6 +181,17 @@ export function erstelleKarte(
       const dy = p.y > sichtbarBis || p.y < RAND_PX ? p.y - (hoehe - verdecktUntenPx) / 2 : 0;
       if (dx !== 0 || dy !== 0) karte.panBy([dx, dy]);
     },
+    zeigeBaum: (punkt) =>
+      beiGeladen(() => {
+        const verdeckt = karte.getContainer().clientHeight * PANEL_ANTEIL;
+        // Ohne Animation: das Panel prüft gleich danach, ob der Baum sichtbar ist.
+        karte.easeTo({
+          center: [punkt[0], punkt[1]],
+          zoom: Math.max(karte.getZoom(), BAUM_ZOOM),
+          offset: [0, -verdeckt / 2],
+          duration: 0,
+        });
+      }),
     zeigeMesspunkt: (punkt) => {
       if (!punkt) {
         messpunkt?.remove();

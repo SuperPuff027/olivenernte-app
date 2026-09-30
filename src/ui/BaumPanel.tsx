@@ -32,6 +32,8 @@ interface Props {
   beiFehler: () => void;
   /** Verschiebe-Modus an/aus: solange öffnet ein Tipp auf die Karte keinen anderen Baum. */
   beiVerschiebeModus: (aktiv: boolean) => void;
+  /** Weiter zum nächsten zum Filter passenden Baum (Bezug: dieser Baum) */
+  beiNaechsterBaum: (von: Baum) => void;
 }
 
 /** Notiz wird kurz nach dem letzten Tastendruck gespeichert (und sofort beim Verlassen des Felds). */
@@ -49,6 +51,7 @@ export function BaumPanel({
   beiGeloescht,
   beiFehler,
   beiVerschiebeModus,
+  beiNaechsterBaum,
 }: Props) {
   const { t, sprache } = useSprache();
   const jahr = saisonJahr(new Date());
@@ -268,6 +271,13 @@ export function BaumPanel({
                         datum: formatiereDatum(status.erntedatum, sprache),
                       })}
                 </p>
+                <button
+                  type="button"
+                  class="knopf knopf-primaer knopf-breit panel-knopf"
+                  onClick={() => baum && beiNaechsterBaum(baum)}
+                >
+                  {t('naechste.naechster_baum')}
+                </button>
                 <button type="button" class="knopf knopf-breit panel-knopf" onClick={() => setErnteOffen(true)}>
                   {t('ernte.aendern')}
                 </button>

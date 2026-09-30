@@ -578,6 +578,7 @@ body,
   right: var(--abstand);
   z-index: 2;
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   gap: 8px;
   pointer-events: none;
@@ -877,4 +878,14 @@ body,
 
 .ernte-bilanz h3 {
   margin-top: 8px;
+}
+
+/* Baum in der Liste „Nächste“: Füllung = Status, Ring = Sorte (wie auf der Karte) */
+.baum-symbol {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 6px solid;
+  box-shadow: 0 0 0 2px var(--farbe-text);
 }

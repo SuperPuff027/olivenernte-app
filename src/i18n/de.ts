@@ -231,6 +231,27 @@ export const de = {
   'ernte.fehler.ungueltig': 'Bitte eine Zahl eingeben, z. B. 35,5.',
   'ernte.fehler.negativ': 'Die Menge kann nicht negativ sein.',
   'ernte.fehler.zu_gross': 'Mehr als {max} kg an einem Baum? Bitte prüfen.',
+
+  'naechste.knopf': 'Nächste',
+  'naechste.titel': 'Nächste passende Bäume',
+  'naechste.filter': 'Filter: {filter}',
+  'naechste.ohne_filter': 'Ohne Filter: alle Bäume.',
+  'naechste.hinweis_geerntet': 'Bereits geerntete Bäume werden übersprungen (außer beim Filter „Geerntet“).',
+  'naechste.standort_suchen': 'Standort wird bestimmt …',
+  'naechste.standort_genau': 'Entfernungen ab deinem Standort (± {wert})',
+  'naechste.keine': 'Keine passenden Bäume gefunden.',
+  'naechste.aktualisieren': 'Standort erneut bestimmen',
+  'naechste.naechster_baum': 'Nächster passender Baum →',
+  'naechste.kein_weiterer': 'Kein weiterer passender Baum.',
+
+  'richtung.n': 'N',
+  'richtung.no': 'NO',
+  'richtung.o': 'O',
+  'richtung.so': 'SO',
+  'richtung.s': 'S',
+  'richtung.sw': 'SW',
+  'richtung.w': 'W',
+  'richtung.nw': 'NW',
 } as const;
 
 export type Schluessel = keyof typeof de;

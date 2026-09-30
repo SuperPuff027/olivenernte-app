@@ -9,7 +9,15 @@ import type { KartenSteuerung } from './karte/kartenSteuerung';
 import { bereichVon } from './logic/bereich';
 import { neueId, saisonJahr } from './logic/datensatz';
 import { baumPunkte, innenfarbe, RING_OHNE_SORTE } from './logic/farben';
-import { istFilterAktiv, KEIN_FILTER, pruefeFilter, zaehleTreffer, type BaumFilter } from './logic/filter';
+import {
+  erstelleMerkmale,
+  istFilterAktiv,
+  KEIN_FILTER,
+  pruefeFilter,
+  zaehleTreffer,
+  type BaumFilter,
+} from './logic/filter';
+import { naechsteBaeume } from './logic/naechste';
 import { formatiereMeter, formatiereZahl } from './logic/format';
 import { leseGeojson, planeImport, type ImportPlan } from './logic/importGeojson';
 import { zaehleBaeume } from './logic/statistik';
@@ -23,11 +31,15 @@ import { GpsMessung } from './ui/GpsMessung';
 import { GrenzBearbeitung } from './ui/GrenzBearbeitung';
 import { ImportVorschau } from './ui/ImportVorschau';
 import { Menue } from './ui/Menue';
+import { NaechsteBaeume } from './ui/NaechsteBaeume';
 import { OfflineKarte } from './ui/OfflineKarte';
 import { SortenVerwaltung } from './ui/SortenVerwaltung';
+import { filterBeschreibung, standortFehlerText } from './ui/texte';
 import { Uebersicht } from './ui/Uebersicht';
 
 const HINWEIS_DAUER_MS = 6000;
+/** Länge der Liste „Nächste passende Bäume“ */
+const ANZAHL_NAECHSTE = 5;
 
 // Der Filter übersteht einen Neustart (z. B. während der Ernte); nur auf diesem Gerät.
 const FILTER_SCHLUESSEL = 'olivenernte.filter';
@@ -47,21 +59,6 @@ function speichereFilter(filter: BaumFilter) {
     else localStorage.removeItem(FILTER_SCHLUESSEL);
   } catch {
     // Merken ist nur Komfort.
-  }
-}
-
-// Fehlercodes der Geolocation-API
-const ZUGRIFF_VERWEIGERT = 1;
-const ZEITUEBERSCHREITUNG = 3;
-
-function standortFehlerText(code: number): Schluessel {
-  switch (code) {
-    case ZUGRIFF_VERWEIGERT:
-      return 'standort.fehler.verweigert';
-    case ZEITUEBERSCHREITUNG:
-      return 'standort.fehler.zeitueberschreitung';
-    default:
-      return 'standort.fehler.nicht_verfuegbar';
   }
 }
 
@@ -101,10 +98,12 @@ export function App() {
   const [filter, setFilter] = useState<BaumFilter>(ladeFilter);
   const [datenGeladen, setDatenGeladen] = useState(false);
   const [uebersichtOffen, setUebersichtOffen] = useState(false);
+  const [naechsteOffen, setNaechsteOffen] = useState(false);
   const statistik = useMemo(
     () => zaehleBaeume(baeume, sorten, sprache, saisonStatus),
     [baeume, sorten, sprache, saisonStatus],
   );
+  const merkmale = useMemo(() => erstelleMerkmale(sorten, saisonStatus), [sorten, saisonStatus]);
   const treffer = useMemo(
     () => zaehleTreffer(baeume, sorten, saisonStatus, filter),
     [baeume, sorten, saisonStatus, filter],
@@ -206,6 +205,19 @@ export function App() {
 
   const neuLaden = useCallback(() => void ladeDaten().catch(console.error), [ladeDaten]);
 
+  /** Karte auf den Baum und sein Panel öffnen. */
+  function oeffneBaum(baum: Baum) {
+    steuerung.current?.zeigeBaum([baum.lon, baum.lat]);
+    setAusgewaehlt(baum.id);
+  }
+
+  /** Vom gerade bearbeiteten Baum zum nächsten passenden (ohne GPS). */
+  function naechsterBaum(von: Baum) {
+    const [naechster] = naechsteBaeume(von, baeume, merkmale, filter, 1, von.id);
+    if (naechster) oeffneBaum(naechster.baum);
+    else setHinweis({ schluessel: 'naechste.kein_weiterer', art: 'info' });
+  }
+
   async function gpsUebernehmen(punkt: Position, genauigkeit_m: number) {
     setGpsMessung(false);
     try {
@@ -253,6 +265,14 @@ export function App() {
           >
             {t('statistik.knopf', { n: formatiereZahl(statistik.gesamt, sprache) })}
           </button>
+          <button type="button" class="knopf" onClick={() => setNaechsteOffen(true)}>
+            <svg viewBox="0 0 24 24" aria-hidden="true" class="knopf-symbol">
+              <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" />
+              <path d="M12 5l3 8h-6z" fill="currentColor" />
+              <path d="M12 19l-3-6h6z" fill="none" stroke="currentColor" stroke-width="1.5" />
+            </svg>
+            <span>{t('naechste.knopf')}</span>
+          </button>
           {istFilterAktiv(filter) && (
             <span class="filter-anzeige">
               <button type="button" class="filter-oeffnen" onClick={() => setUebersichtOffen(true)}>
@@ -267,18 +287,7 @@ export function App() {
                   />
                 )}
                 <span class="filter-name">
-                  {[
-                    filter.sorte ? (filterSorte?.name ?? t('sorten.ohne_sorte')) : null,
-                    filter.status ? t(`status.${filter.status}`) : null,
-                    filter.fuellstand === null
-                      ? null
-                      : filter.fuellstand.von === filter.fuellstand.bis
-                        ? t('filter.fuellstand_einzeln', { wert: filter.fuellstand.von })
-                        : t('filter.fuellstand_bereich', { von: filter.fuellstand.von, bis: filter.fuellstand.bis }),
-                  ]
-                    .filter(Boolean)
-                    .join(' · ')}{' '}
-                  ({formatiereZahl(treffer, sprache)})
+                  {filterBeschreibung(filter, filterSorte?.name ?? null, t)} ({formatiereZahl(treffer, sprache)})
                 </span>
               </button>
               <button
@@ -363,6 +372,7 @@ export function App() {
           }}
           beiFehler={() => fehler('baum.fehler.speichern')}
           beiVerschiebeModus={setBaumVerschieben}
+          beiNaechsterBaum={naechsterBaum}
         />
       )}
 
@@ -436,6 +446,20 @@ export function App() {
           beiSchliessen={() => setSortenOffen(false)}
           beiGeaendert={neuLaden}
           beiFehler={() => fehler('sorten.fehler.speichern')}
+        />
+      )}
+
+      {naechsteOffen && (
+        <NaechsteBaeume
+          filterText={istFilterAktiv(filter) ? filterBeschreibung(filter, filterSorte?.name ?? null, t) : null}
+          sorten={sorten}
+          merkmale={merkmale}
+          suche={(standort) => naechsteBaeume(standort, baeume, merkmale, filter, ANZAHL_NAECHSTE)}
+          beiWahl={(baum) => {
+            setNaechsteOffen(false);
+            oeffneBaum(baum);
+          }}
+          beiSchliessen={() => setNaechsteOffen(false)}
         />
       )}
 
