@@ -9,7 +9,7 @@ import type { KartenSteuerung } from './karte/kartenSteuerung';
 import { bereichVon } from './logic/bereich';
 import { neueId, saisonJahr } from './logic/datensatz';
 import { baumPunkte, innenfarbe, RING_OHNE_SORTE } from './logic/farben';
-import { istFilterAktiv, KEIN_FILTER, zaehleTreffer, type BaumFilter } from './logic/filter';
+import { istFilterAktiv, KEIN_FILTER, pruefeFilter, zaehleTreffer, type BaumFilter } from './logic/filter';
 import { formatiereMeter, formatiereZahl } from './logic/format';
 import { leseGeojson, planeImport, type ImportPlan } from './logic/importGeojson';
 import { zaehleBaeume } from './logic/statistik';
@@ -28,6 +28,27 @@ import { SortenVerwaltung } from './ui/SortenVerwaltung';
 import { Uebersicht } from './ui/Uebersicht';
 
 const HINWEIS_DAUER_MS = 6000;
+
+// Der Filter übersteht einen Neustart (z. B. während der Ernte); nur auf diesem Gerät.
+const FILTER_SCHLUESSEL = 'olivenernte.filter';
+
+function ladeFilter(): BaumFilter {
+  try {
+    const roh = localStorage.getItem(FILTER_SCHLUESSEL);
+    return roh ? pruefeFilter(JSON.parse(roh)) : KEIN_FILTER;
+  } catch {
+    return KEIN_FILTER;
+  }
+}
+
+function speichereFilter(filter: BaumFilter) {
+  try {
+    if (istFilterAktiv(filter)) localStorage.setItem(FILTER_SCHLUESSEL, JSON.stringify(filter));
+    else localStorage.removeItem(FILTER_SCHLUESSEL);
+  } catch {
+    // Merken ist nur Komfort.
+  }
+}
 
 // Fehlercodes der Geolocation-API
 const ZUGRIFF_VERWEIGERT = 1;
@@ -77,7 +98,8 @@ export function App() {
   const [baeume, setBaeume] = useState<readonly Baum[]>([]);
   const [sorten, setSorten] = useState<readonly Sorte[]>([]);
   const [saisonStatus, setSaisonStatus] = useState<readonly SaisonStatus[]>([]);
-  const [filter, setFilter] = useState<BaumFilter>(KEIN_FILTER);
+  const [filter, setFilter] = useState<BaumFilter>(ladeFilter);
+  const [datenGeladen, setDatenGeladen] = useState(false);
   const [uebersichtOffen, setUebersichtOffen] = useState(false);
   const statistik = useMemo(
     () => zaehleBaeume(baeume, sorten, sprache, saisonStatus),
@@ -96,6 +118,7 @@ export function App() {
     setBaeume(bestand.baeume);
     setSorten(bestand.sorten);
     setSaisonStatus(status);
+    setDatenGeladen(true);
     steuerung.current?.setzeGrundstueck(g?.polygon ?? null);
   }, []);
 
@@ -103,8 +126,11 @@ export function App() {
   const filterSorteId = filter.sorte?.sorteId ?? null;
   const filterSorte = filterSorteId ? sorten.find((s) => s.id === filterSorteId && !s.geloescht) : undefined;
   useEffect(() => {
-    if (filterSorteId && !filterSorte) setFilter((f) => ({ ...f, sorte: null }));
-  }, [filterSorteId, filterSorte]);
+    // Erst nach dem Laden prüfen, sonst ginge ein gemerkter Sortenfilter beim Start verloren.
+    if (datenGeladen && filterSorteId && !filterSorte) setFilter((f) => ({ ...f, sorte: null }));
+  }, [datenGeladen, filterSorteId, filterSorte]);
+
+  useEffect(() => speichereFilter(filter), [filter]);
 
   useEffect(() => {
     if (karteBereit) steuerung.current?.setzeBaeume(baumPunkte(baeume, sorten, saisonStatus, filter));

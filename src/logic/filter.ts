@@ -1,4 +1,4 @@
-import type { Baum, ErnteStatus, SaisonStatus, Sorte } from '../model/typen';
+import { ERNTE_STATUS, type Baum, type ErnteStatus, type SaisonStatus, type Sorte } from '../model/typen';
 import { STANDARD_STATUS } from './datensatz';
 
 export interface FuellstandBereich {
@@ -117,4 +117,32 @@ export function zaehleTreffer(
 ): number {
   const merkmale = erstelleMerkmale(sorten, saisonStatus);
   return baeume.filter((b) => !b.geloescht && passtZuFilter(merkmale(b), filter)).length;
+}
+
+const MAX_FUELLSTAND_STUFE = 100;
+
+/**
+ * Prüft einen gespeicherten Filter (z. B. aus localStorage). Ungültige Teile werden verworfen,
+ * der Rest bleibt erhalten; ganz ungültige Daten ergeben KEIN_FILTER.
+ */
+export function pruefeFilter(wert: unknown): BaumFilter {
+  if (typeof wert !== 'object' || wert === null || Array.isArray(wert)) return KEIN_FILTER;
+  const roh = wert as Record<string, unknown>;
+
+  let sorte: BaumFilter['sorte'] = null;
+  if (typeof roh.sorte === 'object' && roh.sorte !== null) {
+    const id = (roh.sorte as Record<string, unknown>).sorteId;
+    if (id === null || (typeof id === 'string' && id !== '')) sorte = { sorteId: id };
+  }
+
+  const status = ERNTE_STATUS.find((s) => s === roh.status) ?? null;
+
+  let fuellstand: FuellstandBereich | null = null;
+  if (typeof roh.fuellstand === 'object' && roh.fuellstand !== null) {
+    const { von, bis } = roh.fuellstand as Record<string, unknown>;
+    const gueltig = (n: unknown): n is number => Number.isInteger(n) && (n as number) >= 1 && (n as number) <= MAX_FUELLSTAND_STUFE;
+    if (gueltig(von) && gueltig(bis) && von <= bis) fuellstand = { von, bis };
+  }
+
+  return { sorte, status, fuellstand };
 }

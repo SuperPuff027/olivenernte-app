@@ -4,6 +4,7 @@ import {
   istFilterAktiv,
   KEIN_FILTER,
   passtZuFilter,
+  pruefeFilter,
   setzeFuellstand,
   umschalteSorte,
   umschalteStatus,
@@ -136,5 +137,39 @@ describe('zaehleTreffer', () => {
     const mitFuellstand = [{ ...status('1', 'bereit'), fuellstand: 4 }, { ...status('2', 'bereit'), fuellstand: 2 }, status('3', 'bereit')];
     const f: BaumFilter = { sorte: null, status: null, fuellstand: { von: 3, bis: 5 } };
     expect(zaehleTreffer(baeume, sorten, mitFuellstand, f)).toBe(1);
+  });
+});
+
+describe('pruefeFilter', () => {
+  it('übernimmt einen gültigen Filter unverändert (auch nach JSON)', () => {
+    const f: BaumFilter = { sorte: { sorteId: 'm' }, status: 'bereit', fuellstand: { von: 3, bis: 5 } };
+    expect(pruefeFilter(JSON.parse(JSON.stringify(f)))).toEqual(f);
+    expect(pruefeFilter({ sorte: { sorteId: null }, status: null, fuellstand: null })).toEqual({
+      sorte: { sorteId: null },
+      status: null,
+      fuellstand: null,
+    });
+  });
+
+  it('ganz ungültige Daten ergeben keinen Filter', () => {
+    for (const wert of [null, undefined, 'bereit', 42, [], { unbekannt: true }]) {
+      expect(pruefeFilter(wert)).toEqual(KEIN_FILTER);
+    }
+  });
+
+  it('verwirft nur ungültige Teile', () => {
+    expect(pruefeFilter({ sorte: { sorteId: 7 }, status: 'bereit', fuellstand: null })).toEqual({
+      sorte: null,
+      status: 'bereit',
+      fuellstand: null,
+    });
+    expect(pruefeFilter({ sorte: { sorteId: 'm' }, status: 'reif', fuellstand: { von: 4, bis: 2 } })).toEqual({
+      sorte: { sorteId: 'm' },
+      status: null,
+      fuellstand: null,
+    });
+    expect(pruefeFilter({ status: null, fuellstand: { von: 1.5, bis: 3 } }).fuellstand).toBeNull();
+    expect(pruefeFilter({ fuellstand: { von: 0, bis: 3 } }).fuellstand).toBeNull();
+    expect(pruefeFilter({ sorte: { sorteId: '' } }).sorte).toBeNull();
   });
 });
