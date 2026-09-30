@@ -264,6 +264,10 @@ export const de = {
   'saison.gewechselt': 'Aktuelle Saison: {jahr}',
   'saison.ansicht': 'Saison {jahr} wird angezeigt',
   'saison.ansicht_zurueck': 'Zurück zu {jahr}',
+
+  'verlauf.titel': 'Verlauf',
+  'verlauf.leer': 'Noch keine Einträge in einer Saison.',
+  'verlauf.fuellstand': 'Füllstand {wert}',
 } as const;
 
 export type Schluessel = keyof typeof de;

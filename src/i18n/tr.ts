@@ -266,4 +266,8 @@ export const tr: Uebersetzung = {
   'saison.gewechselt': 'Geçerli sezon: {jahr}',
   'saison.ansicht': '{jahr} sezonu gösteriliyor',
   'saison.ansicht_zurueck': '{jahr} sezonuna dön',
+
+  'verlauf.titel': 'Geçmiş',
+  'verlauf.leer': 'Henüz hiçbir sezonda kayıt yok.',
+  'verlauf.fuellstand': 'Doluluk {wert}',
 };

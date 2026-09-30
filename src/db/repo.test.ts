@@ -11,6 +11,7 @@ import {
   ladeHain,
   ladeSaisonStatus,
   ladeSaisonJahre,
+  ladeSaisonStatusBaum,
   ladeSaisonStatusJahr,
   loescheWeich,
   markiereGeerntet,
@@ -151,5 +152,16 @@ describe('ladeSaisonJahre', () => {
     const geloescht = await aendereSaisonStatus('b-3', 2023, { status: 'bereit' });
     await db.saison_status.put({ ...geloescht, geloescht: true });
     expect((await ladeSaisonJahre()).sort()).toEqual([2024, 2026]);
+  });
+});
+
+describe('ladeSaisonStatusBaum', () => {
+  it('alle aktiven Saisons eines Baums', async () => {
+    await aendereSaisonStatus('b-1', 2025, { status: 'geerntet', ertrag_kg: 20 });
+    await aendereSaisonStatus('b-1', 2026, { status: 'bereit' });
+    await aendereSaisonStatus('b-2', 2026, { status: 'bereit' });
+    const alt = await aendereSaisonStatus('b-1', 2024, { status: 'geerntet' });
+    await db.saison_status.put({ ...alt, geloescht: true });
+    expect((await ladeSaisonStatusBaum('b-1')).map((s) => s.jahr).sort()).toEqual([2025, 2026]);
   });
 });

@@ -266,4 +266,8 @@ export const en: Uebersetzung = {
   'saison.gewechselt': 'Current season: {jahr}',
   'saison.ansicht': 'Showing season {jahr}',
   'saison.ansicht_zurueck': 'Back to {jahr}',
+
+  'verlauf.titel': 'History',
+  'verlauf.leer': 'No entries in any season yet.',
+  'verlauf.fuellstand': 'Fill level {wert}',
 };

@@ -6,6 +6,7 @@ import {
   aendereSaisonStatus,
   ladeHain,
   ladeSaisonStatus,
+  ladeSaisonStatusBaum,
   markiereGeerntet,
   type SaisonAenderung,
 } from '../db/repo';
@@ -14,9 +15,11 @@ import { useSprache } from '../i18n/kontext';
 import type { KartenSteuerung } from '../karte/kartenSteuerung';
 import { fuellstandOptionen, letzteAenderung } from '../logic/baum';
 import { STANDARD_FUELLSTAND_MAX, STANDARD_STATUS } from '../logic/datensatz';
+import { innenfarbe } from '../logic/farben';
 import { formatiereDatum, formatiereGrad, formatiereKg, formatiereMeter, formatiereZeitpunkt } from '../logic/format';
 import { normiereNummer, pruefeNummer, type NummernFehler } from '../logic/nummern';
 import { sortiereSorten } from '../logic/sorten';
+import { baumVerlauf } from '../logic/verlauf';
 import { ERNTE_STATUS, type Baum, type SaisonStatus, type Sorte } from '../model/typen';
 import { BaumVerschieben } from './BaumVerschieben';
 import { ErnteEingabe } from './ErnteEingabe';
@@ -60,6 +63,8 @@ export function BaumPanel({
   const jahr = saison;
   const [baum, setBaum] = useState<Baum | null>(null);
   const [status, setStatus] = useState<SaisonStatus | null>(null);
+  /** Saisonstatus aller Jahre beim Öffnen; die angezeigte Saison kommt aus `status`. */
+  const [verlauf, setVerlauf] = useState<SaisonStatus[]>([]);
   const [sorten, setSorten] = useState<Sorte[]>([]);
   const [baeume, setBaeume] = useState<readonly Baum[]>([]);
   const [fuellstandMax, setFuellstandMax] = useState(STANDARD_FUELLSTAND_MAX);
@@ -82,16 +87,18 @@ export function BaumPanel({
   useEffect(() => {
     let aktiv = true;
     void (async () => {
-      const [b, s, bestand, hain] = await Promise.all([
+      const [b, s, bestand, hain, alle] = await Promise.all([
         ladeBaum(baumId),
         ladeSaisonStatus(baumId, jahr),
         ladeBestand(),
         ladeHain(),
+        ladeSaisonStatusBaum(baumId),
       ]);
       if (!aktiv) return;
       if (!b) return beiSchliessen();
       setBaum(b);
       setStatus(s);
+      setVerlauf(alle);
       setSorten(sortiereSorten(bestand.sorten, sprache));
       setBaeume(bestand.baeume);
       setFuellstandMax(hain.fuellstand_max);
@@ -359,6 +366,34 @@ export function BaumPanel({
               onBlur={notizSpeichern}
             />
           </label>
+
+          <h3>{t('verlauf.titel')}</h3>
+          {(() => {
+            const eintraege = baumVerlauf(verlauf, status);
+            if (eintraege.length === 0) return <p class="panel-hilfe">{t('verlauf.leer')}</p>;
+            return (
+              <ul class="verlauf-liste">
+                {eintraege.map((e) => (
+                  <li key={e.jahr} class={e.jahr === jahr ? 'verlauf-gezeigt' : undefined}>
+                    <strong>{e.jahr}</strong>
+                    <span class="verlauf-status">
+                      <span class="status-punkt" style={{ background: innenfarbe(e.status) }} aria-hidden="true" />
+                      {t(`status.${e.status}`)}
+                    </span>
+                    <small>
+                      {[
+                        e.fuellstand === null ? null : t('verlauf.fuellstand', { wert: e.fuellstand }),
+                        e.status === 'geerntet' && e.ertrag_kg !== null ? formatiereKg(e.ertrag_kg, sprache) : null,
+                        e.status === 'geerntet' && e.erntedatum ? formatiereDatum(e.erntedatum, sprache) : null,
+                      ]
+                        .filter((teil): teil is string => teil !== null)
+                        .join(' · ')}
+                    </small>
+                  </li>
+                ))}
+              </ul>
+            );
+          })()}
 
           <dl class="panel-info">
             <dt>{t('baum.position')}</dt>
