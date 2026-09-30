@@ -9,6 +9,8 @@ import {
   type SaisonStatus,
   type Sensor,
   type Sorte,
+  type SyncMeta,
+  type SyncStand,
 } from '../model/typen';
 
 export class OlivenDatenbank extends Dexie {
@@ -19,6 +21,9 @@ export class OlivenDatenbank extends Dexie {
   einstellungen!: Table<Einstellungen, string>;
   /** Hain-weite Einstellungen (ein Datensatz, wird abgeglichen) */
   hain!: Table<HainEinstellungen, string>;
+  /** Vom Server bestätigte Fassungen (Abgleich) */
+  sync_stand!: Table<SyncStand, [string, string]>;
+  sync_meta!: Table<SyncMeta, string>;
   /** Ab Phase 4; bis dahin ungenutzt. */
   sensoren!: Table<Sensor, string>;
 
@@ -44,6 +49,8 @@ export class OlivenDatenbank extends Dexie {
           delete e.fuellstand_max;
         });
       });
+    // v3: Abgleich zwischen Geräten (bestätigte Fassungen und Lesezeiger)
+    this.version(3).stores({ sync_stand: '[tabelle+schluessel]', sync_meta: 'id' });
   }
 }
 

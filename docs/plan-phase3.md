@@ -7,7 +7,7 @@
 ## Entscheidungen
 - **Backend:** Cloudflare Worker + D1 (SQLite) mit eigener kleiner Sync-Schnittstelle. Begründung: kostenlos ohne Pausieren (Supabase pausiert kostenlose Projekte nach 7 Tagen ohne Nutzung – ungünstig für eine saisonale App), keine neue Client-Bibliothek (nur `fetch`), wenig eigener Code, Standort EU wählbar, später kann ein WLAN-Gateway (Phase 4) per HTTP einliefern.
 - **Zugang:** ein geheimer Hain-Code (Einrichten auf dem ersten Handy, Beitreten per Link), keine Einzelkonten.
-- **Offline-first:** Dexie bleibt die Quelle. Lokale Änderungen landen automatisch (Dexie-Hooks) in einer Warteschlange; beim Abgleich werden sie gesendet und alles seit der letzten Server-Revision geholt. Pro Datensatz gewinnt der neuere `aktualisiert_am`; die Server-Revision dient nur als Lesezeiger.
+- **Offline-first:** Dexie bleibt die Quelle. Gesendet wird alles, dessen `aktualisiert_am` von der zuletzt vom Server bestätigten Fassung abweicht; geholt wird alles seit der letzten Server-Revision. Pro Datensatz gewinnt der neuere `aktualisiert_am`; die Server-Revision dient nur als Lesezeiger.
 - **Saison:** wird ausdrücklich gesetzt statt Kalenderjahr (Ernte kann über den Jahreswechsel laufen); Wechsel manuell mit Vorschlag der App.
 - **Gemeinsame Einstellungen (werden abgeglichen):** aktuelle Saison, `fuellstand_max`. **Pro Gerät (nicht abgeglichen):** Sprache, GPS-Zielgenauigkeit, gemerkter Filter.
 - Neue Abhängigkeiten nur für den Server (`server/`), vor Schritt 9 zur Bestätigung.
@@ -22,7 +22,7 @@ Nach jedem Schritt: `npm run check`, Commit, Push; die GitHub Action baut und ve
 - [x] **5. Auswertung** (`src/logic/auswertung.ts`): Ertrag pro Sorte und Jahr, stärkste/schwächste Bäume, Füllstand gegen Ertrag (mittlerer Ertrag je Füllstand-Stufe und Saison). Einfache CSS-Balken.
 - [x] **6. CSV-Export.** Bäume sowie Ernte-Historie (Zeile pro Baum und Saison); Semikolon, Dezimalkomma bei de/tr, UTF-8 mit BOM (Excel). Umsetzung: Englisch mit Komma und Dezimalpunkt; Formelschutz für Texte; im Export-Blatt als eigener Abschnitt „CSV für Excel“.
 - [x] **7. CSV-Import von Bäumen** (Nummer, Breite, Länge, Sorte, Notiz); Trenner und Dezimalzeichen automatisch; vorhandene Import-Vorschau.
-- [ ] **8. Sync-Logik im Client.** Warteschlange per Dexie-Hooks, Zusammenführen „neuester gewinnt“, Protokoll mit Lesezeiger; Tests gegen einen simulierten Server.
+- [x] **8. Sync-Logik im Client.** Zusammenführen „neuester gewinnt“, Protokoll mit Lesezeiger; Tests gegen einen simulierten Server. Umsetzung: statt Warteschlange per Dexie-Hooks merkt sich das Gerät die vom Server bestätigte Fassung (`sync_stand`, Dexie v3) und sendet alles, was davon abweicht – keine Schreibstelle kann vergessen werden. Server-Logik als reine Funktion (`verarbeiteAnfrage` in `src/logic/sync.ts`), vom Worker in Schritt 9 wiederverwendet.
 - [ ] **9. Server** (`server/`): Cloudflare Worker + D1, Endpunkte „Hain anlegen“ und „Abgleich“, Deploy per GitHub Action. Braucht Cloudflare-Konto und API-Token (GitHub-Secret).
 - [ ] **10. Sync-Oberfläche.** Einrichten/Beitreten (Code, Link), Status, „Jetzt abgleichen“, Offline-Hinweis; automatisch beim Start, bei Netz, nach Änderungen, minütlich.
 - [ ] **11. Doppelte Baumnummern** nach dem Abgleich erkennen und anzeigen (Umbenennen von Hand im Panel).

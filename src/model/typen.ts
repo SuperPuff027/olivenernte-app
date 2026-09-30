@@ -89,3 +89,21 @@ export interface Sensor extends MitId {
   lon: number;
   messwerte: { zeitstempel: string; wert: number }[];
 }
+
+/** Vom Server zuletzt bestätigte Fassung eines Datensatzes (nur auf dem Gerät). */
+export interface SyncStand {
+  tabelle: string;
+  schluessel: string;
+  aktualisiert_am: string;
+}
+
+export const SYNC_META_ID = 'sync';
+
+/** Stand des Abgleichs auf diesem Gerät. */
+export interface SyncMeta {
+  id: typeof SYNC_META_ID;
+  /** Server-Revision, bis zu der das Gerät alles kennt */
+  rev: number;
+  /** ISO-Zeit des letzten erfolgreichen Abgleichs */
+  letzter_abgleich: string | null;
+}
