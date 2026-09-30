@@ -10,6 +10,7 @@ import {
   ladeSaisonStatus,
   ladeSaisonStatusJahr,
   loescheWeich,
+  markiereGeerntet,
   speichere,
 } from './repo';
 
@@ -101,5 +102,28 @@ describe('Saisonstatus', () => {
     await aendereSaisonStatus('a', 2025, { status: 'geerntet' });
     await db.saison_status.update(['b', 2026], { geloescht: true });
     expect((await ladeSaisonStatusJahr(2026)).map((s) => s.baum_id)).toEqual(['a']);
+  });
+});
+
+describe('markiereGeerntet', () => {
+  it('setzt Status, Ertrag und Datum; erneutes Markieren ändert nur den Ertrag', async () => {
+    await aendereSaisonStatus('b-1', 2026, { status: 'bereit', fuellstand: 4 });
+    const erst = await markiereGeerntet('b-1', 2026, 31.5);
+    expect(erst).toMatchObject({ status: 'geerntet', ertrag_kg: 31.5, fuellstand: 4 });
+    expect(erst.erntedatum).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+
+    await db.saison_status.put({ ...erst, erntedatum: '2026-10-01' });
+    const korrigiert = await markiereGeerntet('b-1', 2026, 33);
+    expect(korrigiert).toMatchObject({ status: 'geerntet', ertrag_kg: 33, erntedatum: '2026-10-01' });
+  });
+
+  it('ohne Menge und ohne vorherigen Status', async () => {
+    expect(await markiereGeerntet('b-2', 2026, null)).toMatchObject({ status: 'geerntet', ertrag_kg: null, fuellstand: null });
+  });
+
+  it('Zurücksetzen des Status behält Ertrag und Datum', async () => {
+    const geerntet = await markiereGeerntet('b-3', 2026, 12);
+    const zurueck = await aendereSaisonStatus('b-3', 2026, { status: 'bereit' });
+    expect(zurueck).toMatchObject({ status: 'bereit', ertrag_kg: 12, erntedatum: geerntet.erntedatum });
   });
 });

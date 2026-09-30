@@ -6,6 +6,7 @@ import {
   nurAktive,
   standardEinstellungen,
 } from '../logic/datensatz';
+import { ernteAenderung } from '../logic/ernte';
 import { EINSTELLUNGEN_ID, type Einstellungen, type MitId, type SaisonStatus } from '../model/typen';
 import { db } from './datenbank';
 
@@ -72,4 +73,16 @@ export async function aendereSaisonStatus(
 /** Alle aktiven Saisonstatus eines Jahres (für die Kartenfarben). */
 export async function ladeSaisonStatusJahr(jahr: number): Promise<SaisonStatus[]> {
   return nurAktive(await db.saison_status.where('jahr').equals(jahr).toArray());
+}
+
+/**
+ * Baum als geerntet markieren (kg = null: ohne Menge). Erntedatum heute, bei schon geerntetem
+ * Baum bleibt das ursprüngliche Datum. Lesen und Schreiben in einer Transaktion.
+ */
+export async function markiereGeerntet(baum_id: string, jahr: number, kg: number | null): Promise<SaisonStatus> {
+  return db.transaction('rw', db.saison_status, async () => {
+    const jetzt = new Date();
+    const vorher = await ladeSaisonStatus(baum_id, jahr);
+    return aendereSaisonStatus(baum_id, jahr, ernteAenderung(vorher, kg, jetzt));
+  });
 }
