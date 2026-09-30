@@ -72,7 +72,7 @@ export const de = {
   'grundstueck.fehler.speichern': 'Speichern fehlgeschlagen.',
 
   'offline.titel': 'Karte offline speichern',
-  'offline.beschreibung': 'Speichert die Luftbilder für das Grundstück und etwa {puffer} m Umgebung, damit die Karte ohne Netz funktioniert.',
+  'offline.beschreibung': 'Speichert Luftbilder und Ortsnamen für das Grundstück und etwa {puffer} m Umgebung, damit die Karte ohne Netz funktioniert.',
   'offline.kein_grundstueck': 'Zuerst ein Grundstück zeichnen oder importieren.',
   'offline.nicht_unterstuetzt': 'Dieser Browser kann keine Karten offline speichern.',
   'offline.pruefe': 'Prüfe gespeicherte Kacheln …',

@@ -7,7 +7,7 @@ import type { BaumPunkte } from '../logic/farben';
 import type { GeoJsonPolygon, Position } from '../model/typen';
 import { baumAnPunkt, legeBaumEbeneAn, markiereBaumAuswahl, setzeBaumDaten, versteckeBaum } from './baumEbene';
 import { legeGrundstueckEbeneAn, setzeGrundstueckDaten, zeigeGrundstueckEbene } from './grundstueckEbene';
-import { AKTIVE_KARTENQUELLE, type Kartenquelle } from './quelle';
+import { AKTIVE_BESCHRIFTUNG, AKTIVE_KARTENQUELLE, type Kartenquelle } from './quelle';
 
 // MapLibre lädt seinen Worker als eigene Datei; Vite bündelt sie und liefert die URL.
 setWorkerUrl(maplibreWorkerUrl);
@@ -57,23 +57,39 @@ export interface KartenSteuerung {
   entferne(): void;
 }
 
-function stil(quelle: Kartenquelle): Stil {
+function rasterQuelle(quelle: Kartenquelle) {
+  return {
+    type: 'raster' as const,
+    tiles: [quelle.kachelUrl],
+    tileSize: quelle.kachelGroesse,
+    minzoom: quelle.minZoom,
+    maxzoom: quelle.maxZoom,
+    attribution: quelle.namensnennung,
+  };
+}
+
+function stil(quelle: Kartenquelle, beschriftung: Kartenquelle | null): Stil {
   // Bewusst ohne glyphs/sprite: keine Netzabhängigkeit außer den Kacheln.
+  // Grundstück und Bäume kommen nach dem Laden darüber.
   return {
     version: 8,
     sources: {
-      [quelle.id]: {
-        type: 'raster',
-        tiles: [quelle.kachelUrl],
-        tileSize: quelle.kachelGroesse,
-        minzoom: quelle.minZoom,
-        maxzoom: quelle.maxZoom,
-        attribution: quelle.namensnennung,
-      },
+      [quelle.id]: rasterQuelle(quelle),
+      ...(beschriftung ? { [beschriftung.id]: rasterQuelle(beschriftung) } : {}),
     },
     layers: [
       { id: 'hintergrund', type: 'background', paint: { 'background-color': '#1b1f17' } },
       { id: 'luftbild', type: 'raster', source: quelle.id },
+      ...(beschriftung
+        ? [
+            {
+              id: 'ortsnamen',
+              type: 'raster' as const,
+              source: beschriftung.id,
+              ...(beschriftung.sichtbarBisZoom === undefined ? {} : { maxzoom: beschriftung.sichtbarBisZoom }),
+            },
+          ]
+        : []),
     ],
   };
 }
@@ -105,7 +121,7 @@ export function erstelleKarte(
   const ansicht = gespeichert ?? START_ANSICHT;
   const karte = new MapLibreMap({
     container,
-    style: stil(AKTIVE_KARTENQUELLE),
+    style: stil(AKTIVE_KARTENQUELLE, AKTIVE_BESCHRIFTUNG),
     center: [ansicht.lon, ansicht.lat],
     zoom: ansicht.zoom,
     maxZoom: MAX_ZOOM,

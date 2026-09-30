@@ -74,7 +74,7 @@ export const tr: Uebersetzung = {
   'grundstueck.fehler.speichern': 'Kaydetme başarısız.',
 
   'offline.titel': 'Haritayı çevrimdışı kaydet',
-  'offline.beschreibung': 'Haritanın internetsiz çalışması için arazinin ve yaklaşık {puffer} m çevresinin uydu görüntülerini kaydeder.',
+  'offline.beschreibung': 'Haritanın internetsiz çalışması için arazinin ve yaklaşık {puffer} m çevresinin uydu görüntülerini ve yer adlarını kaydeder.',
   'offline.kein_grundstueck': 'Önce bir arazi çizin veya içe aktarın.',
   'offline.nicht_unterstuetzt': 'Bu tarayıcı haritaları çevrimdışı kaydedemiyor.',
   'offline.pruefe': 'Kayıtlı karolar kontrol ediliyor …',

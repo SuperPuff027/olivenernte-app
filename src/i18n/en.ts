@@ -74,7 +74,7 @@ export const en: Uebersetzung = {
   'grundstueck.fehler.speichern': 'Saving failed.',
 
   'offline.titel': 'Save map offline',
-  'offline.beschreibung': 'Saves the aerial images of the plot and about {puffer} m around it so the map works without a connection.',
+  'offline.beschreibung': 'Saves the aerial images and place names of the plot and about {puffer} m around it so the map works without a connection.',
   'offline.kein_grundstueck': 'Draw or import a plot first.',
   'offline.nicht_unterstuetzt': 'This browser cannot save maps offline.',
   'offline.pruefe': 'Checking saved tiles …',
